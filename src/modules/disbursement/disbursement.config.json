@@ -1,0 +1,14 @@
+[
+  {
+    "currency": "NGN",
+    "partnerName": "pakam",
+    "capAmount": 1000000,
+    "processingType": "manual"
+  },
+  {
+    "currency": "NGN",
+    "partnerName": "sterlingBank",
+    "capAmount": 1000000,
+    "processingType": "manual_and_automatic"
+  }
+]

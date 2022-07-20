@@ -1,8 +1,11 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank.module';
 
 @Module({
   imports: [
@@ -15,6 +18,13 @@ import { AppService } from './app.service';
         uri: configService.get<string>('MONGODB'),
       }),
     }),
+    HttpModule.registerAsync({
+      useFactory: () => ({
+        maxRedirects: 5,
+      }),
+    }),
+    sterlingBankModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

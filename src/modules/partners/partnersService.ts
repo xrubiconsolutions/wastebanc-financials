@@ -22,6 +22,7 @@ export class partnerService {
 
       return ResponseHandler('success', 200, false, partnerResponse);
     } catch (error) {
+      console.log('err', error);
       Logger.error(error);
       return ResponseHandler(error || error.message, 400, true, null);
     }

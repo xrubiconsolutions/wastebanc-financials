@@ -10,8 +10,13 @@
     "nibbsCode": "090270"
   },
   {
+    "name": "Above Only MFB",
+    "value": "51204",
+    "nibbsCode": "51204"
+  },
+  {
     "name": "ABBEY MORTGAGE BANK",
-    "value": "070010",
+    "value": "801",
     "nibbsCode": "070010"
   },
   {
@@ -31,8 +36,23 @@
   },
   {
     "name": "Access Bank PLC (Diamond)",
-    "value": "000005",
+    "value": "063",
     "nibbsCode": "000005"
+  },
+  {
+    "name": "ALAT by WEMA",
+    "value": "035A",
+    "nibbsCode": "035150103"
+  },
+  {
+    "name": "Amju Unique MFB",
+    "value": "50926",
+    "nibbsCode": "511080896"
+  },
+  {
+    "name": "Airtel Smartcash PSB",
+    "value": "120004",
+    "nibbsCode": "120004"
   },
   {
     "name": "AccessMoney",
@@ -493,5 +513,10 @@
     "name": "Paga",
     "value": "327",
     "nibbsCode": "100002"
+  },
+  {
+    "name": "9mobile 9Payment Service Bank",
+    "value": "120001",
+    "nibbsCode": "120001"
   }
 ]

@@ -7,7 +7,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank.module';
+import { PartnerModule } from './modules/partners/partner.module';
 
 @Module({
   imports: [
@@ -25,7 +25,8 @@ import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank
         maxRedirects: 5,
       }),
     }),
-    sterlingBankModule,
+    // sterlingBankModule,
+    PartnerModule,
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,
     MiscModule,

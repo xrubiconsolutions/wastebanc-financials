@@ -1,3 +1,5 @@
+import { MiscModule } from './modules/misc/misc.module';
+import { DisbursementRequestModule } from './modules/disbursementRequest/disbursementRequest.module';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -25,6 +27,8 @@ import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank
     }),
     sterlingBankModule,
     EventEmitterModule.forRoot(),
+    DisbursementRequestModule,
+    MiscModule,
   ],
   controllers: [AppController],
   providers: [AppService],

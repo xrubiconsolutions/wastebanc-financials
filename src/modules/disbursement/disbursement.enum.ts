@@ -14,3 +14,8 @@ export enum ProcessingType {
   automatic = 'automatic',
   manualAndAutomatic = 'manual_and_automatic',
 }
+
+export enum charges {
+  withPartner = 50,
+  withoutPartner = 100,
+}

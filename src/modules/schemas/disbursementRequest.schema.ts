@@ -1,7 +1,5 @@
-import { Transaction } from './transactions.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { User } from './user.schema';
 
 export type DisbursementRequestDocument = DisbursementRequest & Document;
 
@@ -10,7 +8,7 @@ export class DisbursementRequest {
   _id: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User;
+  user: string;
 
   @Prop({ type: String })
   otp: string;
@@ -18,10 +16,38 @@ export class DisbursementRequest {
   @Prop({ type: String })
   currency: string;
 
+  @Prop({ type: Number })
+  amount: number;
+
+  @Prop({ type: Number })
+  charge: number;
+
   @Prop({ type: String })
   bankCode: string;
+
   @Prop()
-  transaction: Transaction;
+  beneName: string;
+
+  @Prop()
+  destinationAccount: string;
+
+  @Prop()
+  bankName: string;
+
+  @Prop()
+  destinationBankCode: string;
+
+  @Prop()
+  nesidNumber: string;
+
+  @Prop()
+  nerspNumber: string;
+
+  @Prop()
+  kycLevel: string;
+
+  @Prop()
+  bvn: string;
 
   @Prop({ type: Date })
   expiryTime: Date;

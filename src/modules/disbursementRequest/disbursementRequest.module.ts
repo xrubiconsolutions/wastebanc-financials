@@ -1,3 +1,5 @@
+import { DisbursementRequestController } from './disbursementRequest.controller';
+import { DisbursementRequestService } from './disbursementRequest.service';
 import { User, UserSchema } from './../schemas/user.schema';
 import { transactionSchema } from './../schemas/transactions.schema';
 import {
@@ -7,7 +9,7 @@ import {
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module, Scope } from '@nestjs/common';
 import { Transaction } from '../schemas/transactions.schema';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -22,7 +24,8 @@ import * as moment from 'moment-timezone';
       useFactory: async () => moment(new Date()),
       scope: Scope.REQUEST,
     },
+    DisbursementRequestService,
   ],
-  controllers: [],
+  controllers: [DisbursementRequestController],
 })
 export class DisbursementRequestModule {}

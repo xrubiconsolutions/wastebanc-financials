@@ -1,6 +1,6 @@
 import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
 import { User, UserDocument } from './../schemas/user.schema';
-import { disbursementDTO } from './disbursementRequest.dto';
+import { disbursementRequestDTO } from './disbursementRequest.dto';
 import { ResponseHandler, generateReference } from './../../utils/misc';
 import {
   DisbursementRequest,
@@ -13,6 +13,7 @@ import {
   Transaction,
   TransactionDocument,
 } from '../schemas/transactions.schema';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class DisbursementRequestService {
@@ -23,12 +24,16 @@ export class DisbursementRequestService {
     private transactionModel: Model<TransactionDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject('moment') private moment: moment.Moment,
+    private eventEmitter: EventEmitter2,
   ) {}
 
-  async requestDisbursement(params: disbursementDTO) {
+  // get disbursement charge
+
+  async requestDisbursement(params: disbursementRequestDTO) {
     try {
       const value = await this.disbursementData(params);
       const disbursment = await this.disbursementModel.create(value);
+      this.eventEmitter.emit('sms.notification', { phone: value.user.phone });
       return ResponseHandler('success', 200, false, disbursment);
     } catch (error) {
       Logger.error(error);
@@ -36,7 +41,7 @@ export class DisbursementRequestService {
     }
   }
 
-  private async disbursementData(params: disbursementDTO) {
+  private async disbursementData(params: disbursementRequestDTO) {
     const user = await this.userModel.findById(params.userId);
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
@@ -44,10 +49,7 @@ export class DisbursementRequestService {
     return {
       user,
       otp: generateReference(4, false),
-      currency: params.currency,
-      bankCode: params.destinationBankCode,
-      transaction: params,
-      expiryTime: this.moment.add(30, 's'),
+      ...params,
     };
   }
 }

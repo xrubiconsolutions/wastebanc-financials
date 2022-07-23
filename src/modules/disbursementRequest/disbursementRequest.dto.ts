@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class disbursementDTO {
+export class disbursementRequestDTO {
   @IsNotEmpty()
   @IsString()
   userId: string;
@@ -14,8 +14,16 @@ export class disbursementDTO {
   destinationBankCode: string;
 
   @IsNotEmpty()
+  @IsString()
+  bankName: string;
+
+  @IsNotEmpty()
   @IsNumber()
   amount: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  charge: number;
 
   @IsNotEmpty()
   @IsString()
@@ -29,6 +37,9 @@ export class disbursementDTO {
 
   @IsOptional()
   kycLevel: string;
+
+  @IsOptional()
+  bvn: string;
 
   @IsNotEmpty()
   @IsString()

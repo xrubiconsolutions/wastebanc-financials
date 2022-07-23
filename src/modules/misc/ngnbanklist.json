@@ -1,0 +1,497 @@
+[
+  {
+    "name": "9 PAYMENT SERVICE BANK",
+    "value": "120001",
+    "nibbsCode": "120001"
+  },
+  {
+    "name": "AB Microfinance bank",
+    "value": "090270",
+    "nibbsCode": "090270"
+  },
+  {
+    "name": "ABBEY MORTGAGE BANK",
+    "value": "070010",
+    "nibbsCode": "070010"
+  },
+  {
+    "name": "Above Only Microfinance bank",
+    "value": "090260",
+    "nibbsCode": "090260"
+  },
+  {
+    "name": "ABU Microfinance bank",
+    "value": "090197",
+    "nibbsCode": "090197"
+  },
+  {
+    "name": "Access Bank",
+    "value": "044",
+    "nibbsCode": "000014"
+  },
+  {
+    "name": "Access Bank PLC (Diamond)",
+    "value": "000005",
+    "nibbsCode": "000005"
+  },
+  {
+    "name": "AccessMoney",
+    "value": "100013",
+    "nibbsCode": "100013"
+  },
+  {
+    "name": "ACCION MFB",
+    "value": "090134",
+    "nibbsCode": "090134"
+  },
+  {
+    "name": "Addosser MFBB",
+    "value": "090160",
+    "nibbsCode": "090160"
+  },
+  {
+    "name": "Adeyemi College Staff Microfinance bank",
+    "value": "090268",
+    "nibbsCode": "090268"
+  },
+  {
+    "name": "ADVANS LA FAYETTE MFB",
+    "value": "090155",
+    "nibbsCode": "090155"
+  },
+  {
+    "name": "AG MORTGAGE BANK PLC",
+    "value": "100028",
+    "nibbsCode": "100028"
+  },
+  {
+    "name": "Agosasa MICROFINANCE BANK",
+    "value": "090371",
+    "nibbsCode": "090371"
+  },
+  {
+    "name": "AL-BARKAH MFB",
+    "value": "090133",
+    "nibbsCode": "090133"
+  },
+  {
+    "name": "Alekun Microfinance bank",
+    "value": "090259",
+    "nibbsCode": "090259"
+  },
+  {
+    "name": "Alert MFB",
+    "value": "090297",
+    "nibbsCode": "090297"
+  },
+  {
+    "name": "Alhayat MFB",
+    "value": "090277",
+    "nibbsCode": "090277"
+  },
+  {
+    "name": "ALLWORKERS MFB",
+    "value": "090131",
+    "nibbsCode": "090131"
+  },
+  {
+    "name": "Alphakapital MFB",
+    "value": "090169",
+    "nibbsCode": "090169"
+  },
+  {
+    "name": "Amju MFB",
+    "value": "090180",
+    "nibbsCode": "090180"
+  },
+  {
+    "name": "AMML MFB",
+    "value": "090116",
+    "nibbsCode": "090116"
+  },
+  {
+    "name": "APEKS Microfinance Bank",
+    "value": "090143",
+    "nibbsCode": "090143"
+  },
+  {
+    "name": "Apple  MICROFINANCE BANK",
+    "value": "090376",
+    "nibbsCode": "090376"
+  },
+  {
+    "name": "Arise MFB",
+    "value": "090282",
+    "nibbsCode": "090282"
+  },
+  {
+    "name": "ASOSavings",
+    "value": "090001",
+    "nibbsCode": "090001"
+  },
+  {
+    "name": "Astrapolaris MFB",
+    "value": "090172",
+    "nibbsCode": "090172"
+  },
+  {
+    "name": "Auchi Microfinance bank",
+    "value": "090264",
+    "nibbsCode": "090264"
+  },
+  {
+    "name": "Baines Credit MFB",
+    "value": "090188",
+    "nibbsCode": "090188"
+  },
+  {
+    "name": "Balogun Gambari MFB",
+    "value": "090326",
+    "nibbsCode": "090326"
+  },
+  {
+    "name": "Bayero MICROFINANCE BANK",
+    "value": "090316",
+    "nibbsCode": "090316"
+  },
+  {
+    "name": "BC Kash MFB",
+    "value": "090127",
+    "nibbsCode": "090127"
+  },
+  {
+    "name": "BETA-ACCESS YELLO",
+    "value": "100052",
+    "nibbsCode": "100052"
+  },
+  {
+    "name": "BIPC MICROFINANCE BANK",
+    "value": "090336",
+    "nibbsCode": "090336"
+  },
+  {
+    "name": "Boctrust Microfinance Bank",
+    "value": "090117",
+    "nibbsCode": "090117"
+  },
+  {
+    "name": "Bosak MFB",
+    "value": "090176",
+    "nibbsCode": "090176"
+  },
+  {
+    "name": "Bowen MFB",
+    "value": "090148",
+    "nibbsCode": "090148"
+  },
+  {
+    "name": "Brent Mortgage Bank",
+    "value": "070015",
+    "nibbsCode": "070015"
+  },
+  {
+    "name": "BRETHREN MICROFINANCE BANK",
+    "value": "090293",
+    "nibbsCode": "090293"
+  },
+  {
+    "name": "Brightway MFB",
+    "value": "090308",
+    "nibbsCode": "090308"
+  },
+  {
+    "name": "Cashconnect MICROFINANCE BANK",
+    "value": "090360",
+    "nibbsCode": "090360"
+  },
+  {
+    "name": "Cellulant",
+    "value": "100005",
+    "nibbsCode": "100005"
+  },
+  {
+    "name": "CEMCS MFB",
+    "value": "090154",
+    "nibbsCode": "090154"
+  },
+  {
+    "name": "Chikum Microfinance Bank",
+    "value": "090141",
+    "nibbsCode": "090141"
+  },
+  {
+    "name": "Citi bank",
+    "value": "023",
+    "nibbsCode": "000009"
+  },
+  {
+    "name": "CIT Microfinance Bank",
+    "value": "090144",
+    "nibbsCode": "090144"
+  },
+  {
+    "name": "Coastline MICROFINANCE BANK",
+    "value": "090374",
+    "nibbsCode": "090374"
+  },
+  {
+    "name": "CONSUMER MFB",
+    "value": "090130",
+    "nibbsCode": "090130"
+  },
+  {
+    "name": "Contec Global",
+    "value": "100032",
+    "nibbsCode": "100032"
+  },
+  {
+    "name": "Coronation",
+    "value": "060001",
+    "nibbsCode": "060001"
+  },
+  {
+    "name": "Covenant MFB",
+    "value": "070006",
+    "nibbsCode": "070006"
+  },
+  {
+    "name": "Credit Afrique MFB",
+    "value": "090159",
+    "nibbsCode": "090159"
+  },
+  {
+    "name": "Daylight Microfinance Bank",
+    "value": "090167",
+    "nibbsCode": "090167"
+  },
+  {
+    "name": "e-BARCs MFB",
+    "value": "090156",
+    "nibbsCode": "090156"
+  },
+  {
+    "name": "Eagle Flight MFB",
+    "value": "090294",
+    "nibbsCode": "090294"
+  },
+  {
+    "name": "Eartholeum",
+    "value": "100021",
+    "nibbsCode": "100021"
+  },
+  {
+    "name": "EcoBank PLC",
+    "value": "050",
+    "nibbsCode": "000010"
+  },
+  {
+    "name": "Ecobank Xpress Account",
+    "value": "100008",
+    "nibbsCode": "100008"
+  },
+  {
+    "name": "Edfin MFB",
+    "value": "090310",
+    "nibbsCode": "090310"
+  },
+  {
+    "name": "Ekondo MFB",
+    "value": "090097",
+    "nibbsCode": "090097"
+  },
+  {
+    "name": "Emeralds MFB",
+    "value": "090273",
+    "nibbsCode": "090273"
+  },
+  {
+    "name": "EmpireTrust Microfinance bank",
+    "value": "090114",
+    "nibbsCode": "090114"
+  },
+  {
+    "name": "Enterprise Bank",
+    "value": "000019",
+    "nibbsCode": "000019"
+  },
+  {
+    "name": "Esan MFB",
+    "value": "090189",
+    "nibbsCode": "090189"
+  },
+  {
+    "name": "Eso-E Microfinance Bank",
+    "value": "090166",
+    "nibbsCode": "090166"
+  },
+  {
+    "name": "eTranzact",
+    "value": "100006",
+    "nibbsCode": "100006"
+  },
+  {
+    "name": "Evangel MFB",
+    "value": "090304",
+    "nibbsCode": "090304"
+  },
+  {
+    "name": "Evergreen MICROFINANCE BANK",
+    "value": "090332",
+    "nibbsCode": "090332"
+  },
+  {
+    "name": "Eyowo MICROFINANCE BANK",
+    "value": "090328",
+    "nibbsCode": "090328"
+  },
+  {
+    "name": "FAST MFB",
+    "value": "090179",
+    "nibbsCode": "090179"
+  },
+  {
+    "name": "FBN Morgages Limited",
+    "value": "090107",
+    "nibbsCode": "090107"
+  },
+  {
+    "name": "First Bank PLC",
+    "value": "011",
+    "nibbsCode": "000016"
+  },
+  {
+    "name": "FBNQuest MERCHANT BANK",
+    "value": "060002",
+    "nibbsCode": "060002"
+  },
+  {
+    "name": "First City Monument Bank",
+    "value": "214",
+    "nibbsCode": "000003"
+  },
+  {
+    "name": "FCMB Easy Account",
+    "value": "100031",
+    "nibbsCode": "100031"
+  },
+  {
+    "name": "Fidelity Bank",
+    "value": "070",
+    "nibbsCode": "000007"
+  },
+  {
+    "name": "Guaranty Trust Bank",
+    "value": "058",
+    "nibbsCode": "000013"
+  },
+  {
+    "name": "Polaris bank",
+    "value": "076",
+    "nibbsCode": "000008"
+  },
+  {
+    "name": "Stanbic IBTC Bank",
+    "value": "221",
+    "nibbsCode": "000012"
+  },
+  {
+    "name": "Standard Chaterted bank PLC",
+    "value": "068",
+    "nibbsCode": "000021"
+  },
+  {
+    "name": "Sterling Bank PLC",
+    "value": "232",
+    "nibbsCode": "000001"
+  },
+  {
+    "name": "United Bank For Africa",
+    "value": "033",
+    "nibbsCode": "000004"
+  },
+  {
+    "name": "Union Bank PLC",
+    "value": "032",
+    "nibbsCode": "000018"
+  },
+  {
+    "name": "Wema Bank PLC",
+    "value": "035",
+    "nibbsCode": "000017"
+  },
+  {
+    "name": "Zenith bank PLC",
+    "value": "057",
+    "nibbsCode": "000015"
+  },
+  {
+    "name": "Unity Bank PLC",
+    "value": "215",
+    "nibbsCode": "000011"
+  },
+  {
+    "name": "ProvidusBank PLC",
+    "value": "101",
+    "nibbsCode": "000023"
+  },
+  {
+    "name": "Keystone Bank",
+    "value": "082",
+    "nibbsCode": "000002"
+  },
+  {
+    "name": "Jaiz Bank",
+    "value": "301",
+    "nibbsCode": "000006"
+  },
+  {
+    "name": "Heritage Bank",
+    "value": "030",
+    "nibbsCode": "000020"
+  },
+  {
+    "name": "Suntrust Bank",
+    "value": "100",
+    "nibbsCode": "000022"
+  },
+  {
+    "name": "FINATRUST MICROFINANCE BANK",
+    "value": "608",
+    "nibbsCode": "090111"
+  },
+  {
+    "name": "Rubies Microfinance Bank",
+    "value": "090175",
+    "nibbsCode": "090175"
+  },
+  {
+    "name": "Kuda",
+    "value": "090267",
+    "nibbsCode": "090267"
+  },
+  {
+    "name": "TCF MFB",
+    "value": "090115",
+    "nibbsCode": "090115"
+  },
+  {
+    "name": "FSDH Merchant Bank",
+    "value": "400001",
+    "nibbsCode": "400001"
+  },
+  {
+    "name": "Rand merchant Bank",
+    "value": "502",
+    "nibbsCode": "000024"
+  },
+  {
+    "name": "Globus Bank",
+    "value": "103",
+    "nibbsCode": "000027"
+  },
+  {
+    "name": "Paga",
+    "value": "327",
+    "nibbsCode": "100002"
+  }
+]

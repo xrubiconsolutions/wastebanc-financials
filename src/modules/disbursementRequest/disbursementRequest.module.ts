@@ -1,3 +1,5 @@
+import { Partner, PartnerSchema } from './../schemas/partner.schema';
+import { slackModule } from './../notification/slack/slack.module';
 import { DisbursementRequestController } from './disbursementRequest.controller';
 import { DisbursementRequestService } from './disbursementRequest.service';
 import { User, UserSchema } from './../schemas/user.schema';
@@ -16,7 +18,9 @@ import moment from 'moment-timezone';
       { name: DisbursementRequest.name, schema: DisbusmentRequestSchema },
       { name: Transaction.name, schema: transactionSchema },
       { name: User.name, schema: UserSchema },
+      { name: Partner.name, schema: PartnerSchema },
     ]),
+    slackModule,
   ],
   providers: [
     {

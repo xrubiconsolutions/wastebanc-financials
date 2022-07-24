@@ -9,6 +9,8 @@ export class Partner {
   name: string;
   @Prop({ type: String })
   sortCode: string;
+  @Prop({ type: String })
+  charges: string;
 }
 
 export const PartnerSchema = SchemaFactory.createForClass(Partner);

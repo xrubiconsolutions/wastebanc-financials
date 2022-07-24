@@ -21,10 +21,10 @@ export class SlackService {
   ): Promise<Observable<AxiosResponse<any>>> {
     try {
       const slackReponse = await lastValueFrom(this.sendNotification(params));
-      Logger.log({ slackReponse, params });
       return slackReponse.data;
     } catch (error: any) {
-      Logger.error({ error, params });
+      console.log(error);
+      Logger.error(error);
       throw new Error(error.message);
     }
   }
@@ -34,6 +34,7 @@ export class SlackService {
   ): Observable<AxiosResponse<any>> {
     const { category, event, data, options } = slackData;
     const url = this.chooseSlackURL(category, event);
+
     const formatData = this.jsonToSlackPayload(data, options);
     const notification = this.httpService.post(url, formatData, {
       proxy: false,

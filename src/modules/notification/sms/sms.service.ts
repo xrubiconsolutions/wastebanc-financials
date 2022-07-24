@@ -11,14 +11,13 @@ import { AxiosResponse } from 'axios';
 export class smsService {
   constructor(private readonly httpService: HttpService) {}
 
-  @OnEvent('sms.notification')
-  async sendMessage(params: smsDTO) {
+  @OnEvent('sms.otp')
+  async sendOTP(params: smsDTO) {
     try {
       const smsData = this.getsmsData(params);
       const smsResponse = await lastValueFrom(
         this.sendPostRequest(smsData, 'sms/send'),
       );
-      Logger.log({ smsResponse, smsData });
       return smsResponse.data;
     } catch (error: any) {
       Logger.error({ error, params });
@@ -45,7 +44,11 @@ export class smsService {
     url: string,
   ): Observable<AxiosResponse<any>> {
     url = `${process.env.TERMII_URL}sms/send`;
-    const result = this.httpService.post(url, JSON.stringify(params));
+    const result = this.httpService.post(url, params, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     return result;
   }
 }

@@ -1,3 +1,5 @@
+import { smsModule } from './modules/notification/sms/sms.module';
+import { slackModule } from './modules/notification/slack/slack.module';
 import { MiscModule } from './modules/misc/misc.module';
 import { DisbursementRequestModule } from './modules/disbursementRequest/disbursementRequest.module';
 import { HttpModule } from '@nestjs/axios';
@@ -26,6 +28,8 @@ import { PartnerModule } from './modules/partners/partner.module';
       }),
     }),
     // sterlingBankModule,
+    smsModule,
+    slackModule,
     PartnerModule,
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,

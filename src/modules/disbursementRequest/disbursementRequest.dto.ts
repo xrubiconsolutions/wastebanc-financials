@@ -45,3 +45,9 @@ export class disbursementRequestDTO {
   @IsString()
   currency: string;
 }
+
+export class requestChargesDTO {
+  @IsNotEmpty()
+  @IsString()
+  bankCode: string;
+}

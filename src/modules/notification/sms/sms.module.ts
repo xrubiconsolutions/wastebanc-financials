@@ -1,3 +1,4 @@
+import { smsController } from './sms.controller';
 import { smsService } from './sms.service';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
@@ -6,5 +7,6 @@ import { Module } from '@nestjs/common';
   imports: [HttpModule],
   providers: [smsService],
   exports: [smsService],
+  controllers: [smsController],
 })
 export class smsModule {}

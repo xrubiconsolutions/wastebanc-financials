@@ -21,8 +21,7 @@ export class disbursementRequestDTO {
   @IsNumber()
   amount: number;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsOptional()
   charge: number;
 
   @IsNotEmpty()

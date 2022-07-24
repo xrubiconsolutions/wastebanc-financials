@@ -19,7 +19,7 @@ export class DisbursementRequest {
   @Prop({ type: Number })
   amount: number;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, default: 0 })
   charge: number;
 
   @Prop({ type: String })

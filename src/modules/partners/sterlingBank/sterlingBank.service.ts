@@ -18,7 +18,13 @@ export const BankList = async () => {
   } catch (error: any) {
     console.log(error);
     Logger.error(error.response.statusText);
-    throw new UnprocessableEntityError({ message: error.response.data });
+    const { status, statusText, data } = error.response;
+    console.log(status);
+    //return { error: true, statusCode: status, data };
+    throw new UnprocessableEntityError({
+      message: error.response.data,
+      httpCode: status,
+    });
   }
 };
 

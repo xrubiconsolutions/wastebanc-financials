@@ -15,17 +15,19 @@ export class partnerService {
         const message = `Partner '${partnerName}' not found`;
         throw new UnprocessableEntityError({ message });
       }
-      console.log('activpa', activePartner);
       const partnerResponse = await activePartner[action]({
         ...data,
         partnerName,
       });
 
-      return ResponseHandler('success', 200, false, partnerResponse);
-    } catch (error) {
-      console.log('err', error);
-      Logger.error(error);
-      return ResponseHandler(error || error.message, 400, true, null);
+      return partnerResponse;
+    } catch (error: any) {
+      console.log('error', error);
+      throw new UnprocessableEntityError({
+        message: error.message,
+        httpCode: error.httpCode,
+      });
+      // return ResponseHandler('error', 400, true, null);
     }
   }
 

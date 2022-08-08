@@ -4,10 +4,10 @@ import { errorMessages, errorTypes } from './errorConstants';
 import { ErrorProps } from './errorsInterface';
 
 export class UnprocessableEntityError extends BaseError {
-  constructor({ message, verboseMessage }: ErrorProps) {
+  constructor({ message, verboseMessage, httpCode }: ErrorProps) {
     super({
       message: message || errorMessages.unprocessableEntityErrorMessage,
-      httpCode: HttpStatus.BAD_REQUEST,
+      httpCode: httpCode || HttpStatus.BAD_REQUEST,
       errorType: errorTypes.BAD_REQUEST,
       verboseMessage,
     });

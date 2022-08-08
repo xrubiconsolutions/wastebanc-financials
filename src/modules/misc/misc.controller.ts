@@ -35,6 +35,7 @@ export class MiscController {
   @Get('/sterling/banks')
   async sterlingBanks(@Res() res: Response) {
     const result = await this.miscService.sterlingBanks();
+    console.log('er', result);
     return res.status(result.statusCode).json(result);
   }
 }

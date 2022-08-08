@@ -47,10 +47,10 @@ export class MiscService {
         data: null,
       });
       return ResponseHandler('success', 200, false, results);
-    } catch (error) {
+    } catch (error: any) {
       console.log('error', error);
       Logger.error(error);
-      return ResponseHandler(error, 500, true, null);
+      return ResponseHandler(error.message, error.httpCode, true, null);
     }
   }
 

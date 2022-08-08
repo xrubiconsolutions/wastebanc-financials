@@ -20,7 +20,7 @@ import {
   DisbursementRequest,
   DisbusmentRequestSchema,
 } from '../schemas/disbursementRequest.schema';
-import { CharityOrganisation } from '../schemas/charityOrganisation.schema';
+import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import { DisbursementController } from './disbursement.controller';
 
 @Module({

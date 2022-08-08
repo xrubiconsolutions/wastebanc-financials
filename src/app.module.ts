@@ -1,3 +1,4 @@
+import { DisbursementModule } from './modules/disbursement/disbursement.module';
 import { smsModule } from './modules/notification/sms/sms.module';
 import { slackModule } from './modules/notification/slack/slack.module';
 import { MiscModule } from './modules/misc/misc.module';
@@ -10,6 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PartnerModule } from './modules/partners/partner.module';
+import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank.module';
 
 @Module({
   imports: [
@@ -27,7 +29,8 @@ import { PartnerModule } from './modules/partners/partner.module';
         maxRedirects: 5,
       }),
     }),
-    // sterlingBankModule,
+    sterlingBankModule,
+    DisbursementModule,
     smsModule,
     slackModule,
     PartnerModule,

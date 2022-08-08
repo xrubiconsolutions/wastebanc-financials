@@ -7,8 +7,14 @@
   },
   {
     "currency": "NGN",
-    "partnerName": "sterlingBank",
+    "partnerName": "sterling",
     "capAmount": 1000000,
-    "processingType": "manual_and_automatic"
+    "processingType": "automatic"
+  },
+  {
+    "currency": "NGN",
+    "partnerName": "company",
+    "capAmount": 1000000,
+    "processingType": "company"
   }
 ]

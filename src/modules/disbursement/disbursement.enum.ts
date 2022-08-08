@@ -13,9 +13,15 @@ export enum ProcessingType {
   manual = 'manual',
   automatic = 'automatic',
   manualAndAutomatic = 'manual_and_automatic',
+  company = 'company',
 }
 
 export enum charges {
   withPartner = 50,
   withoutPartner = 100,
+}
+
+export enum DisbursementType {
+  bank = 'gain',
+  charity = 'charity',
 }

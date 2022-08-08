@@ -36,33 +36,22 @@ export class DisbursementRequestService {
 
   async requestCharges(params: requestChargesDTO) {
     try {
-      const bank = this.getBank(params.bankCode);
-      console.log('b', bank);
-      let partner: Partner;
-      if (!bank || bank == undefined) {
-        partner = await this.partnerModel.findOne({
-          $or: [
-            { name: process.env.PARTNER_NAME },
-            { bankCode: process.env.PARTNER_CODE },
-          ],
-        });
-      } else {
-        partner = await this.partnerModel.findOne({
-          $or: [{ name: bank.name.toLowerCase() }, { bankCode: bank.value }],
-        });
-        if (!partner) {
-          partner = await this.partnerModel.findOne({
-            $or: [
-              { name: process.env.PARTNER_NAME },
-              { bankCode: process.env.PARTNER_CODE },
-            ],
-          });
-        }
+      const user = await this.userModel.findById(params.userId);
+
+      if (!user) return ResponseHandler('Invalid User', 400, true, null);
+      let charge = process.env.APP_CHARGE;
+      const partner = await this.partnerModel.findOne({
+        bankCode: params.bankCode,
+      });
+
+      if (partner) {
+        charge = partner.charges;
       }
 
+      const withdrawalAmount = Number(user.availablePoints) - Number(charge);
       return ResponseHandler('success', 200, false, {
-        bankName: partner.name,
-        charge: partner.charges,
+        charge: +charge,
+        withdrawalAmount,
       });
     } catch (error) {
       Logger.error(error);
@@ -72,10 +61,16 @@ export class DisbursementRequestService {
 
   async requestDisbursement(params: disbursementRequestDTO) {
     try {
+      await this.disbursementModel.deleteOne({
+        user: params.userId,
+        type: params.type,
+      });
       const value = await this.disbursementData(params);
       const disbursment = await this.disbursementModel.create(value);
+      console.log('phone', value.user.phone);
       this.eventEmitter.emit('sms.otp', { phone: value.user.phone });
       const result = {
+        requestId: disbursment._id,
         currency: disbursment.currency,
         charge: disbursment.charge,
         beneName: disbursment.beneName,
@@ -83,7 +78,12 @@ export class DisbursementRequestService {
         bankName: disbursment.bankName,
         destinationBankCode: disbursment.destinationBankCode,
       };
-      return ResponseHandler('success', 200, false, result);
+      return ResponseHandler(
+        'Verification token has been sent to your phone number',
+        200,
+        false,
+        result,
+      );
     } catch (error) {
       Logger.error(error);
       return ResponseHandler('An error occurred', 500, true, null);
@@ -95,6 +95,7 @@ export class DisbursementRequestService {
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
 
+    params.amount = +params.amount - Number(process.env.APP_CHARGE);
     return {
       user,
       otp: generateReference(4, false),

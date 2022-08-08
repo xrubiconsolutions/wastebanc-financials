@@ -15,6 +15,7 @@ export class partnerService {
         const message = `Partner '${partnerName}' not found`;
         throw new UnprocessableEntityError({ message });
       }
+      console.log('activpa', activePartner);
       const partnerResponse = await activePartner[action]({
         ...data,
         partnerName,

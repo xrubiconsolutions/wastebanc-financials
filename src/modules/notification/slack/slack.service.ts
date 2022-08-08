@@ -46,6 +46,7 @@ export class SlackService {
     data: any,
     options: SlackOptionsDTO | undefined = undefined,
   ) {
+    console.log('data', data);
     const sourceEnvironment = env('APP_ENV');
     const { pretext, type, fallback } = options || {};
     const notificationColors: any = {

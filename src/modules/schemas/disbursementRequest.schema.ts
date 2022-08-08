@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { DisbursementStatus } from '../disbursement/disbursement.enum';
 
 export type DisbursementRequestDocument = DisbursementRequest & Document;
 
@@ -21,6 +22,9 @@ export class DisbursementRequest {
 
   @Prop({ type: Number, default: 0 })
   charge: number;
+
+  @Prop({ type: String })
+  type: string;
 
   @Prop({ type: String })
   bankCode: string;
@@ -51,6 +55,12 @@ export class DisbursementRequest {
 
   @Prop({ type: Date })
   expiryTime: Date;
+
+  @Prop({ type: String, default: DisbursementStatus.initiated })
+  status: string;
+
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'CharityOrganisation' })
+  charity: string;
 }
 
 export const DisbusmentRequestSchema =

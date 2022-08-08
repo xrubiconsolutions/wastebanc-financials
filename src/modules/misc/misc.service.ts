@@ -22,6 +22,12 @@ export class MiscService {
   }
   async banklist() {
     try {
+      const s = await this.partnerservice.initiatePartner({
+        partnerName: process.env.PARTNER_NAME,
+        action: 'bankLists',
+        data: null,
+      });
+      console.log('s', s);
       const results: any = [];
       banklist.map((bank: any) => {
         results.push({ name: bank.name, value: bank.value });
@@ -30,6 +36,21 @@ export class MiscService {
     } catch (error) {
       Logger.error(error);
       return ResponseHandler('An error occurred', 500, true, null);
+    }
+  }
+
+  async sterlingBanks() {
+    try {
+      const results = await this.partnerservice.initiatePartner({
+        partnerName: process.env.PARTNER_NAME,
+        action: 'bankLists',
+        data: null,
+      });
+      return ResponseHandler('success', 200, false, results);
+    } catch (error) {
+      console.log('error', error);
+      Logger.error(error);
+      return ResponseHandler(error, 500, true, null);
     }
   }
 

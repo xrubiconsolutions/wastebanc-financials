@@ -3,7 +3,6 @@ import { UnprocessableEntityError } from '../../utils/errors/errorHandler';
 import { Injectable, Logger } from '@nestjs/common';
 import { PartnerData } from './partnersInterface';
 import * as Integrations from './partnersList';
-import { ResponseHandler } from '../../utils';
 
 @Injectable()
 export class partnerService {
@@ -22,12 +21,12 @@ export class partnerService {
 
       return partnerResponse;
     } catch (error: any) {
+      Logger.error(error);
       console.log('error', error);
       throw new UnprocessableEntityError({
         message: error.message,
         httpCode: error.httpCode,
       });
-      // return ResponseHandler('error', 400, true, null);
     }
   }
 

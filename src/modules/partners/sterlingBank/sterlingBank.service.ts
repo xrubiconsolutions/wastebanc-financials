@@ -19,11 +19,11 @@ export const BankList = async () => {
     console.log(error);
     Logger.error(error.response.statusText);
     const { status, statusText, data } = error.response;
-    console.log(status);
-    //return { error: true, statusCode: status, data };
+
     throw new UnprocessableEntityError({
-      message: error.response.data,
+      message: data,
       httpCode: status,
+      verboseMessage: statusText,
     });
   }
 };

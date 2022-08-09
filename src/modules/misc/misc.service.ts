@@ -22,12 +22,6 @@ export class MiscService {
   }
   async banklist() {
     try {
-      const s = await this.partnerservice.initiatePartner({
-        partnerName: process.env.PARTNER_NAME,
-        action: 'bankLists',
-        data: null,
-      });
-      console.log('s', s);
       const results: any = [];
       banklist.map((bank: any) => {
         results.push({ name: bank.name, value: bank.value });

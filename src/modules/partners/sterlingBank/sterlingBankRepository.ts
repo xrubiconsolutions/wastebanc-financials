@@ -39,7 +39,7 @@ export const getCustomerInformation = async (accountData: any) => {
 export const nipFundTransfer = async (transferData: any) => {
   const response = await makeRequest({
     method: 'post',
-    url: 'Transaction/NIPFunTransfer',
+    url: 'Transaction/NIPFundTransfer',
     value: transferData,
   });
 

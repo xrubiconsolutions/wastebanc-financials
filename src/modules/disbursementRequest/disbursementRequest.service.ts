@@ -95,7 +95,8 @@ export class DisbursementRequestService {
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
 
-    params.amount = +params.amount - Number(process.env.APP_CHARGE);
+    params.amount = user.availablePoints;
+    params.charge = 100;
     params.reference = generateReference(7);
     return {
       user,

@@ -24,7 +24,7 @@ export class MiscService {
     try {
       const results: any = [];
       banklist.map((bank: any) => {
-        results.push({ name: bank.name, value: bank.value });
+        results.push({ name: bank.name, value: bank.nibbsCode });
       });
       return ResponseHandler('success', 200, false, results);
     } catch (error) {
@@ -35,12 +35,17 @@ export class MiscService {
 
   async sterlingBanks() {
     try {
-      const results = await this.partnerservice.initiatePartner({
+      const bankLists = await this.partnerservice.initiatePartner({
         partnerName: process.env.PARTNER_NAME,
         action: 'bankLists',
         data: null,
       });
-      return ResponseHandler('success', 200, false, results);
+      console.log('results', bankLists);
+      const results: any = [];
+      banklist.map((bank: any) => {
+        results.push({ name: bank.BankName, value: bank.BankCode });
+      });
+      return ResponseHandler('success', 200, false, results.Data);
     } catch (error: any) {
       console.log('error', error);
       Logger.error(error);

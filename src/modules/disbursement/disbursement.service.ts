@@ -360,7 +360,12 @@ export class DisbursementService {
     } catch (error) {
       console.log(error);
       const slackData = this.getFailedNotification(error.message);
-      return await this.slackService.sendMessage(slackData);
+      await this.slackService.sendMessage(slackData);
+      throw new UnprocessableEntityError({
+        message: error.message,
+        httpCode: error.status,
+        verboseMessage: error.statusText,
+      });
     }
   };
 
@@ -391,7 +396,12 @@ export class DisbursementService {
     } catch (error: any) {
       console.log(error);
       const slackData = this.getFailedNotification(error.message);
-      return await this.slackService.sendMessage(slackData);
+      await this.slackService.sendMessage(slackData);
+      throw new UnprocessableEntityError({
+        message: error.message,
+        httpCode: error.status,
+        verboseMessage: error.statusText,
+      });
     }
   };
 
@@ -400,10 +410,10 @@ export class DisbursementService {
       category: 'disbursement',
       event: 'failed',
       data: {
+        requestFailedType: 'partner_account_verification_failed',
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
         message,
-        errorType: 'Third Party Error',
       },
     };
   };

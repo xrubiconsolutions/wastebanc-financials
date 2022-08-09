@@ -1,3 +1,4 @@
+import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
 import { Partner, PartnerDocument } from './../schemas/partner.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { resolveAccountDTO } from './../partners/paystack/paystack.dto';
@@ -75,24 +76,29 @@ export class MiscService {
       action: 'resolveAccount',
       data: params,
     };
-    const partnerResponse = await this.partnerservice.initiatePartner(
-      partnerData,
-    );
-
-    if (!partnerResponse.error) {
-      await this.sendPartnerFailedNotification(params);
+    try {
+      const partnerResponse = await this.partnerservice.initiatePartner(
+        partnerData,
+      );
+      return partnerResponse;
+    } catch (error: any) {
+      await this.sendPartnerFailedNotification(error.message, params);
+      throw new UnprocessableEntityError({
+        message: error.message,
+        httpCode: error.status,
+        verboseMessage: error.statusText,
+      });
     }
-
-    return partnerResponse;
   };
 
-  private sendPartnerFailedNotification = async (params: any) => {
+  private sendPartnerFailedNotification = async (message: any, params: any) => {
     const slackNotificationData = {
       category: SlackCategories.Requests,
       event: 'failed',
       data: {
         requestFailedType: 'partner_account_verification_failed',
         partnerName: this.partnerName,
+        message,
         ...params,
       },
     };

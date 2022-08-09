@@ -34,7 +34,7 @@ import { InitiateDTO } from './disbursement.dto';
 import disbursementConfig from './disbursement.config.json';
 import { Injectable } from '@nestjs/common';
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
-
+import banklists from '../misc/ngnbanklist.json';
 @Injectable()
 export class DisbursementService {
   private params: InitiateDTO;
@@ -330,6 +330,9 @@ export class DisbursementService {
   };
 
   private nipTransfer = async (partnerName: string) => {
+    const bank = banklists.find((bank: any) => {
+      return this.disbursementRequest.bankCode == bank.value;
+    });
     const partnerData = {
       partnerName,
       action: 'nipTransfer',
@@ -342,7 +345,7 @@ export class DisbursementService {
         beneficiaryName: this.disbursementRequest.beneName,
         paymentReference: this.disbursementRequest.reference,
         customerShowName: 'Pakam',
-        channelCode: this.disbursementRequest.bankCode,
+        channelCode: bank.nibbsCode,
         nesid: this.disbursementRequest.nesidNumber,
         nersp: this.disbursementRequest.nerspNumber,
         beneBVN: this.disbursementRequest.bvn,

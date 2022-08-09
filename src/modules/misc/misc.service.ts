@@ -25,7 +25,7 @@ export class MiscService {
     try {
       const results: any = [];
       banklist.map((bank: any) => {
-        results.push({ name: bank.name, value: bank.nibbsCode });
+        results.push({ name: bank.name, value: bank.value });
       });
       return ResponseHandler('success', 200, false, results);
     } catch (error) {

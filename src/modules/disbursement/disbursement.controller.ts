@@ -24,6 +24,7 @@ export class DisbursementController {
         data: result,
       });
     } catch (error) {
+      console.log(error);
       return res.status(error.httpCode || 500).json({
         message: 'Payout request failed',
         error: true,

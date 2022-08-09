@@ -13,7 +13,7 @@ import { CharityOrganisationSchema } from './../schemas/charityorganisation.sche
 import { Pay, PaySchema } from './../schemas/payment.schema';
 import { User, UserSchema } from './../schemas/user.schema';
 import { DisbursementService } from './disbursement.service';
-import { Module } from '@nestjs/common';
+import { Module, Scope } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Transaction, TransactionSchema } from '../schemas/transactions.schema';
 import {
@@ -22,7 +22,7 @@ import {
 } from '../schemas/disbursementRequest.schema';
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import { DisbursementController } from './disbursement.controller';
-
+import moment from 'moment-timezone';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -38,7 +38,14 @@ import { DisbursementController } from './disbursement.controller';
     smsModule,
     PartnerModule,
   ],
-  providers: [DisbursementService],
+  providers: [
+    DisbursementService,
+    {
+      provide: 'moment',
+      useFactory: async () => moment(new Date()),
+      scope: Scope.REQUEST,
+    },
+  ],
   controllers: [DisbursementController],
 })
 export class DisbursementModule {}

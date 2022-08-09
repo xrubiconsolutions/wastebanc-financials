@@ -96,9 +96,11 @@ export class DisbursementRequestService {
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
 
     params.amount = +params.amount - Number(process.env.APP_CHARGE);
+    params.reference = generateReference(7);
     return {
       user,
-      otp: generateReference(4, false),
+      otpExpiry: this.moment.add(30, 's'),
+      otp: generateReference(13, false),
       ...params,
     };
   }

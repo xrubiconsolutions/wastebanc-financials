@@ -1,5 +1,5 @@
 import { partnerService } from './../partners/partnersService';
-import { generateReference } from './../../utils/misc';
+// import { generateReference } from './../../utils/misc';
 import {
   Organisation,
   OrganisationDocument,
@@ -103,6 +103,7 @@ export class DisbursementService {
         await this.transactionModel.updateOne(
           { _id: transaction._id },
           {
+            paid: true,
             requestedForPayment: true,
             paymentResolution: this.disbursementRequest.type,
           },
@@ -124,6 +125,14 @@ export class DisbursementService {
         message: 'Invalid Payout request',
         verboseMessage: 'Invalid Payout request',
       });
+
+    const currentDate = new Date();
+    if (disbursementRequest.otpExpiry > currentDate) {
+      throw new UnprocessableEntityError({
+        message: 'OTP has expired',
+        verboseMessage: 'OTP has expired',
+      });
+    }
 
     this.disbursementRequest = disbursementRequest;
     return this.disbursementRequest;
@@ -241,6 +250,7 @@ export class DisbursementService {
       amount: transaction.coin,
       state: transaction.state,
       userPhone: this.user.phone,
+      reference: this.disbursementRequest.reference,
     });
   };
 
@@ -257,8 +267,15 @@ export class DisbursementService {
     return this.handleCompanySmsNotification();
   };
 
-  private processDisbursementAutomatically = async (partnerName) => {
-    console.log('partner name', partnerName);
+  private processDisbursementAutomatically = async (partnerName: string) => {
+    if (
+      this.disbursementRequest.bankName.toLowerCase() == 'sterling bank' ||
+      this.disbursementRequest.bankName.toLowerCase() == 'sterling'
+    ) {
+      this.intraBankTransfer(partnerName);
+    }
+    this.nipTransfer(partnerName);
+    return (this.message = 'Payout initiated successfully');
   };
 
   private getCharityPaymentSlackNotification = (
@@ -312,30 +329,82 @@ export class DisbursementService {
     return this.transactions;
   };
 
-  private callPartner = async (partnerName: string) => {
+  private nipTransfer = async (partnerName: string) => {
     const partnerData = {
       partnerName,
       action: 'nipTransfer',
       data: {
-        fromAccount: process.env.PAKAM_ACCOUNT,
+        fromAccount: '0503527719',
         toAmount: this.disbursementRequest.destinationAccount,
         amount: this.disbursementRequest.amount,
         principalIdentifier: '',
-        referenceCode: generateReference(10),
+        referenceCode: this.disbursementRequest.reference,
         beneficiaryName: this.disbursementRequest.beneName,
-        paymentReference: generateReference(10),
-        customerShowName: process.env.PARTNER_NAME,
+        paymentReference: this.disbursementRequest.reference,
+        customerShowName: 'Pakam',
         channelCode: this.disbursementRequest.bankCode,
         nesid: this.disbursementRequest.nesidNumber,
         nersp: this.disbursementRequest.nerspNumber,
         beneBVN: this.disbursementRequest.bvn,
-        requestId: generateReference(10),
+        requestId: this.disbursementRequest.reference,
       },
     };
 
-    const partnerResponse = await this.partnerservice.initiatePartner(
-      partnerData,
-    );
-    console.log('partner response', partnerResponse);
+    try {
+      const partnerResponse = await this.partnerservice.initiatePartner(
+        partnerData,
+      );
+
+      console.log('partner response', partnerResponse);
+      return partnerResponse;
+    } catch (error) {
+      console.log(error);
+      const slackData = this.getFailedNotification(error.message);
+      return await this.slackService.sendMessage(slackData);
+    }
+  };
+
+  private intraBankTransfer = async (partnerName: string) => {
+    const partnerData = {
+      partnerName,
+      action: 'intraBankTransfer',
+      data: {
+        fromAccount: '0503527719',
+        toAmount: this.disbursementRequest.destinationAccount,
+        TransactionType: 26,
+        DifferentTradeValueDate: 0,
+        TransactionAmount: this.disbursementRequest.amount,
+        CurrencyCode: '566' || 'NGN',
+        PaymentReference: this.disbursementRequest.reference,
+        NarrationLine1: `Pakam payment to ${this.user.fullname}`,
+        NarrationLine2: '',
+        BeneficiaryName: this.disbursementRequest.beneName,
+        SenderName: 'Pakam',
+      },
+    };
+
+    try {
+      const partnerResponse = await this.partnerservice.initiatePartner(
+        partnerData,
+      );
+      return partnerResponse;
+    } catch (error: any) {
+      console.log(error);
+      const slackData = this.getFailedNotification(error.message);
+      return await this.slackService.sendMessage(slackData);
+    }
+  };
+
+  private getFailedNotification = (message: string) => {
+    return {
+      category: 'disbursement',
+      event: 'failed',
+      data: {
+        id: this.disbursementRequest._id,
+        reference: this.disbursementRequest.reference,
+        message,
+        errorType: 'Third Party Error',
+      },
+    };
   };
 }

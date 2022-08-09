@@ -54,6 +54,9 @@ export class disbursementRequestDTO {
   @IsNotEmpty()
   @IsString()
   currency: string;
+
+  @IsOptional()
+  reference: string;
 }
 
 export class requestChargesDTO {

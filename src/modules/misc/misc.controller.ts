@@ -27,9 +27,7 @@ export class MiscController {
     };
 
     const result = await this.miscService.resolveAccountNumber(params);
-    if (result.error) return res.status(400).json(result);
-
-    return res.status(200).json(result);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get('/sterling/banks')

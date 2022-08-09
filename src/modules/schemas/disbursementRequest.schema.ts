@@ -61,6 +61,12 @@ export class DisbursementRequest {
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'CharityOrganisation' })
   charity: string;
+
+  @Prop({ type: String })
+  reference: string;
+
+  @Prop({ type: Date })
+  otpExpiry: Date;
 }
 
 export const DisbusmentRequestSchema =

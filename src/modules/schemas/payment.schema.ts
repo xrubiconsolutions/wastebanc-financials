@@ -60,6 +60,9 @@ export class Pay {
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'DisbursementRequest' })
   request: string;
+
+  @Prop({ type: String })
+  reference: string;
 }
 
 export const PaySchema = SchemaFactory.createForClass(Pay);

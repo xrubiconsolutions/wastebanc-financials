@@ -1,3 +1,4 @@
+import { SlackService } from './../notification/slack/slack.service';
 import { InitiateDTO } from './disbursement.dto';
 import { DisbursementService } from './disbursement.service';
 import { Body, Controller, Post, Res } from '@nestjs/common';
@@ -5,7 +6,10 @@ import { Response } from 'express';
 
 @Controller('/api/disbursement')
 export class DisbursementController {
-  constructor(private readonly disbursementService: DisbursementService) {}
+  constructor(
+    private readonly disbursementService: DisbursementService,
+    private slackService: SlackService,
+  ) {}
 
   @Post('/initiate')
   async initiateDisbursement(
@@ -21,7 +25,7 @@ export class DisbursementController {
       });
     } catch (error) {
       return res.status(error.httpCode || 500).json({
-        message: (error as Error).message,
+        message: 'Payout request failed',
         error: true,
       });
     }

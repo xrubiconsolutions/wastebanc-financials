@@ -1,4 +1,4 @@
-import { ResponseHandler, generateReference } from './../../../utils';
+import { generateReference } from './../../../utils';
 import {
   nipInquiryDTO,
   GenerateVirtualAccountDTO,
@@ -9,6 +9,7 @@ import { UnprocessableEntityError } from '../../../utils/errors/errorHandler';
 import { Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as sterlingRepository from './sterlingBankRepository';
+import 'dotenv/config';
 
 export const BankList = async () => {
   try {
@@ -37,8 +38,15 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
     );
     return handleDecrypting(encryptResult);
   } catch (error) {
+    console.log(error);
     Logger.error(error.response.statusText);
-    throw new UnprocessableEntityError({ message: error.response.data });
+    const { status, statusText, data } = error.response;
+
+    throw new UnprocessableEntityError({
+      message: data,
+      httpCode: status,
+      verboseMessage: statusText,
+    });
   }
 };
 
@@ -103,7 +111,7 @@ const handleDecrypting = (params: string) => {
   if (typeof decryptedResult == 'string') {
     decryptedResult = JSON.parse(decryptedResult);
   }
-  return ResponseHandler('success', 200, false, decryptedResult);
+  return decryptedResult;
 };
 const getnipNameInquiryRequestData = (params: nipInquiryDTO) => {
   return {
@@ -114,10 +122,10 @@ const getnipNameInquiryRequestData = (params: nipInquiryDTO) => {
 };
 const generateKey = () => {
   return crypto.pbkdf2Sync(
-    process.env.PASSPHASE,
-    Buffer.from(process.env.SALT),
-    +process.env.ITERATIONS,
-    +process.env.KEYSIZE,
+    'Et2347fdrloln95@#qi',
+    Buffer.from('Sklqg625*&dltr01r'),
+    2,
+    32,
     'sha1',
   );
 };

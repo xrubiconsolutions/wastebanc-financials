@@ -58,8 +58,9 @@ export class MiscService {
       const result = await this.callPartner(params);
       return ResponseHandler('success', 200, false, result.data);
     } catch (error) {
+      console.log(error);
       Logger.error(error);
-      return ResponseHandler('An error occurred', 500, true, null);
+      return ResponseHandler(error.message, error.httpCode, true, null);
     }
   }
 

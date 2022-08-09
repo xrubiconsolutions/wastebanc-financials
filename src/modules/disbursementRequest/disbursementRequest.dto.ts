@@ -7,36 +7,36 @@ import {
 } from 'class-validator';
 
 export class disbursementRequestDTO {
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   userId: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   destinationAccount: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   destinationBankCode: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   bankName: string;
 
-  @IsNotEmpty()
-  @IsNumber()
+  // @IsNotEmpty()
+  // @IsNumber()
   amount: number;
 
   @IsOptional()
   charge: number;
 
-  @IsNotEmpty()
-  @IsString()
-  @IsIn(['charity', 'gain'])
+  // @IsNotEmpty()
+  // @IsString()
+  // @IsIn(['charity', 'gain'])
   type: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   beneName: string;
 
   @IsOptional()
@@ -51,8 +51,8 @@ export class disbursementRequestDTO {
   @IsOptional()
   bvn: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   currency: string;
 
   @IsOptional()

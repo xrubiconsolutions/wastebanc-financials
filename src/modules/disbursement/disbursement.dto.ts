@@ -1,14 +1,14 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 export class InitiateDTO {
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   userId: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   requestId: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   otp: string;
 }

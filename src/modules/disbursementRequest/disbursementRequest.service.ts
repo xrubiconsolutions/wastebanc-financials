@@ -100,7 +100,7 @@ export class DisbursementRequestService {
     return {
       user,
       otpExpiry: this.moment.add(30, 's'),
-      otp: generateReference(13, false),
+      otp: generateReference(4, false),
       ...params,
     };
   }

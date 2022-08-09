@@ -14,6 +14,7 @@ export class DisbursementRequestController {
     @Body() params: disbursementRequestDTO,
     @Res() res: Response,
   ) {
+    console.log('params', params);
     const result = await this.requestService.requestDisbursement(params);
     if (result.error) return res.status(400).json(result);
 

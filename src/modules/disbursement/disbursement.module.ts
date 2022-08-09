@@ -23,6 +23,7 @@ import {
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import { DisbursementController } from './disbursement.controller';
 import moment from 'moment-timezone';
+import { Partner, PartnerSchema } from '../schemas/partner.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -33,6 +34,7 @@ import moment from 'moment-timezone';
       { name: CharityOrganisation.name, schema: CharityOrganisationSchema },
       { name: Charity.name, schema: CharityPaymentSchema },
       { name: Organisation.name, schema: OrganisationSchema },
+      { name: Partner.name, schema: PartnerSchema },
     ]),
     slackModule,
     smsModule,

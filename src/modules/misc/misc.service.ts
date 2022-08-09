@@ -56,6 +56,7 @@ export class MiscService {
 
   async resolveAccountNumber(params: resolveAccountDTO) {
     try {
+      console.log(params);
       const bank = this.getBank(params.BankCode);
       const partner = await this.partnerModel.findOne({
         name: this.partnerName,

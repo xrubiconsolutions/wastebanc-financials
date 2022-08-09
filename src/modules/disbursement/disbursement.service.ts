@@ -339,7 +339,7 @@ export class DisbursementService {
       data: {
         fromAccount: '0503527719',
         toAmount: this.disbursementRequest.destinationAccount,
-        amount: this.disbursementRequest.amount,
+        amount: +this.user.availablePoints - 100,
         principalIdentifier: '',
         referenceCode: this.disbursementRequest.reference,
         beneficiaryName: this.disbursementRequest.beneName,
@@ -381,7 +381,7 @@ export class DisbursementService {
         toAmount: this.disbursementRequest.destinationAccount,
         TransactionType: 26,
         DifferentTradeValueDate: 0,
-        TransactionAmount: this.disbursementRequest.amount,
+        TransactionAmount: +this.user.availablePoints - 100,
         CurrencyCode: '566' || 'NGN',
         PaymentReference: this.disbursementRequest.reference,
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,

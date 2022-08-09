@@ -62,7 +62,9 @@ export class MiscService {
       });
       params.BankCode = bank[partner.sortCode];
       const result = await this.callPartner(params);
-      return ResponseHandler('success', 200, false, result.data);
+      console.log(result);
+      const dd = result || result.data.Data || result.Data;
+      return ResponseHandler('success', 200, false, dd);
     } catch (error) {
       console.log(error);
       Logger.error(error);

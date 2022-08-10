@@ -1,5 +1,4 @@
 import { lastValueFrom, Observable } from 'rxjs';
-import { generateReference } from './../../../utils/misc';
 import { smsRequirments } from './sms.enum';
 import { OtpDTO, smsDTO } from './sms.dto';
 import { HttpService } from '@nestjs/axios';
@@ -42,8 +41,7 @@ export class smsService {
 
   private getOTPData(params: OtpDTO) {
     const phoneNo = String(params.phone).substring(1, 11);
-    const token = generateReference(4, false);
-    const message = `${token} is your OTP for Payment request on Pakam. OTP is valid for 5 minutes`;
+    const message = `${params.token} is your OTP for Payment request on Pakam. OTP is valid for 5 minutes`;
     return this.smsData({ phoneNo, message });
   }
 

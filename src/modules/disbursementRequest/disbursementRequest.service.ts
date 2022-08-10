@@ -68,7 +68,10 @@ export class DisbursementRequestService {
       const value = await this.disbursementData(params);
       const disbursment = await this.disbursementModel.create(value);
       console.log('phone', value.user.phone);
-      this.eventEmitter.emit('sms.otp', { phone: value.user.phone });
+      this.eventEmitter.emit('sms.otp', {
+        phone: value.user.phone,
+        token: disbursment.otp,
+      });
       const result = {
         requestId: disbursment._id,
         currency: disbursment.currency,

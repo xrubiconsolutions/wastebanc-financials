@@ -417,10 +417,10 @@ export class DisbursementService {
     );
     console.log('partner response', partnerResponse);
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error.message,
-      );
+      // await this.sendPartnerFailedNotification(
+      //   partnerName,
+      //   partnerResponse.error.message,
+      // );
       // roll back
       await this.rollBack();
       const msg = 'Payout Request Failed';
@@ -429,11 +429,12 @@ export class DisbursementService {
     }
 
     if (!partnerResponse.success) {
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error.message,
-      );
+      // await this.sendPartnerFailedNotification(
+      //   partnerName,
+      //   partnerResponse.error.message,
+      // );
       console.log('err', partnerResponse);
+      this.message = 'Payout initiated successfully';
     }
     this.message = 'Payout initiated successfully';
     return partnerResponse;

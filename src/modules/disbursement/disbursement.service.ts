@@ -131,7 +131,7 @@ export class DisbursementService {
 
     const currentDate = this.moment.toDate();
     console.log('now', currentDate);
-    if (currentDate < disbursementRequest.otpExpiry) {
+    if (disbursementRequest.otpExpiry < currentDate) {
       throw new UnprocessableEntityError({
         message: 'OTP has expired',
         verboseMessage: 'OTP has expired',

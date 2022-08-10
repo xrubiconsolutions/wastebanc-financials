@@ -26,7 +26,7 @@ export class DisbursementController {
         });
       }
       return res.status(200).json({
-        message: result,
+        message: 'Payment initated successfully',
         error: false,
         data: result,
       });

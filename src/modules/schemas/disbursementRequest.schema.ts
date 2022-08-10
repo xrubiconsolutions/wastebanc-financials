@@ -23,6 +23,9 @@ export class DisbursementRequest {
   @Prop({ type: Number, default: 0 })
   charge: number;
 
+  @Prop({ type: Number })
+  withdrawalAmount: number;
+
   @Prop({ type: String })
   type: string;
 

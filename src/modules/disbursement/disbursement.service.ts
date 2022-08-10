@@ -42,6 +42,7 @@ export class DisbursementService {
   private transactions: Transaction[] | [];
   private user: User | null;
   public message = '';
+  private withdrawalAmount: number;
 
   constructor(
     @InjectModel(DisbursementRequest.name)
@@ -66,6 +67,7 @@ export class DisbursementService {
     this.user = null;
     this.transactions = [];
     this.message = '';
+    this.withdrawalAmount = 0;
   }
 
   public initiate = async (params: InitiateDTO) => {
@@ -168,6 +170,8 @@ export class DisbursementService {
         availablePoints: balance,
       },
     );
+
+    this.withdrawalAmount = +this.user.availablePoints - 100;
 
     return balance;
   };
@@ -304,12 +308,14 @@ export class DisbursementService {
       data: {
         id: this.disbursementRequest._id,
         type: DisbursementType.bank,
-        amount: this.disbursementRequest.amount,
-        bankName: this.disbursementRequest.bankName,
+        reference: this.disbursementRequest.reference,
+        amount: this.withdrawalAmount,
+        username: this.user.firstname,
+        userAvailablePoint: this.user.availablePoints,
+        accountName: this.disbursementRequest.beneName,
         accountNumber: this.disbursementRequest.destinationAccount,
-        bankCode: this.disbursementRequest.destinationBankCode,
-        user_fullname: this.user.fullname,
-        phone: this.user.phone,
+        bankCode: this.disbursementRequest.bankCode,
+        charge: 100,
       },
     };
   };
@@ -347,7 +353,7 @@ export class DisbursementService {
       data: {
         fromAccount: '0503527719',
         toAmount: this.disbursementRequest.destinationAccount,
-        amount: +this.user.availablePoints - 100,
+        amount: this.disbursementRequest.withdrawalAmount,
         principalIdentifier: '',
         referenceCode: this.disbursementRequest.reference,
         beneficiaryName: this.disbursementRequest.beneName,
@@ -396,7 +402,7 @@ export class DisbursementService {
         toAmount: this.disbursementRequest.destinationAccount,
         TransactionType: 26,
         DifferentTradeValueDate: 0,
-        TransactionAmount: +this.user.availablePoints - 100,
+        TransactionAmount: this.disbursementRequest.withdrawalAmount,
         CurrencyCode: '566' || 'NGN',
         PaymentReference: this.disbursementRequest.reference,
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,
@@ -445,6 +451,13 @@ export class DisbursementService {
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
+        amount: this.disbursementRequest.withdrawalAmount,
+        username: this.user.firstname,
+        userAvailablePoint: this.user.availablePoints,
+        accountName: this.disbursementRequest.beneName,
+        accountNumber: this.disbursementRequest.destinationAccount,
+        bankCode: this.disbursementRequest.bankCode,
+        charge: 100,
         message,
       },
     };

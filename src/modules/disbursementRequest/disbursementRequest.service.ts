@@ -103,6 +103,7 @@ export class DisbursementRequestService {
     params.reference = generateReference(7);
     return {
       user,
+      withdrawalAmount: Number(user.availablePoints) - 100,
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
       ...params,

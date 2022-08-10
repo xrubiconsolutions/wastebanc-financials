@@ -15,10 +15,22 @@ export const getBankList = async () => {
 export const verifyAccount = async (params: resolveAccountDTO) => {
   try {
     const result = await paystackRepository.verifyAccount(params);
-    return result.data;
+    return {
+      account_name: result.data.account_name,
+      account_number: result.data.account_number,
+      neSid: '',
+      neresp: '',
+      beneBVN: '',
+      kycLevel: '',
+    };
   } catch (error) {
     console.log(error);
     Logger.error(error);
-    throw new UnprocessableEntityError({ message: error });
+    const { status, statusText, data } = error.response;
+    throw new UnprocessableEntityError({
+      message: data,
+      httpCode: status,
+      verboseMessage: statusText,
+    });
   }
 };

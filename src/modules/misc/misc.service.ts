@@ -1,4 +1,3 @@
-import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
 import { Partner, PartnerDocument } from './../schemas/partner.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { resolveAccountDTO } from './../partners/paystack/paystack.dto';
@@ -55,22 +54,23 @@ export class MiscService {
   }
 
   async resolveAccountNumber(params: resolveAccountDTO) {
-    try {
-      console.log(params);
-      const bank = this.getBank(params.BankCode);
-      const partner = await this.partnerModel.findOne({
-        name: this.partnerName,
-      });
-      params.BankCode = bank[partner.sortCode];
-      const result = await this.callPartner(params);
-      console.log(result);
-      const dd = result || result.data.Data || result.Data;
-      return ResponseHandler('success', 200, false, dd);
-    } catch (error) {
-      console.log(error);
-      Logger.error(error);
-      return ResponseHandler(error.message, error.httpCode, true, null);
+    console.log(params);
+    const bank = this.getBank(params.BankCode);
+    const partner = await this.partnerModel.findOne({
+      name: this.partnerName,
+    });
+    params.BankCode = bank[partner.sortCode];
+    const result: any = await this.callPartner(params);
+    if (!result.success) {
+      await this.sendPartnerFailedNotification(result.error.message, params);
+      return ResponseHandler(
+        'Account number verification failed',
+        400,
+        true,
+        null,
+      );
     }
+    return ResponseHandler('success', 200, false, result.partnerResponse);
   }
 
   private callPartner = async (params: resolveAccountDTO) => {
@@ -79,19 +79,10 @@ export class MiscService {
       action: 'resolveAccount',
       data: params,
     };
-    try {
-      const partnerResponse = await this.partnerservice.initiatePartner(
-        partnerData,
-      );
-      return partnerResponse;
-    } catch (error: any) {
-      await this.sendPartnerFailedNotification(error.message, params);
-      throw new UnprocessableEntityError({
-        message: error.message,
-        httpCode: error.status,
-        verboseMessage: error.statusText,
-      });
-    }
+    const partnerResponse = await this.partnerservice.initiatePartner(
+      partnerData,
+    );
+    return partnerResponse;
   };
 
   private sendPartnerFailedNotification = async (message: any, params: any) => {

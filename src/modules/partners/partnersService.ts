@@ -19,14 +19,11 @@ export class partnerService {
         partnerName,
       });
 
-      return partnerResponse;
+      return { success: true, partnerResponse };
     } catch (error: any) {
       Logger.error(error);
-      console.log('error', error);
-      throw new UnprocessableEntityError({
-        message: error.message,
-        httpCode: error.httpCode,
-      });
+      console.log('errorr', error);
+      return { success: false, error: error || error.message };
     }
   }
 

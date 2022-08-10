@@ -18,6 +18,13 @@ export class DisbursementController {
   ) {
     try {
       const result = await this.disbursementService.initiate(params);
+      if (result == 'Payout Request Failed') {
+        return res.status(400).json({
+          message: result,
+          error: false,
+          data: result,
+        });
+      }
       return res.status(200).json({
         message: result,
         error: false,

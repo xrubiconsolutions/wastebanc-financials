@@ -1,10 +1,4 @@
-import {
-  IsIn,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsOptional } from 'class-validator';
 
 export class disbursementRequestDTO {
   // @IsNotEmpty()
@@ -60,14 +54,14 @@ export class disbursementRequestDTO {
 }
 
 export class requestChargesDTO {
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   bankCode: string;
 
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   userId: string;
 
-  @IsOptional()
+  // @IsOptional()
   amount: number;
 }

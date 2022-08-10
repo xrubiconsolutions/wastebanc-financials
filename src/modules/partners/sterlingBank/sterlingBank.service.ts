@@ -18,14 +18,8 @@ export const BankList = async () => {
     return bankList;
   } catch (error: any) {
     console.log(error);
-    Logger.error(error.response.statusText);
-    const { status, statusText, data } = error.response;
-
-    throw new UnprocessableEntityError({
-      message: data,
-      httpCode: status,
-      verboseMessage: statusText,
-    });
+    Logger.error(error);
+    handleError(error.response);
   }
 };
 
@@ -36,17 +30,19 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
     const encryptResult = await sterlingRepository.nipAccountNumber(
       encrypParams,
     );
-    return handleDecrypting(encryptResult);
-  } catch (error) {
+    const result: any = handleDecrypting(encryptResult);
+    return {
+      account_name: result.data.Data.nameDetails,
+      account_number: params.accountNamber,
+      neSid: result.data.Data.neSid,
+      neresp: result.data.Data.neresp,
+      beneBVN: result.data.Data.beneBVN,
+      kycLevel: result.data.Data.kycLevel,
+    };
+  } catch (error: any) {
     console.log(error);
-    Logger.error(error.response.statusText);
-    const { status, statusText, data } = error.response;
-
-    throw new UnprocessableEntityError({
-      message: data,
-      httpCode: status,
-      verboseMessage: statusText,
-    });
+    Logger.error(error);
+    handleError(error.response);
   }
 };
 
@@ -85,11 +81,13 @@ export const nipTransfer = async (params: nipTransferDTO) => {
     const encryptResult = await sterlingRepository.nipFundTransfer(
       encryptParams,
     );
-    return handleDecrypting(encryptResult);
-  } catch (error) {
+    const result = handleDecrypting(encryptResult);
+    console.log('result on nip transfer', result);
+    return result;
+  } catch (error: any) {
     console.log('error', error);
     Logger.error(error);
-    throw new UnprocessableEntityError({ message: error.response.data });
+    return handleError(error.response);
   }
 };
 
@@ -97,16 +95,20 @@ export const intraBankTransfer = async (params: intraBankDTO) => {
   try {
     const encryptParams = encryptData(JSON.stringify(params));
     const encryptedResult = await sterlingRepository.intraBank(encryptParams);
-    return handleDecrypting(encryptedResult);
+    // return handleDecrypting(encryptedResult);
+    const result = handleDecrypting(encryptedResult);
+    console.log('result on nip transfer', result);
+    return result;
   } catch (error) {
     console.log('error', error);
     Logger.error(error);
-    throw new UnprocessableEntityError({ message: error.response.data });
+    // throw new UnprocessableEntityError({ message: error.response.data });
+    return handleError(error.response);
   }
 };
 
 const handleDecrypting = (params: string) => {
-  let decryptedResult = decryptData(params);
+  let decryptedResult: any = decryptData(params);
 
   if (typeof decryptedResult == 'string') {
     decryptedResult = JSON.parse(decryptedResult);
@@ -152,4 +154,144 @@ const decryptData = (data: string) => {
   let decrypted = decipher.update(data, 'base64', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
+};
+
+const handleError = (response: any) => {
+  const { status, statusText, data } = response;
+  if (status === 403) {
+    console.log('here');
+    throw new UnprocessableEntityError({
+      message: data,
+      httpCode: status,
+      verboseMessage: statusText,
+    });
+  }
+  const errorResult: any = handleDecrypting(data);
+  console.log('errorResult', errorResult);
+  if (status >= 400) {
+    throw new UnprocessableEntityError({
+      message: errorResult.data || errorResult.Data || errorResult.message,
+      httpCode: status,
+      verboseMessage: statusText,
+    });
+  }
+
+  if (errorResult.Description && errorResult.Description === 'Unsuccessful') {
+    throw new UnprocessableEntityError({
+      message: 'Request was not successfully',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+  }
+
+  if (errorResult.responseCode && errorResult.responseCode == '00') {
+    console.log('res', 'Your request is been processed 00');
+    throw new UnprocessableEntityError({
+      message: 'Your request is been processed',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+    // return {
+    //   message: 'Your request is been processed',
+    //   success: false,
+    //   httpCode: status,
+    //   code: errorResult.responseCode,
+    // };
+  }
+
+  if (errorResult.responseCode && errorResult.responseCode == '01') {
+    console.log('res', 'Your request is been processed 01');
+    throw new UnprocessableEntityError({
+      message: 'Your request is been processed',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+    // return {
+    //   message: 'Your request is been processed',
+    //   success: false,
+    //   httpCode: status,
+    //   code: errorResult.responseCode,
+    // };
+  }
+
+  if (errorResult.statusCode && errorResult.statusCode == '0') {
+    console.log('res', 'Your request is been processed 0');
+    throw new UnprocessableEntityError({
+      message: 'Your request is been processed',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+    // return {
+    //   message: 'Your request is been processed',
+    //   success: false,
+    //   httpCode: status,
+    //   code: errorResult.responseCode,
+    // };
+  }
+
+  if (errorResult.statusCode && errorResult.statusCode == '00') {
+    console.log(
+      'res',
+      `Your request is been processed 0 ${errorResult.statusCode}`,
+    );
+    throw new UnprocessableEntityError({
+      message: 'Your request is been processed',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+    // return {
+    //   message: 'Your request is been processed',
+    //   success: false,
+    //   httpCode: status,
+    //   code: errorResult.responseCode,
+    // };
+  }
+  if (errorResult.statusCode && errorResult.statusCode == '1') {
+    console.log(
+      'res',
+      `Your request is been processed 0 ${errorResult.statusCode}`,
+    );
+    throw new UnprocessableEntityError({
+      message: 'Your request is been processed',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+    // return {
+    //   message: 'Your request is been processed',
+    //   success: false,
+    //   httpCode: status,
+    //   code: errorResult.responseCode,
+    // };
+  }
+
+  if (errorResult.statusCode && errorResult.statusCode == '01') {
+    console.log(
+      'res',
+      `Your request is been processed 0 ${errorResult.statusCode}`,
+    );
+    throw new UnprocessableEntityError({
+      message: 'Your request is been processed',
+      httpCode: status,
+      verboseMessage: errorResult.Description,
+    });
+    // return {
+    //   message: 'Your request is been processed',
+    //   success: false,
+    //   httpCode: status,
+    //   code: errorResult.responseCode,
+    // };
+  }
+
+  // return {
+  //   message: data,
+  //   success: false,
+  //   httpCode: status,
+  //   code: '01',
+  // };
+
+  throw new UnprocessableEntityError({
+    message: data,
+    httpCode: status,
+    verboseMessage: statusText,
+  });
 };

@@ -32,7 +32,7 @@ import {
 } from '../schemas/disbursementRequest.schema';
 import { InitiateDTO } from './disbursement.dto';
 import disbursementConfig from './disbursement.config.json';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import banklists from '../misc/ngnbanklist.json';
 @Injectable()
@@ -59,15 +59,17 @@ export class DisbursementService {
     @InjectModel(Organisation.name)
     private organisationModel: Model<OrganisationDocument>,
     private partnerservice: partnerService,
-  ) {}
-
-  public initiate = async (params: InitiateDTO) => {
-    this.params = params;
+    @Inject('moment') private moment: moment.Moment,
+  ) {
+    this.params = null;
     this.disbursementRequest = null;
     this.user = null;
     this.transactions = [];
     this.message = '';
+  }
 
+  public initiate = async (params: InitiateDTO) => {
+    this.params = params;
     await this.getDisbursementRequest();
     await this.getUser();
     await this.getUserTransactions();
@@ -120,14 +122,16 @@ export class DisbursementService {
     };
     const disbursementRequest = await this.disbursementModel.findOne(condition);
 
+    console.log('dis', disbursementRequest);
     if (!disbursementRequest)
       throw new UnprocessableEntityError({
         message: 'Invalid Payout request',
         verboseMessage: 'Invalid Payout request',
       });
 
-    const currentDate = new Date();
-    if (disbursementRequest.otpExpiry > currentDate) {
+    const currentDate = this.moment.toDate();
+    console.log('now', currentDate);
+    if (currentDate < disbursementRequest.otpExpiry) {
       throw new UnprocessableEntityError({
         message: 'OTP has expired',
         verboseMessage: 'OTP has expired',
@@ -174,8 +178,7 @@ export class DisbursementService {
       return (this.message =
         'Payout has been made to charity organisation account');
     } else {
-      await this.processBankDisbursement();
-      return (this.message = 'Payout initiated successfully');
+      return await this.processBankDisbursement();
     }
   };
 
@@ -272,10 +275,10 @@ export class DisbursementService {
       this.disbursementRequest.bankName.toLowerCase() == 'sterling bank' ||
       this.disbursementRequest.bankName.toLowerCase() == 'sterling'
     ) {
-      this.intraBankTransfer(partnerName);
+      return this.intraBankTransfer(partnerName);
     }
-    this.nipTransfer(partnerName);
-    return (this.message = 'Payout initiated successfully');
+    return this.nipTransfer(partnerName);
+    //return (this.message = 'Payout initiated successfully');
   };
 
   private getCharityPaymentSlackNotification = (
@@ -330,9 +333,14 @@ export class DisbursementService {
   };
 
   private nipTransfer = async (partnerName: string) => {
+    console.log(
+      'this.disbursementRequest.bankCode',
+      this.disbursementRequest.destinationBankCode,
+    );
     const bank = banklists.find((bank: any) => {
-      return this.disbursementRequest.bankCode == bank.value;
+      return this.disbursementRequest.destinationBankCode == bank.value;
     });
+    console.log('nip transfer', bank);
     const partnerData = {
       partnerName,
       action: 'nipTransfer',
@@ -352,24 +360,31 @@ export class DisbursementService {
         requestId: this.disbursementRequest.reference,
       },
     };
+    const partnerResponse = await this.partnerservice.initiatePartner(
+      partnerData,
+    );
 
-    try {
-      const partnerResponse = await this.partnerservice.initiatePartner(
-        partnerData,
+    console.log('partner response', partnerResponse);
+    if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+      await this.sendPartnerFailedNotification(
+        partnerName,
+        partnerResponse.error.message,
       );
+      // roll back
+      await this.rollBack();
+      console.log('ger');
 
-      console.log('partner response', partnerResponse);
+      this.message = 'Payout Request Failed';
       return partnerResponse;
-    } catch (error) {
-      console.log(error);
-      const slackData = this.getFailedNotification(error.message);
-      await this.slackService.sendMessage(slackData);
-      throw new UnprocessableEntityError({
-        message: error.message,
-        httpCode: error.status,
-        verboseMessage: error.statusText,
-      });
     }
+    if (!partnerResponse.success) {
+      await this.sendPartnerFailedNotification(
+        partnerName,
+        partnerResponse.error.message,
+      );
+    }
+    this.message = 'Payout initiated successfully';
+    return partnerResponse;
   };
 
   private intraBankTransfer = async (partnerName: string) => {
@@ -391,33 +406,69 @@ export class DisbursementService {
       },
     };
 
-    try {
-      const partnerResponse = await this.partnerservice.initiatePartner(
-        partnerData,
+    const partnerResponse = await this.partnerservice.initiatePartner(
+      partnerData,
+    );
+    console.log('partner response', partnerResponse);
+    if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+      await this.sendPartnerFailedNotification(
+        partnerName,
+        partnerResponse.error.message,
       );
+      // roll back
+      await this.rollBack();
+      const msg = 'Payout Request Failed';
+      this.message = msg;
       return partnerResponse;
-    } catch (error: any) {
-      console.log(error);
-      const slackData = this.getFailedNotification(error.message);
-      await this.slackService.sendMessage(slackData);
-      throw new UnprocessableEntityError({
-        message: error.message,
-        httpCode: error.status,
-        verboseMessage: error.statusText,
-      });
     }
+
+    if (!partnerResponse.success) {
+      await this.sendPartnerFailedNotification(
+        partnerName,
+        partnerResponse.error.message,
+      );
+      console.log('err', partnerResponse);
+    }
+    this.message = 'Payout initiated successfully';
+    return partnerResponse;
   };
 
-  private getFailedNotification = (message: string) => {
-    return {
+  private sendPartnerFailedNotification = (
+    message: string,
+    parterName: string,
+  ) => {
+    const slackNotificationData = {
       category: 'disbursement',
       event: 'failed',
       data: {
         requestFailedType: 'partner_account_verification_failed',
+        parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
         message,
       },
     };
+
+    return this.slackService.sendMessage(slackNotificationData);
+  };
+
+  private rollBack = async () => {
+    await Promise.all(
+      this.transactions.map(async (transaction) => {
+        await this.payModel.deleteOne({ transaction: transaction._id });
+        await this.transactionModel.updateOne(
+          { _id: transaction._id },
+          {
+            paid: false,
+            requestedForPayment: false,
+            paymentResolution: '',
+          },
+        );
+        await this.userModel.updateOne(
+          { _id: this.user._id },
+          { availablePoints: this.user.availablePoints },
+        );
+      }),
+    );
   };
 }

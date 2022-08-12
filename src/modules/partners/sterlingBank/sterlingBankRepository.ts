@@ -43,7 +43,7 @@ export const getCustomerInformation = async (accountData: any) => {
       method: 'get',
       url: `Transaction/customerInformation/${accountData}`,
     },
-    'text/plain; charset=utf-8',
+    ['application/json', 'application/json'],
   );
   return account;
 };
@@ -68,7 +68,7 @@ export const intraBank = async (transferData: any) => {
       url: 'Transaction/IntraBank',
       value: transferData,
     },
-    'application/json',
+    ['application/json', 'application/json'],
   );
 
   return response;

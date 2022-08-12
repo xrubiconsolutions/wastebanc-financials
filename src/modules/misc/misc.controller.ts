@@ -41,7 +41,7 @@ export class MiscController {
     return res.status(result.statusCode).json(result);
   }
 
-  @Get('/getCustomerDetails')
+  @Get('/getCustomerDetails/:accountNumber')
   async customerDetails(
     @Param('accountNumber') accountNumber: string,
     @Res() res: Response,

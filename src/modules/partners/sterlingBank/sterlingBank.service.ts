@@ -18,6 +18,7 @@ export const BankList = async () => {
     const bankList = decryptData(encryptResult);
     return bankList;
   } catch (error: any) {
+    console.log('error sterling', error);
     Logger.error(error);
     handleError(error.response);
   }

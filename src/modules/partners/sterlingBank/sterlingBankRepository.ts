@@ -8,7 +8,6 @@ export const makeRequest = async (requestObj: any) => {
   };
 
   requestObj.url = `${process.env.STERLING_URL + requestObj.url}`;
-  console.log('reque', requestObj.url);
   const result = await axios(requestObj);
   return result.data;
 };

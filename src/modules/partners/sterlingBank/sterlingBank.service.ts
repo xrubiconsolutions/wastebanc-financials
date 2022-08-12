@@ -12,7 +12,6 @@ import * as sterlingRepository from './sterlingBankRepository';
 import 'dotenv/config';
 
 export const BankList = async () => {
-  console.log('happen');
   const encryptResult = await sterlingRepository.getBankList();
   console.log('enc', encryptResult);
   // try {

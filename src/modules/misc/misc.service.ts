@@ -34,7 +34,6 @@ export class MiscService {
   }
 
   async sterlingBanks() {
-    console.log('sterling');
     const bankLists = await this.partnerservice.initiatePartner({
       partnerName: process.env.PARTNER_NAME,
       action: 'bankLists',

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const makeRequest = async (requestObj: any, contentType: string) => {
+export const makeRequest = async (requestObj: any, contentType: any) => {
   requestObj.headers = {
     Channel: process.env.STERLINGCHANNEL,
     Authorization: `${process.env.STERLINGCHANNEL} ${process.env.STERLINGNAME} ${process.env.STERLINGKEY}`,
@@ -31,7 +31,7 @@ export const nipAccountNumber = async (accountData: any) => {
       url: 'Transaction/NIPNameinquiry',
       value: accountData,
     },
-    'text/plain; charset=utf-8',
+    ['application/json', 'application/json'],
   );
   return account;
 };
@@ -42,7 +42,7 @@ export const getCustomerInformation = async (accountData: any) => {
       method: 'get',
       url: `Transaction/customerInformation/${accountData}`,
     },
-    'text/plain; charset=utf-8',
+    ['application/json', 'application/json'],
   );
   return account;
 };

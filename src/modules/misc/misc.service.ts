@@ -42,9 +42,10 @@ export class MiscService {
     if (!bankLists.success) {
       return ResponseHandler('Error getting banks list', 400, true, null);
     }
+    console.log('banklist', bankLists.partnerResponse);
     const results: any = [];
 
-    banklist.map((bank: any) => {
+    bankLists.partnerResponse.map((bank: any) => {
       results.push({ name: bank.BankName, value: bank.BankCode });
     });
     return ResponseHandler('success', 200, false, banklist);

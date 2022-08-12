@@ -7,7 +7,6 @@ import {
 import * as sterlingbankService from './sterlingBank.service';
 
 export const bankLists = async () => {
-  console.log('here');
   return await sterlingbankService.BankList();
 };
 

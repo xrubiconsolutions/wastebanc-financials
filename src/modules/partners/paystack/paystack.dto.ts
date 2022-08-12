@@ -7,4 +7,6 @@ export class resolveAccountDTO {
   @IsNotEmpty({ message: 'bankCode is required' })
   @IsString()
   BankCode: string;
+
+  referenceId: string;
 }

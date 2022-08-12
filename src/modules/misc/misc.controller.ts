@@ -2,6 +2,7 @@ import { resolveAccountDTO } from './../partners/paystack/paystack.dto';
 import { MiscService } from './misc.service';
 import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { generateReference } from '../../utils';
 
 @Controller('/api')
 export class MiscController {
@@ -25,6 +26,7 @@ export class MiscController {
     const params: resolveAccountDTO = {
       accountNumber: account_number,
       BankCode: bank_code,
+      referenceId: generateReference(7),
     };
 
     const result = await this.miscService.resolveAccountNumber(params);

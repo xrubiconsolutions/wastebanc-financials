@@ -8,5 +8,5 @@ export class resolveAccountDTO {
   @IsString()
   BankCode: string;
 
-  referenceId: number;
+  referenceId: string;
 }

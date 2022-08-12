@@ -23,10 +23,11 @@ export class MiscController {
     @Query('bank_code') bank_code: string,
     @Res() res: Response,
   ) {
+    const ref = randomInt(1000);
     const params: resolveAccountDTO = {
       accountNumber: account_number,
       BankCode: bank_code,
-      referenceId: randomInt(1000),
+      referenceId: ref.toString(),
     };
 
     const result = await this.miscService.resolveAccountNumber(params);

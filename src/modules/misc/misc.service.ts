@@ -72,10 +72,11 @@ export class MiscService {
   }
 
   async checkSterlingAccount(accountNumber: string) {
+    console.log('accountNumber', accountNumber);
     const result = await this.partnerservice.initiatePartner({
       partnerName: process.env.PARTNER_NAME,
       action: 'getCustomerInformation',
-      data: accountNumber,
+      data: `${accountNumber}`,
     });
 
     if (!result.success) {

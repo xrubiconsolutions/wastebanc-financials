@@ -47,7 +47,7 @@ export class MiscService {
     banklist.map((bank: any) => {
       results.push({ name: bank.BankName, value: bank.BankCode });
     });
-    return ResponseHandler('success', 200, false, results.Data);
+    return ResponseHandler('success', 200, false, banklist);
   }
 
   async resolveAccountNumber(params: resolveAccountDTO) {

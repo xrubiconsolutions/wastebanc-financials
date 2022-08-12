@@ -76,7 +76,7 @@ export class MiscService {
     const result = await this.partnerservice.initiatePartner({
       partnerName: process.env.PARTNER_NAME,
       action: 'getCustomerInformation',
-      data: `${accountNumber}`,
+      data: { accountNumber },
     });
 
     if (!result.success) {

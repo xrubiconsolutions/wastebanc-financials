@@ -16,6 +16,10 @@ export class nipInquiryDTO {
   referenceId: string;
 }
 
+export class accountNumberDTO {
+  accountNumber: string;
+}
+
 export class GenerateVirtualAccountDTO {
   @IsNotEmpty({ message: 'BVN is required' })
   @IsString()

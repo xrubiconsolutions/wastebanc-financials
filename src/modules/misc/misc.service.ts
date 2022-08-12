@@ -34,21 +34,21 @@ export class MiscService {
   }
 
   async sterlingBanks() {
-    const bankLists = await this.partnerservice.initiatePartner({
+    const SterlingbankLists = await this.partnerservice.initiatePartner({
       partnerName: process.env.PARTNER_NAME,
       action: 'bankLists',
       data: null,
     });
-    if (!bankLists.success) {
+    if (!SterlingbankLists.success) {
       return ResponseHandler('Error getting banks list', 400, true, null);
     }
-    console.log('banklist', bankLists.partnerResponse);
+    console.log('banklist', SterlingbankLists.partnerResponse);
     const results: any = [];
 
-    bankLists.partnerResponse.map((bank: any) => {
+    SterlingbankLists.partnerResponse.map((bank: any) => {
       results.push({ name: bank.BankName, value: bank.BankCode });
     });
-    return ResponseHandler('success', 200, false, banklist);
+    return ResponseHandler('success', 200, false, results);
   }
 
   async resolveAccountNumber(params: resolveAccountDTO) {

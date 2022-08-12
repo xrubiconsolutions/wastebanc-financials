@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const makeRequest = async (requestObj: any) => {
-  requestObj.header = {
+  requestObj.headers = {
     Channel: process.env.STERLINGCHANNEL,
     Authorization: `${process.env.STERLINGCHANNEL} ${process.env.STERLINGNAME} ${process.env.STERLINGKEY}`,
     'Content-Type': 'text/plain; charset=utf-8',

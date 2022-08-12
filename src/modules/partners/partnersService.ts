@@ -18,8 +18,9 @@ export class partnerService {
         ...data,
         partnerName,
       });
+      console.log('p', partnerResponse);
 
-      return { success: true, partnerResponse };
+      return { success: true, error: null, partnerResponse };
     } catch (error: any) {
       console.log('error', error);
       Logger.error(error);

@@ -42,7 +42,7 @@ export class MiscService {
     if (!SterlingbankLists.success) {
       return ResponseHandler('Error getting banks list', 400, true, null);
     }
-    console.log('banklist', SterlingbankLists.partnerResponse);
+    console.log('banklist', SterlingbankLists);
     const results: any = [];
 
     SterlingbankLists.partnerResponse.map((bank: any) => {

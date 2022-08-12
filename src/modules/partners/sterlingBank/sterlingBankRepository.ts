@@ -6,8 +6,9 @@ export const makeRequest = async (requestObj: any) => {
     Authorization: `${process.env.STERLINGCHANNEL} ${process.env.STERLINGNAME} ${process.env.STERLINGKEY}`,
     'Content-Type': 'application/json',
   };
-  console.log('reque', requestObj);
+
   requestObj.url = `${process.env.STERLING_URL + requestObj.url}`;
+  console.log('reque', requestObj.url);
   const result = await axios(requestObj);
   return result.data;
 };
@@ -17,6 +18,7 @@ export const getBankList = async () => {
     method: 'get',
     url: 'Transaction/BankList',
   });
+  console.log('sterling result', bankList);
   return bankList;
 };
 

@@ -9,7 +9,7 @@ export class MiscController {
 
   @Get('/all/banks')
   async getbanks(@Res() res: Response) {
-    const result = await this.miscService.banklist();
+    const result = await this.miscService.sterlingBanks();
     if (result.error) return res.status(400).json(result);
 
     return res.status(200).json(result);
@@ -35,7 +35,6 @@ export class MiscController {
   @Get('/sterling/banks')
   async sterlingBanks(@Res() res: Response) {
     const result = await this.miscService.sterlingBanks();
-    console.log('er', result);
     return res.status(result.statusCode).json(result);
   }
 }

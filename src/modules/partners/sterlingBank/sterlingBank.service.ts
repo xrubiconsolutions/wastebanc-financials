@@ -17,7 +17,6 @@ export const BankList = async () => {
     const bankList = decryptData(encryptResult);
     return bankList;
   } catch (error: any) {
-    console.log(error);
     Logger.error(error);
     handleError(error.response);
   }
@@ -191,12 +190,6 @@ const handleError = (response: any) => {
       httpCode: status,
       verboseMessage: errorResult.Description,
     });
-    // return {
-    //   message: 'Your request is been processed',
-    //   success: false,
-    //   httpCode: status,
-    //   code: errorResult.responseCode,
-    // };
   }
 
   if (errorResult.responseCode && errorResult.responseCode == '01') {
@@ -206,12 +199,6 @@ const handleError = (response: any) => {
       httpCode: status,
       verboseMessage: errorResult.Description,
     });
-    // return {
-    //   message: 'Your request is been processed',
-    //   success: false,
-    //   httpCode: status,
-    //   code: errorResult.responseCode,
-    // };
   }
 
   if (errorResult.statusCode && errorResult.statusCode == '0') {
@@ -221,12 +208,6 @@ const handleError = (response: any) => {
       httpCode: status,
       verboseMessage: errorResult.Description,
     });
-    // return {
-    //   message: 'Your request is been processed',
-    //   success: false,
-    //   httpCode: status,
-    //   code: errorResult.responseCode,
-    // };
   }
 
   if (errorResult.statusCode && errorResult.statusCode == '00') {
@@ -239,12 +220,6 @@ const handleError = (response: any) => {
       httpCode: status,
       verboseMessage: errorResult.Description,
     });
-    // return {
-    //   message: 'Your request is been processed',
-    //   success: false,
-    //   httpCode: status,
-    //   code: errorResult.responseCode,
-    // };
   }
   if (errorResult.statusCode && errorResult.statusCode == '1') {
     console.log(
@@ -256,12 +231,6 @@ const handleError = (response: any) => {
       httpCode: status,
       verboseMessage: errorResult.Description,
     });
-    // return {
-    //   message: 'Your request is been processed',
-    //   success: false,
-    //   httpCode: status,
-    //   code: errorResult.responseCode,
-    // };
   }
 
   if (errorResult.statusCode && errorResult.statusCode == '01') {
@@ -274,20 +243,7 @@ const handleError = (response: any) => {
       httpCode: status,
       verboseMessage: errorResult.Description,
     });
-    // return {
-    //   message: 'Your request is been processed',
-    //   success: false,
-    //   httpCode: status,
-    //   code: errorResult.responseCode,
-    // };
   }
-
-  // return {
-  //   message: data,
-  //   success: false,
-  //   httpCode: status,
-  //   code: '01',
-  // };
 
   throw new UnprocessableEntityError({
     message: data,

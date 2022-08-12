@@ -16,8 +16,8 @@ export const BankList = async () => {
   // console.log('enc', encryptResult);
   try {
     const encryptResult = await sterlingRepository.getBankList();
-    //console.log('enc', encryptResult);
     const bankList = decryptData(encryptResult);
+    console.log('banklist', bankList);
     return bankList;
   } catch (error: any) {
     console.log('error sterling', error);

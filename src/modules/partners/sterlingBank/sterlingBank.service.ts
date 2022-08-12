@@ -162,6 +162,15 @@ const decryptData = (data: string) => {
 
 const handleError = (response: any) => {
   const { status, statusText, data } = response;
+
+  if (typeof data == 'object') {
+    console.log('errors', data.errors);
+    throw new UnprocessableEntityError({
+      message: data.errors,
+      httpCode: status,
+      verboseMessage: statusText,
+    });
+  }
   if (status === 403) {
     console.log('here');
     throw new UnprocessableEntityError({

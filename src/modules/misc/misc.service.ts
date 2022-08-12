@@ -45,7 +45,9 @@ export class MiscService {
     console.log('banklist', SterlingbankLists);
     const results: any = [];
 
-    SterlingbankLists.partnerResponse.Data.map((bank: any) => {
+    const lists = JSON.parse(SterlingbankLists.partnerResponse.Data);
+
+    lists.map((bank: any) => {
       results.push({ name: bank.BankName, value: bank.BankCode });
     });
     return ResponseHandler('success', 200, false, results);

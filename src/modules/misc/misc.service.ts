@@ -86,6 +86,7 @@ export class MiscService {
   }
 
   private callPartner = async (params: resolveAccountDTO) => {
+    console.log('params', params);
     const partnerData = {
       partnerName: this.partnerName,
       action: 'resolveAccount',

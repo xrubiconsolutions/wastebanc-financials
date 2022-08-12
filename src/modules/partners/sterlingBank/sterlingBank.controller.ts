@@ -3,6 +3,7 @@ import {
   GenerateVirtualAccountDTO,
   nipTransferDTO,
   intraBankDTO,
+  accountNumberDTO,
 } from './sterlingBank.dto';
 import * as sterlingbankService from './sterlingBank.service';
 
@@ -14,9 +15,9 @@ export const resolveAccount = async (params: nipInquiryDTO) => {
   return await sterlingbankService.nipNameInquiry(params);
 };
 
-export const getCustomerInformation = async (accountNumber: string) => {
-  console.log('con', accountNumber);
-  return await sterlingbankService.verifyAccountNumber({ accountNumber });
+export const getCustomerInformation = async (params: accountNumberDTO) => {
+  console.log('con', params.accountNumber);
+  return await sterlingbankService.verifyAccountNumber(params);
 };
 export const virtualAccount = async (params: GenerateVirtualAccountDTO) => {
   return await sterlingbankService.generateVirtualAccount(params);

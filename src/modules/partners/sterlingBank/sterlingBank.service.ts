@@ -124,7 +124,7 @@ const handleDecrypting = (params: string) => {
 const getnipNameInquiryRequestData = (params: nipInquiryDTO) => {
   return {
     toAccount: params.accountNumber,
-    BankCode: params.BankCode,
+    destinationBankCode: params.BankCode,
     referenceId: params.referenceId,
   };
 };

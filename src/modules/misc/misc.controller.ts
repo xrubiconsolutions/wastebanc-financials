@@ -27,7 +27,7 @@ export class MiscController {
     const params: resolveAccountDTO = {
       accountNumber: account_number,
       BankCode: bank_code,
-      referenceId: '13435',
+      referenceId: ref.toString(),
     };
 
     const result = await this.miscService.resolveAccountNumber(params);

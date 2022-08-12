@@ -3,6 +3,7 @@ import {
   GenerateVirtualAccountDTO,
   nipTransferDTO,
   intraBankDTO,
+  accountNumberDTO,
 } from './sterlingBank.dto';
 import { UnprocessableEntityError } from '../../../utils/errors/errorHandler';
 import { Logger } from '@nestjs/common';
@@ -50,10 +51,10 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
   }
 };
 
-export const verifyAccountNumber = async (accountNo: string) => {
+export const verifyAccountNumber = async (params: accountNumberDTO) => {
   try {
-    console.log('s', accountNo);
-    const encrypAccountNo = encryptData(accountNo);
+    console.log('s', params.accountNumber);
+    const encrypAccountNo = encryptData(params.accountNumber);
     const encryptResult = await sterlingRepository.getCustomerInformation(
       encrypAccountNo,
     );

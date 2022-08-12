@@ -36,6 +36,7 @@ export const nipAccountNumber = async (accountData: any) => {
   return account;
 };
 
+//update
 export const getCustomerInformation = async (accountData: any) => {
   const account = await makeRequest(
     {

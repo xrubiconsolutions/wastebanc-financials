@@ -53,11 +53,11 @@ export class MiscService {
 
   async resolveAccountNumber(params: resolveAccountDTO) {
     console.log(params);
-    const bank = this.getBank(params.BankCode);
-    const partner = await this.partnerModel.findOne({
-      name: this.partnerName,
-    });
-    params.BankCode = bank[partner.sortCode];
+    // const bank = this.getBank(params.BankCode);
+    // const partner = await this.partnerModel.findOne({
+    //   name: this.partnerName,
+    // });
+    // params.BankCode = bank[partner.sortCode];
     const result: any = await this.callPartner(params);
     if (!result.success) {
       //await this.sendPartnerFailedNotification(result.error.message, params);

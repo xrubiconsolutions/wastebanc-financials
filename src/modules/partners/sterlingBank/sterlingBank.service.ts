@@ -13,15 +13,18 @@ import 'dotenv/config';
 
 export const BankList = async () => {
   console.log('happen');
-  try {
-    const encryptResult = await sterlingRepository.getBankList();
-    const bankList = decryptData(encryptResult);
-    return bankList;
-  } catch (error: any) {
-    console.log('error sterling', error);
-    Logger.error(error);
-    handleError(error.response);
-  }
+  const encryptResult = await sterlingRepository.getBankList();
+  console.log('enc', encryptResult);
+  // try {
+  //   const encryptResult = await sterlingRepository.getBankList();
+  //   console.log('enc', encryptResult);
+  //   //const bankList = decryptData(encryptResult);
+  //   return encryptResult;
+  // } catch (error: any) {
+  //   console.log('error sterling', error);
+  //   Logger.error(error);
+  //   handleError(error.response);
+  // }
 };
 
 export const nipNameInquiry = async (params: nipInquiryDTO) => {

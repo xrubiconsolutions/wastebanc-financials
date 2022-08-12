@@ -30,7 +30,7 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
     console.log('sterling', params);
     const inquiryData = getnipNameInquiryRequestData(params);
     console.log('m', inquiryData);
-    const encrypParams = encryptData(inquiryData);
+    const encrypParams = encryptData(JSON.stringify(inquiryData));
     const encryptResult = await sterlingRepository.nipAccountNumber(
       encrypParams,
     );

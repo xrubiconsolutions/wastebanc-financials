@@ -4,7 +4,7 @@ export const makeRequest = async (requestObj: any) => {
   requestObj.header = {
     Channel: process.env.STERLINGCHANNEL,
     Authorization: `${process.env.STERLINGCHANNEL} ${process.env.STERLINGNAME} ${process.env.STERLINGKEY}`,
-    'Content-Type': 'application/json',
+    'Content-Type': 'text/plain; charset=utf-8',
   };
   requestObj.url = `${process.env.STERLING_URL + requestObj.url}`;
   const result = await axios(requestObj);

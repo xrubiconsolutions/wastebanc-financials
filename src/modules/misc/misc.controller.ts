@@ -46,6 +46,7 @@ export class MiscController {
     @Param('accountNumber') accountNumber: string,
     @Res() res: Response,
   ) {
+    console.log('ss', accountNumber);
     const result = await this.miscService.checkSterlingAccount(accountNumber);
     return res.status(result.statusCode).json(result);
   }

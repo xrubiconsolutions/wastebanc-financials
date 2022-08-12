@@ -15,6 +15,7 @@ export const resolveAccount = async (params: nipInquiryDTO) => {
 };
 
 export const getCustomerInformation = async (accountNumber: string) => {
+  console.log('con', accountNumber);
   return await sterlingbankService.verifyAccountNumber(accountNumber);
 };
 export const virtualAccount = async (params: GenerateVirtualAccountDTO) => {

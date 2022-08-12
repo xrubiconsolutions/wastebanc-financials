@@ -42,12 +42,9 @@ export class MiscService {
     if (!SterlingbankLists.success) {
       return ResponseHandler('Error getting banks list', 400, true, null);
     }
-    //console.log('banklist', SterlingbankLists);
     const results: any = [];
 
     const lists = JSON.parse(SterlingbankLists.partnerResponse);
-
-    console.log('lists', lists);
     lists.Data.map((bank: any) => {
       results.push({ name: bank.BankName, value: bank.BankCode });
     });
@@ -63,7 +60,7 @@ export class MiscService {
     params.BankCode = bank[partner.sortCode];
     const result: any = await this.callPartner(params);
     if (!result.success) {
-      await this.sendPartnerFailedNotification(result.error.message, params);
+      //await this.sendPartnerFailedNotification(result.error.message, params);
       return ResponseHandler(
         'Account number verification failed',
         400,

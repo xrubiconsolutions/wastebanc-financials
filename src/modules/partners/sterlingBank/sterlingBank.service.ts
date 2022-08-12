@@ -30,7 +30,7 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
     console.log('sterling', params);
     const inquiryData = getnipNameInquiryRequestData(params);
     console.log('m', inquiryData);
-    const encrypParams = encryptData(JSON.stringify(inquiryData));
+    const encrypParams = encryptData(inquiryData);
     const encryptResult = await sterlingRepository.nipAccountNumber(
       encrypParams,
     );
@@ -136,7 +136,7 @@ const generateKey = () => {
     'sha1',
   );
 };
-const encryptData = (data: string) => {
+const encryptData = (data: any) => {
   const key = generateKey();
   const cipher = crypto.createCipheriv(
     'AES-256-CBC',
@@ -149,7 +149,7 @@ const encryptData = (data: string) => {
   return encrypted;
 };
 
-const decryptData = (data: string) => {
+const decryptData = (data: any) => {
   const key = generateKey();
   const decipher = crypto.createDecipheriv(
     'AES-256-CBC',

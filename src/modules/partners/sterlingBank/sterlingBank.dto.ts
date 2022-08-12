@@ -8,10 +8,12 @@ export class valueDTO {
 export class nipInquiryDTO {
   @IsNotEmpty({ message: 'accountNumber is required' })
   @IsString()
-  accountNamber: string;
+  accountNumber: string;
   @IsNotEmpty({ message: 'bankCode is required' })
   @IsString()
   BankCode: string;
+
+  referenceId: string;
 }
 
 export class GenerateVirtualAccountDTO {

@@ -1,4 +1,3 @@
-import { generateReference } from './../../../utils';
 import {
   nipInquiryDTO,
   GenerateVirtualAccountDTO,
@@ -38,7 +37,7 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
     const result: any = handleDecrypting(encryptResult);
     return {
       account_name: result.data.Data.nameDetails,
-      account_number: params.accountNamber,
+      account_number: params.accountNumber,
       neSid: result.data.Data.neSid,
       neresp: result.data.Data.neresp,
       beneBVN: result.data.Data.beneBVN,
@@ -123,9 +122,9 @@ const handleDecrypting = (params: string) => {
 };
 const getnipNameInquiryRequestData = (params: nipInquiryDTO) => {
   return {
-    toAccount: params.BankCode,
+    toAccount: params.accountNumber,
     BankCode: params.BankCode,
-    referenceId: generateReference(),
+    referenceId: params.referenceId,
   };
 };
 const generateKey = () => {

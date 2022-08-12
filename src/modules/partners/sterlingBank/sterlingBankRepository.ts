@@ -43,7 +43,7 @@ export const getCustomerInformation = async (accountData: any) => {
       method: 'get',
       url: `Transaction/customerInformation/${accountData}`,
     },
-    ['application/json', 'application/json'],
+    'text/plain; charset=utf-8',
   );
   return account;
 };

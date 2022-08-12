@@ -57,8 +57,9 @@ export const verifyAccountNumber = async (accountNo: string) => {
     );
     return handleDecrypting(encryptResult);
   } catch (error) {
-    Logger.error(error.response.statusText);
-    throw new UnprocessableEntityError({ message: error.response.data });
+    console.log(error);
+    Logger.error(error);
+    handleError(error.response);
   }
 };
 

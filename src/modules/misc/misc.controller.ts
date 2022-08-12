@@ -1,6 +1,6 @@
 import { resolveAccountDTO } from './../partners/paystack/paystack.dto';
 import { MiscService } from './misc.service';
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 
 @Controller('/api')
@@ -36,6 +36,15 @@ export class MiscController {
   @Get('/sterling/banks')
   async sterlingBanks(@Res() res: Response) {
     const result = await this.miscService.sterlingBanks();
+    return res.status(result.statusCode).json(result);
+  }
+
+  @Get('/getCustomerDetails')
+  async customerDetails(
+    @Param('accountNumber') accountNumber: string,
+    @Res() res: Response,
+  ) {
+    const result = await this.miscService.checkSterlingAccount(accountNumber);
     return res.status(result.statusCode).json(result);
   }
 }

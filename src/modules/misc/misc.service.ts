@@ -71,6 +71,20 @@ export class MiscService {
     return ResponseHandler('success', 200, false, result.partnerResponse);
   }
 
+  async checkSterlingAccount(accountNumber: string) {
+    const result = await this.partnerservice.initiatePartner({
+      partnerName: process.env.PARTNER_NAME,
+      action: 'getCustomerInformation',
+      data: accountNumber,
+    });
+
+    if (!result.success) {
+      return ResponseHandler('Customer Account not found', 400, true, null);
+    }
+    console.log(result);
+    return ResponseHandler('success', 200, false, result.partnerResponse);
+  }
+
   private callPartner = async (params: resolveAccountDTO) => {
     const partnerData = {
       partnerName: this.partnerName,

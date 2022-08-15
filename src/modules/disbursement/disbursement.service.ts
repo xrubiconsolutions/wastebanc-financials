@@ -360,10 +360,12 @@ export class DisbursementService {
         beneficiaryName: this.disbursementRequest.beneName,
         paymentReference: this.disbursementRequest.reference,
         customerShowName: 'Pakam',
-        channelCode: this.disbursementRequest.destinationBankCode,
+        channelCode: 'Web',
+        destinationBankCode: this.disbursementRequest.destinationBankCode,
         nesid: this.disbursementRequest.nesidNumber,
         nersp: this.disbursementRequest.nerspNumber,
         beneBVN: this.disbursementRequest.bvn,
+        beneKycLevel: this.disbursementRequest.kycLevel,
         requestId: this.disbursementRequest.reference,
       },
     };

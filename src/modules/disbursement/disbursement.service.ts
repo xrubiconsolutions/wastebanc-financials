@@ -171,8 +171,8 @@ export class DisbursementService {
       },
     );
 
-    this.withdrawalAmount = +this.user.availablePoints - 100;
-
+    //this.withdrawalAmount = +this.user.availablePoints - 100;
+    this.withdrawalAmount = +this.user.availablePoints;
     return balance;
   };
 

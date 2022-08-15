@@ -70,7 +70,7 @@ export class DisbursementRequestService {
         });
       }
 
-      if (user.availablePoints < 100) {
+      if (user.availablePoints < 0) {
         throw new UnprocessableEntityError({
           message: 'You do not have enough points to complete this transaction',
           verboseMessage:
@@ -119,7 +119,8 @@ export class DisbursementRequestService {
     params.reference = generateReference(7);
     return {
       user,
-      withdrawalAmount: Number(user.availablePoints) - 100,
+      //withdrawalAmount: Number(user.availablePoints) - 100,
+      withdrawalAmount: Number(user.availablePoints),
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
       ...params,

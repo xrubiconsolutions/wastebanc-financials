@@ -54,7 +54,7 @@ export const nipFundTransfer = async (transferData: any) => {
     {
       method: 'post',
       url: 'Transaction/NIPFundTransfer',
-      value: transferData,
+      data: { value: transferData },
     },
     'application/json',
   );
@@ -67,9 +67,9 @@ export const intraBank = async (transferData: any) => {
     {
       method: 'post',
       url: 'Transaction/IntraBank',
-      value: transferData,
+      data: { value: transferData },
     },
-    ['application/json', 'application/json'],
+    'application/json',
   );
 
   return response;
@@ -80,7 +80,7 @@ export const generateVirtualAccount = async (virtualAccountData: any) => {
     {
       method: 'post',
       url: 'CreateAccount/OpenAccount',
-      value: virtualAccountData,
+      data: { value: virtualAccountData },
     },
     'application/json',
   );
@@ -93,7 +93,7 @@ export const verifyTransfer = async (transferData: any) => {
     {
       method: 'post',
       url: '/api/Transaction/VerifyTransaction',
-      value: transferData,
+      data: { value: transferData },
     },
     'application/json',
   );

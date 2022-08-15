@@ -30,3 +30,5 @@ export const nipTransfer = async (params: nipTransferDTO) => {
 export const intraBankTransfer = async (params: intraBankDTO) => {
   return await sterlingbankService.intraBankTransfer(params);
 };
+
+//export const verifyTransfer = async(para)

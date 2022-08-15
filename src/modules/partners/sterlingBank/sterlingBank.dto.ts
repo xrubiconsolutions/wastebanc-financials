@@ -123,3 +123,8 @@ export class intraBankDTO {
   @IsString()
   SenderName: string;
 }
+
+export class verifyTransactionDTO {
+  requestId: string;
+  transactionType: string;
+}

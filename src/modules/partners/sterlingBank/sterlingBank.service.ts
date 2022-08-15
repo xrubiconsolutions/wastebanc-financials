@@ -36,13 +36,14 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
       encrypParams,
     );
     const result: any = handleDecrypting(encryptResult);
+    console.log('result', result);
     return {
-      account_name: result.data.Data.nameDetails,
+      account_name: result.data.nameDetails,
       account_number: params.accountNumber,
-      neSid: result.data.Data.neSid,
-      neresp: result.data.Data.neresp,
-      beneBVN: result.data.Data.beneBVN,
-      kycLevel: result.data.Data.kycLevel,
+      neSid: result.data.neSid,
+      neresp: result.data.neresp,
+      beneBVN: result.data.beneBVN,
+      kycLevel: result.data.kycLevel,
     };
   } catch (error: any) {
     console.log(error);

@@ -31,7 +31,7 @@ export const nipAccountNumber = async (accountData: any) => {
       url: 'Transaction/NIPNameinquiry',
       value: accountData,
     },
-    ['application/json', 'application/json'],
+    'application/json',
   );
   return account;
 };

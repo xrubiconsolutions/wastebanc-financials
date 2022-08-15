@@ -33,6 +33,7 @@ export const nipAccountNumber = async (accountData: any) => {
     },
     'application/json',
   );
+  console.log('account', account);
   return account;
 };
 

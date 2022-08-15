@@ -4,6 +4,7 @@ import {
   nipTransferDTO,
   intraBankDTO,
   accountNumberDTO,
+  verifyTransactionDTO,
 } from './sterlingBank.dto';
 import { UnprocessableEntityError } from '../../../utils/errors/errorHandler';
 import { Logger } from '@nestjs/common';
@@ -114,6 +115,8 @@ export const intraBankTransfer = async (params: intraBankDTO) => {
     return handleError(error.response);
   }
 };
+
+//export const verifyTransaction = async (params: verifyTransactionDTO) => {};
 
 const handleDecrypting = (params: string) => {
   let decryptedResult: any = decryptData(params);

@@ -92,7 +92,7 @@ export const verifyTransfer = async (transferData: any) => {
   const response = await makeRequest(
     {
       method: 'post',
-      url: '/api/Transaction/VerifyTransaction',
+      url: 'Transaction/VerifyTransaction',
       data: { value: transferData },
     },
     'application/json',

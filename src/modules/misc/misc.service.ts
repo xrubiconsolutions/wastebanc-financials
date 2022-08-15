@@ -86,6 +86,13 @@ export class MiscService {
     return ResponseHandler('success', 200, false, result.partnerResponse);
   }
 
+  // async verifyTransfer(referenceNumber:string){
+  //   const result = await this.partnerservice.initiatePartner({
+  //     partnerName: process.env.PARTNER_NAME,
+  //     action:''
+  //   })
+  // }
+
   private callPartner = async (params: resolveAccountDTO) => {
     console.log('params', params);
     const partnerData = {

@@ -141,6 +141,7 @@ export class DisbursementService {
     }
 
     this.disbursementRequest = disbursementRequest;
+    console.log('d', this.disbursementRequest);
     return this.disbursementRequest;
   };
 
@@ -366,31 +367,32 @@ export class DisbursementService {
         requestId: this.disbursementRequest.reference,
       },
     };
-    const partnerResponse = await this.partnerservice.initiatePartner(
-      partnerData,
-    );
+    console.log(partnerData);
+    // const partnerResponse = await this.partnerservice.initiatePartner(
+    //   partnerData,
+    // );
 
-    console.log('partner response', partnerResponse);
-    if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error.message,
-      );
-      // roll back
-      await this.rollBack();
-      console.log('ger');
+    // console.log('partner response', partnerResponse);
+    // if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+    //   await this.sendPartnerFailedNotification(
+    //     partnerName,
+    //     partnerResponse.error.message,
+    //   );
+    //   // roll back
+    //   await this.rollBack();
+    //   console.log('ger');
 
-      this.message = 'Payout Request Failed';
-      return partnerResponse;
-    }
-    if (!partnerResponse.success) {
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error.message,
-      );
-    }
+    //   this.message = 'Payout Request Failed';
+    //   return partnerResponse;
+    // }
+    // if (!partnerResponse.success) {
+    //   await this.sendPartnerFailedNotification(
+    //     partnerName,
+    //     partnerResponse.error.message,
+    //   );
+    // }
     this.message = 'Payout initiated successfully';
-    return partnerResponse;
+    return this.message;
   };
 
   private intraBankTransfer = async (partnerName: string) => {

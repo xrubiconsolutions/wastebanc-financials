@@ -147,7 +147,7 @@ export class DisbursementService {
   private confirmAndDebitAmount = async () => {
     console.log('debution');
     const availablePoints = Number(this.user.availablePoints);
-    if (availablePoints < 0) {
+    if (availablePoints <= 0) {
       throw new UnprocessableEntityError({
         message: 'You do not have enough points to complete this transaction',
         verboseMessage:

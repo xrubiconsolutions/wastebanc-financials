@@ -61,6 +61,22 @@ export class DisbursementRequestService {
 
   async requestDisbursement(params: disbursementRequestDTO) {
     try {
+      const user = await this.userModel.findById(params.userId);
+      if (user.availablePoints <= 0) {
+        throw new UnprocessableEntityError({
+          message: 'You do not have enough points to complete this transaction',
+          verboseMessage:
+            'You do not have enough points to complete this transaction',
+        });
+      }
+
+      if (user.availablePoints < 100) {
+        throw new UnprocessableEntityError({
+          message: 'You do not have enough points to complete this transaction',
+          verboseMessage:
+            'You do not have enough points to complete this transaction',
+        });
+      }
       await this.disbursementModel.deleteOne({
         user: params.userId,
         type: params.type,

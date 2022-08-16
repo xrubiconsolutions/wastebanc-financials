@@ -409,7 +409,8 @@ export class DisbursementService {
         requestId: this.disbursementRequest.reference,
         TransactionType: 26,
         DifferentTradeValueDate: 0,
-        TransactionAmount: this.disbursementRequest.withdrawalAmount.toFixed(2),
+        TransactionAmount:
+          +this.disbursementRequest.withdrawalAmount.toFixed(2),
         CurrencyCode: '566',
         PaymentReference: this.disbursementRequest.referenceCode,
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,
@@ -420,6 +421,7 @@ export class DisbursementService {
       },
     };
 
+    console.log('partner data',partnerData);
     const partnerResponse = await this.partnerservice.initiatePartner(
       partnerData,
     );

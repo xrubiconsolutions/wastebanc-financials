@@ -42,7 +42,7 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
       account_name: result.Data.nameDetails,
       account_number: params.accountNumber,
       neSid: result.Data.neSid,
-      neresp: result.Data.neresp,
+      neresp: result.Data.responseCode,
       beneBVN: result.Data.beneBVN,
       kycLevel: result.Data.kycLevel,
     };

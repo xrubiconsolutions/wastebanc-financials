@@ -425,23 +425,23 @@ export class DisbursementService {
     );
     console.log('partner response', partnerResponse);
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error.message,
-      );
-      // roll back
-      await this.rollBack();
+      // await this.sendPartnerFailedNotification(
+      //   partnerName,
+      //   partnerResponse.error.message,
+      // );
+      // // roll back
+      // await this.rollBack();
       const msg = 'Payout Request Failed';
       this.message = msg;
       return partnerResponse;
     }
 
     if (!partnerResponse.success) {
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error.message,
-      );
-      console.log('err', partnerResponse);
+      // await this.sendPartnerFailedNotification(
+      //   partnerName,
+      //   partnerResponse.error.message,
+      // );
+      // console.log('err', partnerResponse);
       this.message = 'Payout initiated successfully';
     }
     this.message = 'Payout initiated successfully';

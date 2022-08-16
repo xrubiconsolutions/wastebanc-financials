@@ -427,7 +427,7 @@ export class DisbursementService {
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
       // await this.sendPartnerFailedNotification(
       //   partnerName,
-      //   partnerResponse.error.message,
+      //   partnerResponse.error,
       // );
       // // roll back
       // await this.rollBack();
@@ -439,7 +439,7 @@ export class DisbursementService {
     if (!partnerResponse.success) {
       // await this.sendPartnerFailedNotification(
       //   partnerName,
-      //   partnerResponse.error.message,
+      //   partnerResponse.error,
       // );
       // console.log('err', partnerResponse);
       this.message = 'Payout initiated successfully';

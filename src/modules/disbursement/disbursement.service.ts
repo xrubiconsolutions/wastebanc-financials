@@ -421,7 +421,7 @@ export class DisbursementService {
       },
     };
 
-    console.log('partner data',partnerData);
+    console.log('partner data', partnerData);
     const partnerResponse = await this.partnerservice.initiatePartner(
       partnerData,
     );

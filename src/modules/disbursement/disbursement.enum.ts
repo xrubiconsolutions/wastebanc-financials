@@ -2,6 +2,7 @@ export enum DisbursementStatus {
   failed = 'failed',
   initiated = 'initiated',
   successful = 'successful',
+  cancelled = 'cancelled',
 }
 
 export enum MarkActionType {

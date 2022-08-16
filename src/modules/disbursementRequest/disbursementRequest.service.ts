@@ -19,6 +19,7 @@ import {
 } from '../schemas/transactions.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import banklist from '../misc/ngnbanklist.json';
+import { DisbursementStatus } from '../disbursement/disbursement.enum';
 @Injectable()
 export class DisbursementRequestService {
   constructor(
@@ -91,10 +92,15 @@ export class DisbursementRequestService {
           message: 'User has no unpaid transactions',
           verboseMessage: 'User has no unpaid transactions',
         });
-      await this.disbursementModel.deleteOne({
-        user: params.userId,
-        type: params.type,
-      });
+      await this.disbursementModel.updateOne(
+        {
+          user: params.userId,
+          type: params.type,
+        },
+        {
+          status: DisbursementStatus.cancelled,
+        },
+      );
       const value = await this.disbursementData(params);
       const disbursment = await this.disbursementModel.create(value);
       console.log('phone', value.user.phone);

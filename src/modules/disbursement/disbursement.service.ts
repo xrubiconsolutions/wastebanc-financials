@@ -121,6 +121,7 @@ export class DisbursementService {
       _id: this.params.requestId,
       otp: this.params.otp,
       user: this.params.userId,
+      status: DisbursementStatus.initiated,
     };
     const disbursementRequest = await this.disbursementModel.findOne(condition);
 
@@ -354,7 +355,7 @@ export class DisbursementService {
       data: {
         fromAccount: '0503527719',
         toAccount: this.disbursementRequest.destinationAccount,
-        amount: this.disbursementRequest.withdrawalAmount,
+        amount: this.disbursementRequest.withdrawalAmount.toFixed(2),
         principalIdentifier: this.disbursementRequest.principalIdentifier,
         referenceCode: this.disbursementRequest.referenceCode,
         beneficiaryName: this.disbursementRequest.beneName,
@@ -406,7 +407,7 @@ export class DisbursementService {
         toAmount: this.disbursementRequest.destinationAccount,
         TransactionType: 26,
         DifferentTradeValueDate: 0,
-        TransactionAmount: this.disbursementRequest.withdrawalAmount,
+        TransactionAmount: this.disbursementRequest.withdrawalAmount.toFixed(2),
         CurrencyCode: '566' || 'NGN',
         PaymentReference: this.disbursementRequest.paymentReference,
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,

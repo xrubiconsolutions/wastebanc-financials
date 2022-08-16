@@ -88,11 +88,14 @@ export class DisbursementRequestService {
 
       const transactions = await this.transactionModel.find(condition);
       if (transactions.length <= 0)
-        throw new UnprocessableEntityError({
-          message: 'User has no unpaid transactions',
-          verboseMessage: 'User has no unpaid transactions',
-        });
-      await this.disbursementModel.updateOne(
+        return ResponseHandler(
+          'User has no unpaid transactions',
+          400,
+          false,
+          null,
+        );
+
+      await this.disbursementModel.updateMany(
         {
           user: params.userId,
           type: params.type,

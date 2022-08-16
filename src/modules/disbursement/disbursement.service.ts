@@ -355,7 +355,7 @@ export class DisbursementService {
       data: {
         fromAccount: '0503534612',
         toAccount: this.disbursementRequest.destinationAccount,
-        amount: this.disbursementRequest.withdrawalAmount.toFixed(2),
+        amount: this.disbursementRequest.withdrawalAmount,
         principalIdentifier: this.disbursementRequest.principalIdentifier,
         referenceCode: this.disbursementRequest.referenceCode,
         requestCode: this.disbursementRequest.referenceCode,
@@ -409,8 +409,7 @@ export class DisbursementService {
         requestId: this.disbursementRequest.reference,
         TransactionType: 26,
         DifferentTradeValueDate: 0,
-        TransactionAmount:
-          +this.disbursementRequest.withdrawalAmount.toFixed(2),
+        TransactionAmount: this.disbursementRequest.withdrawalAmount,
         CurrencyCode: '566',
         PaymentReference: this.disbursementRequest.referenceCode,
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,

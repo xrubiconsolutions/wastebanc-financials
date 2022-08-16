@@ -360,7 +360,7 @@ export class DisbursementService {
         referenceCode: this.disbursementRequest.referenceCode,
         beneficiaryName: this.disbursementRequest.beneName,
         paymentReference: this.disbursementRequest.paymentReference,
-        customerShowName: 'Pakam',
+        customerShowName: 'WASTEBANC',
         channelCode: '2',
         destinationBankCode: this.disbursementRequest.destinationBankCode,
         nesid: this.disbursementRequest.nesidNumber,
@@ -413,7 +413,7 @@ export class DisbursementService {
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,
         NarrationLine2: '',
         BeneficiaryName: this.disbursementRequest.beneName,
-        SenderName: 'Pakam',
+        SenderName: 'WASTEBANC',
       },
     };
 

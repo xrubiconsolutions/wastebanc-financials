@@ -404,7 +404,7 @@ export class DisbursementService {
       partnerName,
       action: 'intraBankTransfer',
       data: {
-        fromAccount: '0503527719',
+        fromAccount: '0503534612',
         toAccount: this.disbursementRequest.destinationAccount,
         requestId: this.disbursementRequest.reference,
         TransactionType: 26,

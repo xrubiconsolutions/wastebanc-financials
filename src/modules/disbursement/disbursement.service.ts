@@ -353,14 +353,14 @@ export class DisbursementService {
       partnerName,
       action: 'nipTransfer',
       data: {
-        fromAccount: '0503527719',
+        fromAccount: '0503534612',
         toAccount: this.disbursementRequest.destinationAccount,
         amount: this.disbursementRequest.withdrawalAmount.toFixed(2),
         principalIdentifier: this.disbursementRequest.principalIdentifier,
         referenceCode: this.disbursementRequest.referenceCode,
         beneficiaryName: this.disbursementRequest.beneName,
         paymentReference: this.disbursementRequest.paymentReference,
-        customerShowName: 'Pakam',
+        customerShowName: 'PAKAM TECHNOLOGY LTD',
         channelCode: '2',
         destinationBankCode: this.disbursementRequest.destinationBankCode,
         nesid: this.disbursementRequest.nesidNumber,
@@ -413,7 +413,7 @@ export class DisbursementService {
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,
         NarrationLine2: '',
         BeneficiaryName: this.disbursementRequest.beneName,
-        SenderName: 'Pakam',
+        SenderName: 'WASTEBANC',
       },
     };
 

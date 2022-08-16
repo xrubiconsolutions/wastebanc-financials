@@ -417,7 +417,7 @@ export class DisbursementService {
         BeneficiaryName: this.disbursementRequest.beneName,
         SenderName: 'PAKAM TECHNOLOGY LTD',
         TransactionNumber: this.disbursementRequest.principalIdentifier,
-        ValueDate: new Date().toDateString(),
+        ValueDate: this.moment.format('DD-MM-YYYY'),
       },
     };
 

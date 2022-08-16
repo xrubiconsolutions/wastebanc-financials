@@ -358,6 +358,7 @@ export class DisbursementService {
         amount: this.disbursementRequest.withdrawalAmount.toFixed(2),
         principalIdentifier: this.disbursementRequest.principalIdentifier,
         referenceCode: this.disbursementRequest.referenceCode,
+        requestCode: this.disbursementRequest.referenceCode,
         beneficiaryName: this.disbursementRequest.beneName,
         paymentReference: this.disbursementRequest.paymentReference,
         customerShowName: 'PAKAM TECHNOLOGY LTD',
@@ -413,7 +414,7 @@ export class DisbursementService {
         NarrationLine1: `Pakam payment to ${this.user.fullname}`,
         NarrationLine2: '',
         BeneficiaryName: this.disbursementRequest.beneName,
-        SenderName: 'WASTEBANC',
+        SenderName: 'PAKAM TECHNOLOGY LTD',
       },
     };
 

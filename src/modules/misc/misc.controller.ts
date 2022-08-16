@@ -1,6 +1,7 @@
+import { verifyTransactionDTO } from './../partners/sterlingBank/sterlingBank.dto';
 import { resolveAccountDTO } from './../partners/paystack/paystack.dto';
 import { MiscService } from './misc.service';
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { randomInt } from 'crypto';
 
@@ -49,6 +50,15 @@ export class MiscController {
   ) {
     console.log('ss', accountNumber);
     const result = await this.miscService.checkSterlingAccount(accountNumber);
+    return res.status(result.statusCode).json(result);
+  }
+
+  @Post('/verify/transaction')
+  async transactionVerification(
+    @Body() params: verifyTransactionDTO,
+    @Res() res: Response,
+  ) {
+    const result = await this.miscService.verifyTransfer(params);
     return res.status(result.statusCode).json(result);
   }
 }

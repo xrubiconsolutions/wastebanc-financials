@@ -8,6 +8,7 @@ import banklist from './ngnbanklist.json';
 import { SlackCategories } from '../notification/slack/slack.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { verifyTransactionDTO } from '../partners/sterlingBank/sterlingBank.dto';
 
 @Injectable()
 export class MiscService {
@@ -86,12 +87,20 @@ export class MiscService {
     return ResponseHandler('success', 200, false, result.partnerResponse);
   }
 
-  // async verifyTransfer(referenceNumber:string){
-  //   const result = await this.partnerservice.initiatePartner({
-  //     partnerName: process.env.PARTNER_NAME,
-  //     action:''
-  //   })
-  // }
+  async verifyTransfer(params: verifyTransactionDTO) {
+    const result = await this.partnerservice.initiatePartner({
+      partnerName: process.env.PARTNER_NAME,
+      action: 'verifyTransfer',
+      data: params,
+    });
+
+    if (!result.success) {
+      console.log('error', result.error);
+      return ResponseHandler('Transaction not found', 400, true, null);
+    }
+    console.log(result);
+    return ResponseHandler('success', 200, false, result.partnerResponse);
+  }
 
   private callPartner = async (params: resolveAccountDTO) => {
     console.log('params', params);

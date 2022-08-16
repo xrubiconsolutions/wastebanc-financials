@@ -70,13 +70,27 @@ export class DisbursementRequestService {
         });
       }
 
-      if (user.availablePoints < 0) {
+      if (user.availablePoints <= 0) {
         throw new UnprocessableEntityError({
           message: 'You do not have enough points to complete this transaction',
           verboseMessage:
             'You do not have enough points to complete this transaction',
         });
       }
+
+      const condition = {
+        paid: false,
+        requestedForPayment: false,
+        cardID: user._id,
+        // completedBy: '',
+      };
+
+      const transactions = await this.transactionModel.find(condition);
+      if (transactions.length <= 0)
+        throw new UnprocessableEntityError({
+          message: 'User has no unpaid transactions',
+          verboseMessage: 'User has no unpaid transactions',
+        });
       await this.disbursementModel.deleteOne({
         user: params.userId,
         type: params.type,
@@ -114,15 +128,26 @@ export class DisbursementRequestService {
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
 
+    let transactionType = '0';
+    if (
+      params.bankName.toLowerCase() == 'sterling bank' ||
+      params.bankName.toLowerCase() == 'sterling'
+    ) {
+      transactionType = '1';
+    }
     params.amount = user.availablePoints;
     params.charge = 100;
-    params.reference = generateReference(7);
+    params.reference = `${generateReference(7, false)}${Date.now()}`;
     return {
       user,
       //withdrawalAmount: Number(user.availablePoints) - 100,
       withdrawalAmount: Number(user.availablePoints),
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
+      referenceCode: `${generateReference(6, false)}${Date.now()}`,
+      principalIdentifier: `${generateReference(8, false)}${Date.now()}`,
+      paymentReference: `Pakam Transfer to ${params.bankName}|${params.beneName}`,
+      transactionType,
       ...params,
     };
   }

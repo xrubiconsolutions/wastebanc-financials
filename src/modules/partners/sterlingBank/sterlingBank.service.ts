@@ -116,7 +116,21 @@ export const intraBankTransfer = async (params: intraBankDTO) => {
   }
 };
 
-//export const verifyTransaction = async (params: verifyTransactionDTO) => {};
+export const verifyTransaction = async (params: verifyTransactionDTO) => {
+  try {
+    const encryptParams = encryptData(JSON.stringify(params));
+    const encryptedResult = await sterlingRepository.verifyTransfer(
+      encryptParams,
+    );
+    const result = handleDecrypting(encryptedResult);
+    return result;
+  } catch (error) {
+    console.log('error', error);
+    Logger.error(error);
+    // throw new UnprocessableEntityError({ message: error.response.data });
+    return handleError(error.response);
+  }
+};
 
 const handleDecrypting = (params: string) => {
   let decryptedResult: any = decryptData(params);

@@ -355,7 +355,7 @@ export class DisbursementService {
       data: {
         fromAccount: '0503534612',
         toAccount: this.disbursementRequest.destinationAccount,
-        amount: this.disbursementRequest.withdrawalAmount,
+        amount: this.disbursementRequest.withdrawalAmount.toFixed(2),
         principalIdentifier: this.disbursementRequest.principalIdentifier,
         referenceCode: this.disbursementRequest.referenceCode,
         requestCode: this.disbursementRequest.referenceCode,

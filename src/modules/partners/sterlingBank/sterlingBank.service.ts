@@ -166,6 +166,8 @@ const encryptData = (data: string) => {
   let encrypted = cipher.update(data, 'utf8', 'base64');
   encrypted += cipher.final('base64');
 
+  console.log('encrypted data', encrypted);
+
   return encrypted;
 };
 

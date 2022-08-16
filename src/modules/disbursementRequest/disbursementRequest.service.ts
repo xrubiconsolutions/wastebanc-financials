@@ -141,7 +141,7 @@ export class DisbursementRequestService {
     return {
       user,
       //withdrawalAmount: Number(user.availablePoints) - 100,
-      withdrawalAmount: Number(user.availablePoints),
+      withdrawalAmount: Number(user.availablePoints).toFixed(2),
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
       referenceCode: `${generateReference(6, false)}${Date.now()}`,

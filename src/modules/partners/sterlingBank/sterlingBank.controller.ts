@@ -4,6 +4,7 @@ import {
   nipTransferDTO,
   intraBankDTO,
   accountNumberDTO,
+  verifyTransactionDTO,
 } from './sterlingBank.dto';
 import * as sterlingbankService from './sterlingBank.service';
 
@@ -31,4 +32,6 @@ export const intraBankTransfer = async (params: intraBankDTO) => {
   return await sterlingbankService.intraBankTransfer(params);
 };
 
-//export const verifyTransfer = async(para)
+export const verifyTransfer = async (params: verifyTransactionDTO) => {
+  return await sterlingbankService.verifyTransaction(params);
+};

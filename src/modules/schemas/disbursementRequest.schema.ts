@@ -70,6 +70,18 @@ export class DisbursementRequest {
 
   @Prop({ type: Date })
   otpExpiry: Date;
+
+  @Prop({ type: String })
+  principalIdentifier: string;
+
+  @Prop({ type: String })
+  referenceCode: string;
+
+  @Prop({ type: String })
+  paymentReference: string;
+
+  @Prop({ type: String })
+  transactionType: string;
 }
 
 export const DisbusmentRequestSchema =

@@ -90,7 +90,7 @@ export class SlackService {
         failed: env('SLACK_DISBURSEMENT_FAILED_WEBHOOK_URL'),
       },
       requests: {
-        failed: process.env.SLACK_FAILED_REQUEST_WEBHOOK_URL,
+        failed: env('SLACK_FAILED_REQUEST_WEBHOOK_URL'),
       },
     };
 

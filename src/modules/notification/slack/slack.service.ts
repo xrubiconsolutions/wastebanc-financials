@@ -32,6 +32,7 @@ export class SlackService {
   private sendNotification(
     slackData: SendNotificationDTO,
   ): Observable<AxiosResponse<any>> {
+    console.log('here', SendMessageDTO);
     const { category, event, data, options } = slackData;
     const url = this.chooseSlackURL(category, event);
 
@@ -39,6 +40,7 @@ export class SlackService {
     const notification = this.httpService.post(url, formatData, {
       proxy: false,
     });
+    console.log('noti', notification);
     return notification;
   }
 
@@ -90,7 +92,7 @@ export class SlackService {
         failed: env('SLACK_DISBURSEMENT_FAILED_WEBHOOK_URL'),
       },
       requests: {
-        failed: process.env.SLACK_FAILED_REQUEST_WEBHOOK_URL,
+        failed: env('SLACK_FAILED_REQUEST_WEBHOOK_URL'),
       },
     };
 

@@ -9,6 +9,8 @@ import { SlackCategories } from '../notification/slack/slack.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { verifyTransactionDTO } from '../partners/sterlingBank/sterlingBank.dto';
+import { User, UserDocument } from '../schemas/user.schema';
+import { requestChargesDTO } from '../disbursementRequest/disbursementRequest.dto';
 
 @Injectable()
 export class MiscService {
@@ -18,6 +20,7 @@ export class MiscService {
     private eventEmiiter: EventEmitter2,
 
     @InjectModel(Partner.name) private partnerModel: Model<PartnerDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {
     this.partnerName = process.env.PARTNER_NAME;
   }
@@ -53,15 +56,14 @@ export class MiscService {
   }
 
   async resolveAccountNumber(params: resolveAccountDTO) {
-    console.log(params);
-    // const bank = this.getBank(params.BankCode);
-    // const partner = await this.partnerModel.findOne({
-    //   name: this.partnerName,
-    // });
-    // params.BankCode = bank[partner.sortCode];
+    const bank = this.getBank(params.BankCode);
+    const partner = await this.partnerModel.findOne({
+      name: this.partnerName,
+    });
+    params.BankCode = bank[partner.sortCode];
     const result: any = await this.callPartner(params);
     if (!result.success) {
-      //await this.sendPartnerFailedNotification(result.error.message, params);
+      await this.sendPartnerFailedNotification(result.error.message, params);
       return ResponseHandler(
         'Account number verification failed',
         400,
@@ -69,7 +71,15 @@ export class MiscService {
         null,
       );
     }
-    return ResponseHandler('success', 200, false, result.partnerResponse);
+    const summary = await this.getWithdrawalAmountandCharges({
+      bankCode: params.BankCode,
+      userId: params.userId,
+    });
+    const res = {
+      accountResult: result.partnerResponse,
+      summary,
+    };
+    return ResponseHandler('success', 200, false, res);
   }
 
   async checkSterlingAccount(accountNumber: string) {
@@ -135,5 +145,17 @@ export class MiscService {
       return bank.value == bankCode;
     });
     return bank;
+  };
+
+  private getWithdrawalAmountandCharges = async (params: requestChargesDTO) => {
+    const user = await this.userModel.findById(params.userId);
+    const partner = await this.partnerModel.findOne({
+      bankCode: params.bankCode,
+    });
+    const withdrawalAmount = +user.availablePoints - +partner.charges;
+    return {
+      charge: +partner.charges,
+      withdrawalAmount,
+    };
   };
 }

@@ -22,6 +22,7 @@ export class MiscController {
   async resolveAccount(
     @Query('account_number') account_number: string,
     @Query('bank_code') bank_code: string,
+    @Query('userId') userId: string,
     @Res() res: Response,
   ) {
     const ref = randomInt(1000000);
@@ -29,6 +30,7 @@ export class MiscController {
       accountNumber: account_number,
       BankCode: bank_code,
       referenceId: ref.toString(),
+      userId,
     };
 
     const result = await this.miscService.resolveAccountNumber(params);

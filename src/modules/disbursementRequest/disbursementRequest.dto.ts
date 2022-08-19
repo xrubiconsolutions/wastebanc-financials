@@ -61,7 +61,4 @@ export class requestChargesDTO {
   // @IsNotEmpty()
   // @IsString()
   userId: string;
-
-  // @IsOptional()
-  amount: number;
 }

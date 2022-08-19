@@ -392,7 +392,8 @@
   {
     "name": "FCMB Easy Account",
     "value": "100031",
-    "nibbsCode": "100031"
+    "nibbsCode": "100031",
+    "sterlingCode":"000003"
   },
   {
     "name": "Fidelity Bank",
@@ -420,9 +421,10 @@
     "nibbsCode": "000021"
   },
   {
-    "name": "Sterling Bank PLC",
+    "name": "Sterling Bank",
     "value": "232",
-    "nibbsCode": "000001"
+    "nibbsCode": "000001",
+    "sterlingCode": "000001"
   },
   {
     "name": "United Bank For Africa",

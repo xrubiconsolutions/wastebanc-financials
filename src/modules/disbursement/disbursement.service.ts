@@ -432,18 +432,19 @@ export class DisbursementService {
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
-        partnerName,
         partnerResponse.error,
+        partnerName,
         'intraBankTransfer',
       );
       // roll back
 
-      const msg = 'Payout Request Failed';
-      this.message = msg;
+      // const msg = 'Payout Request Failed';
+      this.message = 'Payout Request Failed';
       return partnerResponse;
     }
 
     if (!partnerResponse.success) {
+      await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,

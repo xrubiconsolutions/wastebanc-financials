@@ -5,7 +5,7 @@ import {
   disbursementRequestDTO,
   requestChargesDTO,
 } from './disbursementRequest.dto';
-import { ResponseHandler, generateReference } from './../../utils/misc';
+import { ResponseHandler, generateReference, env } from './../../utils/misc';
 import {
   DisbursementRequest,
   DisbursementRequestDocument,
@@ -109,7 +109,6 @@ export class DisbursementRequestService {
       );
       const value = await this.disbursementData(params);
       const disbursment = await this.disbursementModel.create(value);
-      console.log('phone', value.user.phone);
       this.eventEmitter.emit('sms.otp', {
         phone: value.user.phone,
         token: disbursment.otp,
@@ -148,7 +147,7 @@ export class DisbursementRequestService {
       transactionType = '1';
     }
     params.amount = user.availablePoints;
-    params.charge = 100;
+    params.charge = +env('APP_CHARGE');
     params.reference = `${generateReference(7, false)}${Date.now()}`;
     return {
       user,

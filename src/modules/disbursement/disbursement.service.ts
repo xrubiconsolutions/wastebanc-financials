@@ -389,14 +389,14 @@ export class DisbursementService {
       return partnerResponse;
     }
     if (!partnerResponse.success) {
-      await this.rollBack();
+      //await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
         'nipTransfer',
       );
-      this.message = 'Payout Request Failed';
-      return this.message;
+      // this.message = 'Payout Request Failed';
+      //return this.message;
     }
     this.message = 'Payout initiated successfully';
     return this.message;
@@ -438,8 +438,8 @@ export class DisbursementService {
       );
       // roll back
 
-      const msg = 'Payout Request Failed';
-      this.message = msg;
+      // const msg = 'Payout Request Failed';
+      this.message = 'Payout Request Failed';
       return partnerResponse;
     }
 

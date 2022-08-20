@@ -379,24 +379,24 @@ export class DisbursementService {
 
     console.log('partner response', partnerResponse);
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+      await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
         'nipTransfer',
       );
-      // roll back
-      await this.rollBack();
-      console.log('ger');
-
       this.message = 'Payout Request Failed';
       return partnerResponse;
     }
     if (!partnerResponse.success) {
+      await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
         'nipTransfer',
       );
+      this.message = 'Payout Request Failed';
+      return this.message;
     }
     this.message = 'Payout initiated successfully';
     return this.message;
@@ -430,13 +430,14 @@ export class DisbursementService {
     );
     console.log('partner response', partnerResponse);
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+      await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
         'intraBankTransfer',
       );
       // roll back
-      await this.rollBack();
+
       const msg = 'Payout Request Failed';
       this.message = msg;
       return partnerResponse;
@@ -449,7 +450,8 @@ export class DisbursementService {
         'intraBankTransfer',
       );
       console.log('err', partnerResponse);
-      this.message = 'Payout initiated successfully';
+      this.message = 'Payout Request Failed';
+      return partnerResponse;
     }
     this.message = 'Payout initiated successfully';
     return partnerResponse;

@@ -432,8 +432,8 @@ export class DisbursementService {
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
-        partnerName,
         partnerResponse.error,
+        partnerName,
         'intraBankTransfer',
       );
       // roll back

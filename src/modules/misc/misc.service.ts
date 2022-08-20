@@ -64,6 +64,7 @@ export class MiscService {
       await this.sendPartnerFailedNotification(
         'Wrong Bank Code passed',
         params,
+        'resolveAccountNumber',
       );
       return ResponseHandler(
         'Account number verification failed',
@@ -75,7 +76,11 @@ export class MiscService {
     params.BankCode = bank[partner.sortCode];
     const result: any = await this.callPartner(params);
     if (!result.success) {
-      await this.sendPartnerFailedNotification(result.error, params);
+      await this.sendPartnerFailedNotification(
+        result.error,
+        params,
+        'resolveAccountNumber',
+      );
       return ResponseHandler(
         'Account number verification failed',
         400,
@@ -137,7 +142,11 @@ export class MiscService {
     return partnerResponse;
   };
 
-  private sendPartnerFailedNotification = async (message: any, params: any) => {
+  private sendPartnerFailedNotification = async (
+    message: any,
+    params: any,
+    method: string,
+  ) => {
     const slackNotificationData = {
       category: SlackCategories.Requests,
       event: 'failed',
@@ -145,6 +154,7 @@ export class MiscService {
         requestFailedType: 'partner_account_verification_failed',
         partnerName: this.partnerName,
         message,
+        method,
         ...params,
       },
     };

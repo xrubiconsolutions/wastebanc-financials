@@ -1,5 +1,5 @@
 import { partnerService } from './../partners/partnersService';
-// import { generateReference } from './../../utils/misc';
+// import { generateReference, env } from './../../utils/misc';
 import {
   Organisation,
   OrganisationDocument,
@@ -35,6 +35,7 @@ import disbursementConfig from './disbursement.config.json';
 import { Inject, Injectable } from '@nestjs/common';
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import banklists from '../misc/ngnbanklist.json';
+import { env } from '../../utils';
 @Injectable()
 export class DisbursementService {
   private params: InitiateDTO;
@@ -353,7 +354,7 @@ export class DisbursementService {
       partnerName,
       action: 'nipTransfer',
       data: {
-        fromAccount: '0503534612',
+        fromAccount: env('PAKAM_ACCOUNT'),
         toAccount: this.disbursementRequest.destinationAccount,
         amount: this.disbursementRequest.withdrawalAmount.toFixed(2),
         principalIdentifier: this.disbursementRequest.principalIdentifier,
@@ -361,7 +362,7 @@ export class DisbursementService {
         requestCode: this.disbursementRequest.referenceCode,
         beneficiaryName: this.disbursementRequest.beneName,
         paymentReference: this.disbursementRequest.paymentReference,
-        customerShowName: 'PAKAM TECHNOLOGY LTD',
+        customerShowName: env('ACCOUNT_NAME'),
         channelCode: '2',
         destinationBankCode: this.disbursementRequest.destinationBankCode,
         nesid: this.disbursementRequest.nesidNumber,
@@ -404,7 +405,7 @@ export class DisbursementService {
       partnerName,
       action: 'intraBankTransfer',
       data: {
-        fromAccount: '0503534612',
+        fromAccount: env('PAKAM_ACCOUNT'),
         toAccount: this.disbursementRequest.destinationAccount,
         requestId: this.disbursementRequest.reference,
         TransactionType: 26,
@@ -412,10 +413,10 @@ export class DisbursementService {
         TransactionAmount: this.disbursementRequest.withdrawalAmount,
         CurrencyCode: '566',
         PaymentReference: this.disbursementRequest.referenceCode,
-        NarrationLine1: `Pakam payment to ${this.user.fullname}`,
+        NarrationLine1: `Pakam payment to ${this.disbursementRequest.beneName}`,
         NarrationLine2: '',
         BeneficiaryName: this.disbursementRequest.beneName,
-        SenderName: 'PAKAM TECHNOLOGY LTD',
+        SenderName: env('ACCOUNT_NAME'),
         TransactionNumber: this.disbursementRequest.principalIdentifier,
         ValueDate: this.moment.format('DD-MM-YYYY'),
       },

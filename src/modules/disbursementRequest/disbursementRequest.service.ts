@@ -102,6 +102,7 @@ export class DisbursementRequestService {
         {
           user: params.userId,
           type: params.type,
+          status: DisbursementStatus.initiated,
         },
         {
           status: DisbursementStatus.cancelled,

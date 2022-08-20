@@ -32,7 +32,6 @@ export class SlackService {
   private sendNotification(
     slackData: SendNotificationDTO,
   ): Observable<AxiosResponse<any>> {
-    console.log('here', SendMessageDTO);
     const { category, event, data, options } = slackData;
     const url = this.chooseSlackURL(category, event);
 

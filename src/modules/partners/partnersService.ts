@@ -22,7 +22,6 @@ export class partnerService {
 
       return { success: true, error: null, partnerResponse };
     } catch (error: any) {
-      console.log('error', error);
       Logger.error(error);
       return { success: false, error: error.message };
     }

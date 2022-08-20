@@ -56,14 +56,26 @@ export class MiscService {
   }
 
   async resolveAccountNumber(params: resolveAccountDTO) {
-    const bank = this.getBank(params.BankCode);
     const partner = await this.partnerModel.findOne({
       name: this.partnerName,
     });
+    const bank = this.getBank(params.BankCode, partner.sortCode);
+    if (!bank) {
+      await this.sendPartnerFailedNotification(
+        'Wrong Bank Code passed',
+        params,
+      );
+      return ResponseHandler(
+        'Account number verification failed',
+        400,
+        true,
+        null,
+      );
+    }
     params.BankCode = bank[partner.sortCode];
     const result: any = await this.callPartner(params);
     if (!result.success) {
-      await this.sendPartnerFailedNotification(result.error.message, params);
+      await this.sendPartnerFailedNotification(result.error, params);
       return ResponseHandler(
         'Account number verification failed',
         400,
@@ -140,9 +152,10 @@ export class MiscService {
     return;
   };
 
-  private getBank = (bankCode: string) => {
+  private getBank = (bankCode: string, sortCode: string) => {
+    console.log('sort', bankCode);
     const bank = banklist.find((bank: any) => {
-      return bank.value == bankCode;
+      return bank[sortCode] == bankCode;
     });
     return bank;
   };

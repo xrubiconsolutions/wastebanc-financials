@@ -20,6 +20,7 @@ export class SlackService {
     params: SendMessageDTO,
   ): Promise<Observable<AxiosResponse<any>>> {
     try {
+      console.log('params', params);
       const slackReponse = await lastValueFrom(this.sendNotification(params));
       return slackReponse.data;
     } catch (error: any) {

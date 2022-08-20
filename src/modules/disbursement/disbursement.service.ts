@@ -382,6 +382,7 @@ export class DisbursementService {
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
+        'nipTransfer',
       );
       // roll back
       await this.rollBack();
@@ -394,6 +395,7 @@ export class DisbursementService {
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
+        'nipTransfer',
       );
     }
     this.message = 'Payout initiated successfully';
@@ -431,6 +433,7 @@ export class DisbursementService {
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
+        'intraBankTransfer',
       );
       // roll back
       await this.rollBack();
@@ -443,6 +446,7 @@ export class DisbursementService {
       await this.sendPartnerFailedNotification(
         partnerName,
         partnerResponse.error,
+        'intraBankTransfer',
       );
       console.log('err', partnerResponse);
       this.message = 'Payout initiated successfully';
@@ -454,6 +458,7 @@ export class DisbursementService {
   private sendPartnerFailedNotification = (
     message: string,
     parterName: string,
+    method: string,
   ) => {
     const slackNotificationData = {
       category: 'disbursement',
@@ -471,6 +476,7 @@ export class DisbursementService {
         bankCode: this.disbursementRequest.bankCode,
         charge: 100,
         message,
+        method,
       },
     };
 

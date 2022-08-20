@@ -63,7 +63,10 @@ export class DisbursementRequestService {
   async requestDisbursement(params: disbursementRequestDTO) {
     try {
       const user = await this.userModel.findById(params.userId);
-      if (user.availablePoints <= 0) {
+      const min_withdrawalable_amount =
+        process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+
+      if (user.availablePoints <= +min_withdrawalable_amount) {
         throw new UnprocessableEntityError({
           message: 'You do not have enough points to complete this transaction',
           verboseMessage:
@@ -71,7 +74,7 @@ export class DisbursementRequestService {
         });
       }
 
-      if (user.availablePoints <= 0) {
+      if (user.availablePoints <= +min_withdrawalable_amount) {
         throw new UnprocessableEntityError({
           message: 'You do not have enough points to complete this transaction',
           verboseMessage:

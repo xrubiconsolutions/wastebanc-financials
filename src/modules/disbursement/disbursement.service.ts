@@ -147,9 +147,10 @@ export class DisbursementService {
   };
 
   private confirmAndDebitAmount = async () => {
-    console.log('debution');
     const availablePoints = Number(this.user.availablePoints);
-    if (availablePoints <= 0) {
+    const min_withdrawalable_amount =
+      process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+    if (availablePoints <= +min_withdrawalable_amount) {
       throw new UnprocessableEntityError({
         message: 'You do not have enough points to complete this transaction',
         verboseMessage:
@@ -157,7 +158,7 @@ export class DisbursementService {
       });
     }
 
-    if (availablePoints <= 0) {
+    if (availablePoints <= +min_withdrawalable_amount) {
       throw new UnprocessableEntityError({
         message: 'You do not have enough points to complete this transaction',
         verboseMessage:
@@ -264,7 +265,6 @@ export class DisbursementService {
   };
 
   private processDisbursementManually = async () => {
-    console.log('hanled manually');
     const slackData = this.getBankDisbursementSlackNotification();
     console.log(slackData);
     return this.slackService.sendMessage(slackData);
@@ -380,7 +380,7 @@ export class DisbursementService {
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
       await this.sendPartnerFailedNotification(
         partnerName,
-        partnerResponse.error.message,
+        partnerResponse.error,
       );
       // roll back
       await this.rollBack();
@@ -392,7 +392,7 @@ export class DisbursementService {
     if (!partnerResponse.success) {
       await this.sendPartnerFailedNotification(
         partnerName,
-        partnerResponse.error.message,
+        partnerResponse.error,
       );
     }
     this.message = 'Payout initiated successfully';
@@ -427,23 +427,23 @@ export class DisbursementService {
     );
     console.log('partner response', partnerResponse);
     if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
-      // await this.sendPartnerFailedNotification(
-      //   partnerName,
-      //   partnerResponse.error,
-      // );
-      // // roll back
-      // await this.rollBack();
+      await this.sendPartnerFailedNotification(
+        partnerName,
+        partnerResponse.error,
+      );
+      // roll back
+      await this.rollBack();
       const msg = 'Payout Request Failed';
       this.message = msg;
       return partnerResponse;
     }
 
     if (!partnerResponse.success) {
-      // await this.sendPartnerFailedNotification(
-      //   partnerName,
-      //   partnerResponse.error,
-      // );
-      // console.log('err', partnerResponse);
+      await this.sendPartnerFailedNotification(
+        partnerName,
+        partnerResponse.error,
+      );
+      console.log('err', partnerResponse);
       this.message = 'Payout initiated successfully';
     }
     this.message = 'Payout initiated successfully';

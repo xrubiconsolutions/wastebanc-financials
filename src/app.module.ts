@@ -1,3 +1,4 @@
+import { cronsModule } from './modules/crons/crons.module';
 import { DisbursementModule } from './modules/disbursement/disbursement.module';
 import { smsModule } from './modules/notification/sms/sms.module';
 import { slackModule } from './modules/notification/slack/slack.module';
@@ -12,6 +13,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PartnerModule } from './modules/partners/partner.module';
 import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank
         maxRedirects: 5,
       }),
     }),
+    ScheduleModule.forRoot(),
     sterlingBankModule,
     DisbursementModule,
     smsModule,
@@ -37,6 +40,7 @@ import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,
     MiscModule,
+    //cronsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -60,9 +60,6 @@ export class cronService {
         { _id: schedule._id },
         { completionStatus: 'missed' },
       );
-
-      // save notification
-      // send push notification
     });
 
     this.logger.debug('current Date', pickupSchedules);

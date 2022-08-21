@@ -378,7 +378,7 @@ export class DisbursementService {
     );
 
     console.log('partner response', partnerResponse);
-    if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+    if (!partnerResponse.success && partnerResponse.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerName,
@@ -429,7 +429,7 @@ export class DisbursementService {
       partnerData,
     );
     console.log('partner response', partnerResponse);
-    if (!partnerResponse.success && partnerResponse.error.httpCode === 403) {
+    if (!partnerResponse.success && partnerResponse.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
         partnerResponse.error,

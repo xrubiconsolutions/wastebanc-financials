@@ -22,8 +22,9 @@ export class partnerService {
 
       return { success: true, error: null, partnerResponse };
     } catch (error: any) {
+      console.log('partner', error);
       Logger.error(error);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message, httpCode: error.httpCode };
     }
   }
 

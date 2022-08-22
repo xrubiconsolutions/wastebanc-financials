@@ -89,7 +89,9 @@ export class DisbursementRequestService {
         // completedBy: '',
       };
 
-      const transactions = await this.transactionModel.find(condition);
+      const transactions: any[] = await this.transactionModel
+        .find(condition)
+        .select('_id');
       if (transactions.length <= 0)
         return ResponseHandler(
           'User has no unpaid transactions',
@@ -97,6 +99,8 @@ export class DisbursementRequestService {
           false,
           null,
         );
+
+      params.transactions = transactions;
 
       await this.disbursementModel.updateMany(
         {
@@ -109,6 +113,7 @@ export class DisbursementRequestService {
         },
       );
       const value = await this.disbursementData(params);
+      console.log('disbursement values', value);
       const disbursment = await this.disbursementModel.create(value);
       this.eventEmitter.emit('sms.otp', {
         phone: value.user.phone,
@@ -147,13 +152,14 @@ export class DisbursementRequestService {
     ) {
       transactionType = '1';
     }
+
+    params.destinationBankCode = await this.getBank(params.destinationBankCode);
     params.amount = user.availablePoints;
     params.charge = +env('APP_CHARGE');
     params.reference = `${generateReference(7, false)}${Date.now()}`;
     return {
       user,
       withdrawalAmount: Number(user.availablePoints) - params.charge,
-      //withdrawalAmount: Number(user.availablePoints).toFixed(2),
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
       referenceCode: `${generateReference(6, false)}${Date.now()}`,
@@ -164,9 +170,14 @@ export class DisbursementRequestService {
     };
   }
 
-  private getBank(bankCode: string) {
-    return banklist.find((bank: any) => {
-      return bank.value == bankCode;
+  private getBank = async (bankCode: string) => {
+    console.log('sort', bankCode);
+    const partner = await this.partnerModel.findOne({
+      name: env('PARTNER_NAME'),
     });
-  }
+    const bank = banklist.find((bank: any) => {
+      return bank[partner.sortCode] == bankCode;
+    });
+    return bank[partner.sortCode];
+  };
 }

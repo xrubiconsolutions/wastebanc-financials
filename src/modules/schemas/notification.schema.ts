@@ -6,7 +6,7 @@ export type notificationDocument = notification & Document;
 export class notification {
   _id: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, default: 'schedule_made' })
   notification_type: string;
 
   @Prop({ type: String })
@@ -27,10 +27,10 @@ export class notification {
   @Prop({ type: String })
   message: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, default: '' })
   scheduleId: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, default: '' })
   dropOffId: string;
 }
 

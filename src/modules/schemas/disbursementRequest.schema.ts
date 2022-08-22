@@ -1,3 +1,4 @@
+import { Transaction } from './transactions.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { DisbursementStatus } from '../disbursement/disbursement.enum';
@@ -82,6 +83,11 @@ export class DisbursementRequest {
 
   @Prop({ type: String })
   transactionType: string;
+
+  @Prop({
+    types: [{ type: mongoose.Types.ObjectId, ref: 'Transaction' }],
+  })
+  transactions: Transaction[];
 }
 
 export const DisbusmentRequestSchema =

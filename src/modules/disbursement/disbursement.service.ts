@@ -285,7 +285,6 @@ export class DisbursementService {
       return this.intraBankTransfer(partnerName);
     }
     return this.nipTransfer(partnerName);
-    //return (this.message = 'Payout initiated successfully');
   };
 
   private getCharityPaymentSlackNotification = (

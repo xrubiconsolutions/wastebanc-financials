@@ -4,7 +4,7 @@ import { CompletionStatus } from '../pickupSchedules/schedule.enum';
 
 export type schedulesDocument = schedules & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'schedulepicks' })
 export class schedules {
   _id: string;
 
@@ -43,6 +43,9 @@ export class schedules {
 
   @Prop({ type: Boolean })
   reminder: boolean;
+
+  @Prop({ type: Date, default: null })
+  reminderDate: Date;
 
   @Prop({ type: Boolean })
   callOnArrival: boolean;

@@ -51,6 +51,8 @@ export class disbursementRequestDTO {
 
   @IsOptional()
   reference: string;
+
+  transactions: string[];
 }
 
 export class requestChargesDTO {

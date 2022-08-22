@@ -1,28 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import {
+  OneSignalAppClient,
+  NotificationByDeviceBuilder,
+} from 'onesignal-api-client-core';
 
 @Injectable()
 export class onesignalService {
-  async makeRequest(requestObj: any) {
-    requestObj.headers = {
-      'Content-Type': 'application/json; charset=utf-8',
-      Authorization: `Basic ${process.env.ONESIGNAL_TOKEN}`,
-    };
-    requestObj.url = `${process.env.ONESIGNAL_URL}`;
-    const result = await axios(requestObj);
-    return result;
+  private client: any;
+  constructor() {
+    this.client = new OneSignalAppClient(
+      `${process.env.ONESIGNAL_APP_ID}`,
+      `${process.env.ONESIGNAL_TOKEN}`,
+    );
   }
-  async sendPushNotification(message: string) {
-    const body = {
-      app_id: `${process.env.ONESIGNAL_APP_ID}`,
-      contents: {
-        en: `${message}`,
-      },
-    };
-    const sendMessage = await this.makeRequest({
-      method: 'post',
-      data: body,
-    });
-    return sendMessage;
+
+  async sendPushNotification(message: string, onesignalId: string) {
+    const input = new NotificationByDeviceBuilder()
+      .setIncludeExternalUserIds([onesignalId])
+      .notification()
+      .setContents({ en: message })
+      .build();
+    const result = await this.client.createNotification(input);
+    return result;
   }
 }

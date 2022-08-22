@@ -40,7 +40,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,
     MiscModule,
-    cronsModule,
+    //cronsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

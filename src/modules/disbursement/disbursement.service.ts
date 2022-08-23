@@ -316,7 +316,7 @@ export class DisbursementService {
         userAvailablePoint: this.user.availablePoints,
         accountName: this.disbursementRequest.beneName,
         accountNumber: this.disbursementRequest.destinationAccount,
-        bankCode: this.disbursementRequest.bankCode,
+        bankCode: this.disbursementRequest.destinationBankCode,
         charge: 100,
       },
     };

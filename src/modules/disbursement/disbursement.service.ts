@@ -235,7 +235,6 @@ export class DisbursementService {
       paid: false,
       requestedForPayment: false,
       cardID: this.user._id,
-      completedBy: '',
     };
     const transactions = await this.transactionModel.find(condition);
     if (transactions.length <= 0)

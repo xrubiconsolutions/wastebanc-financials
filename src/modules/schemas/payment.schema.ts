@@ -56,7 +56,7 @@ export class Pay {
   amount: number;
 
   @Prop({ type: String, default: 'Lagos' })
-  status: string;
+  state: string;
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'DisbursementRequest' })
   request: string;

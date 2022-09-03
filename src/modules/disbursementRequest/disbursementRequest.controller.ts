@@ -3,6 +3,7 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import {
   disbursementRequestDTO,
   requestChargesDTO,
+  wastepickerdisursmentDTO,
 } from './disbursementRequest.dto';
 import { Response } from 'express';
 @Controller('/api')
@@ -29,5 +30,27 @@ export class DisbursementRequestController {
     if (result.error) return res.status(400).json(result);
 
     return res.status(200).json(result);
+  }
+
+  @Post('/wastepicker/request/otp')
+  async wastepickerOtpRequest(
+    @Body() params: wastepickerdisursmentDTO,
+    @Res() res: Response,
+  ) {
+    const result = await this.requestService.wastepickerRequestDisbursement(
+      params,
+    );
+    if (result.error) return res.status(400).json(result);
+
+    return res.status(200).json(result);
+  }
+
+  @Post('/wastepicker/withdrawal/summary')
+  async wastepickerSummary(
+    @Body() params: wastepickerdisursmentDTO,
+    @Res() res: Response,
+  ) {
+    const result = await this.requestService.wastepickerRequestSummary(params);
+    return res.status(result.statusCode).json(result);
   }
 }

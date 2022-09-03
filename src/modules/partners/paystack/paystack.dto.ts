@@ -9,5 +9,6 @@ export class resolveAccountDTO {
   BankCode: string;
 
   referenceId: string;
+  userType?: string;
   userId: string;
 }

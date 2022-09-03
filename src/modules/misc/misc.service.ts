@@ -74,6 +74,7 @@ export class MiscService {
       );
     }
     params.BankCode = bank[partner.sortCode];
+    params.userType = 'household';
     const result: any = await this.callPartner(params);
     if (!result.success) {
       await this.sendPartnerFailedNotification(
@@ -130,7 +131,6 @@ export class MiscService {
   }
 
   private callPartner = async (params: resolveAccountDTO) => {
-    console.log('params', params);
     const partnerData = {
       partnerName: this.partnerName,
       action: 'resolveAccount',

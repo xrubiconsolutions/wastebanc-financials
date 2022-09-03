@@ -1,3 +1,6 @@
+import { wastepickerdisursmentService } from './wastepickerDisbursementService';
+import { CollectorPay } from './../schemas/wastepickerPayment.schema';
+import { Collector, CollectorSchema } from './../schemas/collector.schema';
 import { PartnerModule } from './../partners/partner.module';
 import {
   Organisation,
@@ -35,6 +38,8 @@ import { Partner, PartnerSchema } from '../schemas/partner.schema';
       { name: Charity.name, schema: CharityPaymentSchema },
       { name: Organisation.name, schema: OrganisationSchema },
       { name: Partner.name, schema: PartnerSchema },
+      { name: Collector.name, schema: CollectorSchema },
+      { name: CollectorPay.name, schema: CollectorSchema },
     ]),
     slackModule,
     smsModule,
@@ -42,6 +47,7 @@ import { Partner, PartnerSchema } from '../schemas/partner.schema';
   ],
   providers: [
     DisbursementService,
+    wastepickerdisursmentService,
     {
       provide: 'moment',
       useFactory: async () => moment(new Date()),

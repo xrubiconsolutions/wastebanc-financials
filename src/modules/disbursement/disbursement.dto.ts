@@ -11,3 +11,9 @@ export class InitiateDTO {
   // @IsString()
   otp: string;
 }
+
+export class initiateWastePickerWithdrawalDTO {
+  collectorId: string;
+  requestId: string;
+  otp: string;
+}

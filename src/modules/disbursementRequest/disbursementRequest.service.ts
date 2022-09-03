@@ -1,9 +1,13 @@
+import { partnerService } from './../partners/partnersService';
+import { resolveAccountDTO } from './../partners/paystack/paystack.dto';
+import { Collector, collectorDocument } from './../schemas/collector.schema';
 import { Partner, PartnerDocument } from './../schemas/partner.schema';
 import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
 import { User, UserDocument } from './../schemas/user.schema';
 import {
   disbursementRequestDTO,
   requestChargesDTO,
+  wastepickerdisursmentDTO,
 } from './disbursementRequest.dto';
 import { ResponseHandler, generateReference, env } from './../../utils/misc';
 import {
@@ -20,8 +24,12 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import banklist from '../misc/ngnbanklist.json';
 import { DisbursementStatus } from '../disbursement/disbursement.enum';
+import { randomInt } from 'crypto';
+import { SlackCategories } from '../notification/slack/slack.enum';
+
 @Injectable()
 export class DisbursementRequestService {
+  private partnerName: string;
   constructor(
     @InjectModel(DisbursementRequest.name)
     private disbursementModel: Model<DisbursementRequestDocument>,
@@ -30,8 +38,13 @@ export class DisbursementRequestService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject('moment') private moment: moment.Moment,
     @InjectModel(Partner.name) private partnerModel: Model<PartnerDocument>,
+    @InjectModel(Collector.name)
+    private collectorModel: Model<collectorDocument>,
     private eventEmitter: EventEmitter2,
-  ) {}
+    private partnerservice: partnerService,
+  ) {
+    this.partnerName = process.env.PARTNER_NAME;
+  }
 
   // get disbursement charge
 
@@ -67,26 +80,18 @@ export class DisbursementRequestService {
         process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
 
       if (user.availablePoints <= +min_withdrawalable_amount) {
-        throw new UnprocessableEntityError({
-          message: 'You do not have enough points to complete this transaction',
-          verboseMessage:
-            'You do not have enough points to complete this transaction',
-        });
-      }
-
-      if (user.availablePoints <= +min_withdrawalable_amount) {
-        throw new UnprocessableEntityError({
-          message: 'You do not have enough points to complete this transaction',
-          verboseMessage:
-            'You do not have enough points to complete this transaction',
-        });
+        return ResponseHandler(
+          'You do not have enough points to complete this transaction',
+          400,
+          true,
+          null,
+        );
       }
 
       const condition = {
         paid: false,
         requestedForPayment: false,
         cardID: user._id,
-        // completedBy: '',
       };
 
       const transactions: any[] = await this.transactionModel
@@ -129,7 +134,102 @@ export class DisbursementRequestService {
         destinationBankCode: disbursment.destinationBankCode,
       };
       return ResponseHandler(
-        'Verification token has been sent to your phone number',
+        'OTP has been sent to your phone number',
+        200,
+        false,
+        result,
+      );
+    } catch (error) {
+      Logger.error(error);
+      return ResponseHandler('An error occurred', 500, true, null);
+    }
+  }
+
+  async wastepickerRequestDisbursement(params: wastepickerdisursmentDTO) {
+    try {
+      const min_withdrawalable_amount =
+        process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+      const collector = await this.collectorModel.findById(params.collectorId);
+      if (!collector)
+        return ResponseHandler('Collector not found', 400, true, null);
+
+      if (collector.pointGained <= +min_withdrawalable_amount) {
+        return ResponseHandler(
+          'You do not have enough points to complete this transaction',
+          400,
+          true,
+          null,
+        );
+      }
+
+      const transactions = await this.transactionModel
+        .find({
+          completedBy: collector._id.toString(),
+        })
+        .select('_id');
+
+      if (!transactions) {
+        return ResponseHandler(
+          'Waste picker has no unpaid transactions',
+          400,
+          true,
+          null,
+        );
+      }
+
+      const value = await this.getwastePickerDisbursementDate(collector);
+
+      const disbursment = await this.disbursementModel.create({
+        ...value,
+        transactions,
+      });
+      this.eventEmitter.emit('sms.otp', {
+        phone: collector.phone,
+        token: disbursment.otp,
+      });
+      const result = {
+        requestId: disbursment._id,
+        currency: disbursment.currency,
+        charge: disbursment.charge,
+        beneName: disbursment.beneName,
+        destinationAccount: disbursment.destinationAccount,
+        bankName: disbursment.bankName,
+        destinationBankCode: disbursment.destinationBankCode,
+      };
+      return ResponseHandler(
+        'OTP has been sent to your phone number',
+        200,
+        false,
+        result,
+      );
+    } catch (error) {
+      Logger.error(error);
+      return ResponseHandler('An error occurred', 500, true, null);
+    }
+  }
+
+  async wastepickerRequestSummary(params: wastepickerdisursmentDTO) {
+    try {
+      const collector = await this.collectorModel.findById(params.collectorId);
+      if (!collector)
+        return ResponseHandler('collector not found', 400, true, null);
+
+      if (
+        collector.pointGained <= +process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT
+      )
+        return ResponseHandler(
+          'Not enough point to perfrom transaction',
+          400,
+          true,
+          null,
+        );
+      const result = {
+        withdrawalAmount: Number(collector.pointGained) - 100,
+        charge: 100,
+        accountDetails: collector.account,
+      };
+      return ResponseHandler(
+        'waste picker withdrawal summary',
         200,
         false,
         result,
@@ -158,6 +258,7 @@ export class DisbursementRequestService {
     params.charge = +env('APP_CHARGE');
     params.reference = `${generateReference(7, false)}${Date.now()}`;
     return {
+      userType: 'household',
       user,
       withdrawalAmount: Number(user.availablePoints) - params.charge,
       otpExpiry: this.moment.add(30, 'm'),
@@ -170,7 +271,73 @@ export class DisbursementRequestService {
     };
   }
 
-  private getBank = async (bankCode: string) => {
+  private async getwastePickerDisbursementDate(collector: collectorDocument) {
+    const destinationBankCode = await this.getBank(
+      collector.account.bankSortCode,
+    );
+
+    const collectorBankName = collector.account.bankName.toLowerCase();
+
+    const response = await this.verifyAccount(collector);
+    return {
+      userType: 'collector',
+      collector: collector._id,
+      amount: collector.pointGained,
+      withdrawalAmount: Number(collector.pointGained) - 100,
+      otpExpiry: this.moment.add(30, 'm'),
+      otp: generateReference(4, false),
+      referenceCode: `${generateReference(6, false)}${Date.now()}`,
+      principalIdentifier: `${generateReference(8, false)}${Date.now()}`,
+      paymentReference: `Pakam Transfer to ${collector.account.bankName}|${collector.account.accountName}`,
+      beneName: collector.account.accountName.toUpperCase(),
+      destinationBankCode,
+      charge: +env('APP_CHARGE'),
+      transactionType: collectorBankName == 'sterling bank' ? '0' : '1',
+      nesidNumber: response.neSid,
+      nerspNumber: response.neresp,
+      bvn: response.beneBVN,
+      kycLevel: response.kycLevel,
+    };
+  }
+
+  private async verifyAccount(collector: collectorDocument) {
+    const partner = await this.partnerModel.findOne({
+      name: env('PARTNER_NAME'),
+    });
+    const bank = this.getBank(collector.account.bankSortCode);
+    if (!bank) {
+      throw new UnprocessableEntityError({
+        message:
+          'Invalid account details reqistered, Please contact customer service',
+        verboseMessage: 'Invalid account details',
+      });
+    }
+    const ref = randomInt(1000000);
+    const params = {
+      accountNumber: collector.account.accountNo,
+      BankCode: bank[partner.sortCode],
+      referenceId: ref.toString(),
+      userId: collector._id.toString(),
+      userType: 'waste-picker',
+    };
+
+    const result = await this.callPartner(params, env('PARTNER_NAME'));
+    if (!result.success) {
+      await this.sendPartnerFailedNotification(
+        result.error,
+        params,
+        'resolveAccountNumber',
+      );
+      throw new UnprocessableEntityError({
+        message: 'Account number not verified',
+        verboseMessage: result.error,
+      });
+    }
+
+    return result.partnerResponse;
+  }
+
+  private async getBank(bankCode: string) {
     console.log('sort', bankCode);
     const partner = await this.partnerModel.findOne({
       name: env('PARTNER_NAME'),
@@ -179,5 +346,39 @@ export class DisbursementRequestService {
       return bank[partner.sortCode] == bankCode;
     });
     return bank[partner.sortCode];
+  }
+
+  private async callPartner(params: resolveAccountDTO, partnerName) {
+    const partnerData = {
+      partnerName,
+      action: 'resolveAccount',
+      data: params,
+    };
+
+    const partnerResponse = await this.partnerservice.initiatePartner(
+      partnerData,
+    );
+
+    return partnerResponse;
+  }
+
+  private sendPartnerFailedNotification = async (
+    message: any,
+    params: any,
+    method: string,
+  ) => {
+    const slackNotificationData = {
+      category: SlackCategories.Requests,
+      event: 'failed',
+      data: {
+        requestFailedType: 'partner_account_verification_failed',
+        partnerName: this.partnerName,
+        message,
+        method,
+        ...params,
+      },
+    };
+    this.eventEmitter.emit('slack.notification', slackNotificationData);
+    return;
   };
 }

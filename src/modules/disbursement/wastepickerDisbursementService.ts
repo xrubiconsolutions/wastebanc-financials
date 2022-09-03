@@ -1,127 +1,86 @@
-import { partnerService } from './../partners/partnersService';
-// import { generateReference, env } from './../../utils/misc';
+import { SlackCategories } from './../notification/slack/slack.enum';
+import {
+  CollectorPay,
+  CollectorPayDocument,
+} from './../schemas/wastepickerPayment.schema';
+import { Collector, collectorDocument } from './../schemas/collector.schema';
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  DisbursementRequest,
+  DisbursementRequestDocument,
+} from '../schemas/disbursementRequest.schema';
+import {
+  Transaction,
+  TransactionDocument,
+} from '../schemas/transactions.schema';
+import { initiateWastePickerWithdrawalDTO } from './disbursement.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { SlackService } from '../notification/slack/slack.service';
+import { smsService } from '../notification/sms/sms.service';
 import {
   Organisation,
   OrganisationDocument,
-} from './../schemas/organisation.schema';
-import { smsService } from './../notification/sms/sms.service';
-import { SlackCategories } from './../notification/slack/slack.enum';
-import { SlackService } from './../notification/slack/slack.service';
-import {
-  Charity,
-  CharityPaymentDocument,
-} from './../schemas/charitypayment.schema';
-import { CharityOrganisationDocument } from './../schemas/charityorganisation.schema';
+} from '../schemas/organisation.schema';
+import { partnerService } from '../partners/partnersService';
 import {
   DisbursementStatus,
   DisbursementType,
   ProcessingType,
 } from './disbursement.enum';
-import { Pay, PayDocument } from '../schemas/payment.schema';
-import { User, UserDocument } from '../schemas/user.schema';
-import {
-  Transaction,
-  TransactionDocument,
-} from '../schemas/transactions.schema';
-import { UnprocessableEntityError } from '../../utils/errors/errorHandler';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {
-  DisbursementRequest,
-  DisbursementRequestDocument,
-} from '../schemas/disbursementRequest.schema';
-import { InitiateDTO } from './disbursement.dto';
+import { env, UnprocessableEntityError } from '../../utils';
 import disbursementConfig from './disbursement.config.json';
-import { Inject, Injectable } from '@nestjs/common';
-import { CharityOrganisation } from '../schemas/charityorganisation.schema';
-import banklists from '../misc/ngnbanklist.json';
-import { env } from '../../utils';
+// import banklists from '../misc/ngnbanklist.json';
+
 @Injectable()
-export class DisbursementService {
-  private params: InitiateDTO;
-  public disbursementRequest: DisbursementRequest | null;
+export class wastepickerdisursmentService {
+  private params: initiateWastePickerWithdrawalDTO;
+  public disbursementRequest: DisbursementRequestDocument | null;
   private transactions: Transaction[] | [];
-  private user: User | null;
+  private collector: Collector | null;
   public message = '';
   private withdrawalAmount: number;
 
   constructor(
     @InjectModel(DisbursementRequest.name)
     private disbursementModel: Model<DisbursementRequestDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(Transaction.name)
-    private transactionModel: Model<TransactionDocument>,
-    @InjectModel(Pay.name) private payModel: Model<PayDocument>,
-    @InjectModel(CharityOrganisation.name)
-    private charityModel: Model<CharityOrganisationDocument>,
-    @InjectModel(Charity.name)
-    private charitypaymentModel: Model<CharityPaymentDocument>,
+    @InjectModel(Collector.name)
+    private collectorModel: Model<collectorDocument>,
     private slackService: SlackService,
     private sms_service: smsService,
     @InjectModel(Organisation.name)
     private organisationModel: Model<OrganisationDocument>,
     private partnerservice: partnerService,
     @Inject('moment') private moment: moment.Moment,
+    @InjectModel(Transaction.name)
+    private transactionModel: Model<TransactionDocument>,
+    @InjectModel(CollectorPay.name)
+    private collectorPayModel: Model<CollectorPayDocument>,
   ) {
     this.params = null;
     this.disbursementRequest = null;
-    this.user = null;
+    this.collector = null;
     this.transactions = [];
     this.message = '';
     this.withdrawalAmount = 0;
   }
 
-  public initiate = async (params: InitiateDTO) => {
+  public async initate(params: initiateWastePickerWithdrawalDTO) {
     this.params = params;
     await this.getDisbursementRequest();
-    await this.getUser();
-    await this.getUserTransactions();
+    await this.getCollector();
+    await this.getCollectionTransactions();
     await this.confirmAndDebitAmount();
     await this.storeDisbursement();
-    await this.processDisbursement();
 
     return this.message;
-  };
+  }
 
-  private getUser = async () => {
-    const user = await this.userModel.findById(this.params.userId);
-    if (!user)
-      throw new UnprocessableEntityError({
-        message: 'user not found',
-        verboseMessage: 'user not found',
-      });
-
-    this.user = user;
-    return this.user;
-  };
-  private storeDisbursement = async () => {
-    if (this.disbursementRequest.type == DisbursementType.charity) {
-      const charityPayment = await this.charityModel.create({
-        user: this.user._id,
-        charity: this.disbursementRequest.charity,
-      });
-      return charityPayment;
-    }
-    await Promise.all(
-      this.transactions.map(async (transaction) => {
-        await this.storePaymentRequest(transaction);
-        await this.transactionModel.updateOne(
-          { _id: transaction._id },
-          {
-            paid: true,
-            requestedForPayment: true,
-            paymentResolution: this.disbursementRequest.type,
-          },
-        );
-      }),
-    );
-    return this.transactions;
-  };
   private getDisbursementRequest = async () => {
     const condition = {
       _id: this.params.requestId,
       otp: this.params.otp,
-      user: this.params.userId,
+      collector: this.params.collectorId,
       status: DisbursementStatus.initiated,
     };
     const disbursementRequest = await this.disbursementModel.findOne(condition);
@@ -134,7 +93,7 @@ export class DisbursementService {
       });
 
     const currentDate = this.moment.toDate();
-    console.log('now', currentDate);
+
     if (disbursementRequest.otpExpiry < currentDate) {
       throw new UnprocessableEntityError({
         message: 'OTP has expired',
@@ -147,10 +106,39 @@ export class DisbursementService {
     return this.disbursementRequest;
   };
 
-  private confirmAndDebitAmount = async () => {
-    const availablePoints = Number(this.user.availablePoints);
+  private async getCollector() {
+    const collector = await this.collectorModel.findById(
+      this.params.collectorId,
+    );
+    if (!collector)
+      throw new UnprocessableEntityError({
+        message: 'collector not found',
+        verboseMessage: 'collector not found',
+      });
+
+    this.collector = collector;
+    return this.collector;
+  }
+
+  private async getCollectionTransactions() {
+    const condition = {
+      completedBy: this.collector._id.toString(),
+    };
+    const transactions = await this.transactionModel.find(condition);
+    if (transactions.length <= 0)
+      throw new UnprocessableEntityError({
+        message: 'Collector has no recent transactions',
+        verboseMessage: 'Collector has no recent transactions',
+      });
+    this.transactions = transactions;
+    return this.transactions;
+  }
+
+  private async confirmAndDebitAmount() {
+    const availablePoints = Number(this.collector.pointGained);
     const min_withdrawalable_amount =
       process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+
     if (availablePoints <= +min_withdrawalable_amount) {
       throw new UnprocessableEntityError({
         message: 'You do not have enough points to complete this transaction',
@@ -161,29 +149,41 @@ export class DisbursementService {
 
     const balance = availablePoints - this.disbursementRequest.amount;
 
-    await this.userModel.updateOne(
-      { _id: this.user._id },
-      {
-        availablePoints: balance,
-      },
+    await this.collectorModel.updateOne(
+      { _id: this.collector._id },
+      { pointGained: balance },
     );
 
-    //this.withdrawalAmount = +this.user.availablePoints - 100;
-    this.withdrawalAmount = +this.user.availablePoints;
+    this.withdrawalAmount = +this.collector.pointGained;
     return balance;
-  };
+  }
 
-  private processDisbursement = async () => {
-    if (this.disbursementRequest.type == DisbursementType.charity) {
-      await this.processCharityDisbursement();
-      return (this.message =
-        'Payout has been made to charity organisation account');
-    } else {
-      return await this.processBankDisbursement();
-    }
-  };
+  private async storeDisbursement() {
+    await Promise.all(
+      this.transactions.map(async (transaction) => {
+        await this.storePaymentRequest(transaction);
+      }),
+    );
 
-  private processBankDisbursement = async () => {
+    return this.transactions;
+  }
+
+  private async storePaymentRequest(transaction: Transaction) {
+    return await this.collectorPayModel.create({
+      collector: this.collector._id,
+      transaction: transaction._id,
+      fullname: this.collector.fullname,
+      userPhone: this.collector.phone,
+      bankAcNo: this.collector.account.accountNo,
+      bankName: this.collector.account.bankName,
+      organisation: this.collector.organisationId,
+      amount: transaction.coin,
+      state: transaction.state,
+      reference: this.disbursementRequest.reference,
+    });
+  }
+
+  private async processDisbursement() {
     const partner = process.env.PARTNER_NAME;
     const config = disbursementConfig.find((item: any) => {
       return partner == item.partnerName;
@@ -200,102 +200,14 @@ export class DisbursementService {
     if (ProcessingType.automatic == config?.processingType) {
       return await this.processDisbursementAutomatically(config.partnerName);
     }
-  };
-  private processCharityDisbursement = async () => {
-    const charity = await this.charityModel.findById(
-      this.disbursementRequest.charity,
-    );
+  }
 
-    if (!charity) {
-      throw new UnprocessableEntityError({
-        message: 'Charity Organisation not found',
-        verboseMessage: 'Charity Organisation not found',
-      });
-    }
-    const charityPayment = await this.charityModel.create({
-      user: this.user._id,
-      charity: charity._id,
-    });
-
-    const paymentData = this.getCharityPaymentSlackNotification(charityPayment);
-
-    await this.slackService.sendMessage(paymentData);
-    return charity;
-  };
-
-  private getUserTransactions = async () => {
-    const condition = {
-      paid: false,
-      requestedForPayment: false,
-      cardID: this.user._id,
-    };
-    const transactions = await this.transactionModel.find(condition);
-    if (transactions.length <= 0)
-      throw new UnprocessableEntityError({
-        message: 'User has no unpaid transactions',
-        verboseMessage: 'User has no unpaid transactions',
-      });
-    this.transactions = transactions;
-    return this.transactions;
-  };
-
-  private storePaymentRequest = async (transaction: Transaction) => {
-    return await this.payModel.create({
-      user: this.user._id,
-      transaction: transaction._id,
-      aggregatorId: transaction.aggregatorId,
-      aggregatorName: transaction.recycler,
-      aggregatorOrganisation: transaction.organisation,
-      organisation: transaction.organisation,
-      organisationID: transaction.organisationID,
-      scheduleId: transaction.scheduleId,
-      quantityOfWaste: transaction.weight,
-      amount: transaction.coin,
-      state: transaction.state,
-      userPhone: this.user.phone,
-      reference: this.disbursementRequest.reference,
-    });
-  };
-
-  private processDisbursementManually = async () => {
+  private async processDisbursementManually() {
     const slackData = this.getBankDisbursementSlackNotification();
-    console.log(slackData);
     return this.slackService.sendMessage(slackData);
-  };
+  }
 
-  private processDisbursementByCompany = async () => {
-    // send out sms to companies
-    console.log('hanlded by company');
-    return this.handleCompanySmsNotification();
-  };
-
-  private processDisbursementAutomatically = async (partnerName: string) => {
-    if (
-      this.disbursementRequest.bankName.toLowerCase() == 'sterling bank' ||
-      this.disbursementRequest.bankName.toLowerCase() == 'sterling'
-    ) {
-      return this.intraBankTransfer(partnerName);
-    }
-    return this.nipTransfer(partnerName);
-  };
-
-  private getCharityPaymentSlackNotification = (
-    charityOrg: CharityOrganisation,
-  ) => {
-    return {
-      category: SlackCategories.Requests,
-      event: DisbursementStatus.initiated,
-      data: {
-        _id: charityOrg._id,
-        type: DisbursementType.charity,
-        charityName: charityOrg.name,
-        bank: charityOrg.bank,
-        accountNumber: charityOrg.accountNumber,
-      },
-    };
-  };
-
-  private getBankDisbursementSlackNotification = () => {
+  private getBankDisbursementSlackNotification() {
     return {
       category: SlackCategories.Disbursement,
       event: DisbursementStatus.initiated,
@@ -304,43 +216,58 @@ export class DisbursementService {
         type: DisbursementType.bank,
         reference: this.disbursementRequest.reference,
         amount: this.withdrawalAmount,
-        username: this.user.firstname,
-        userAvailablePoint: this.user.availablePoints,
+        username: this.collector.fullname,
+        collectorAvailablePoint: this.collector.pointGained,
         accountName: this.disbursementRequest.beneName,
         accountNumber: this.disbursementRequest.destinationAccount,
-        bankCode: this.disbursementRequest.destinationBankCode,
+        bankCode: this.disbursementRequest.destinationAccount,
         charge: 100,
       },
     };
-  };
+  }
 
-  private handleCompanySmsNotification = async () => {
+  private async processDisbursementByCompany() {
+    return await this.handleCompanySmsNotification();
+  }
+
+  private async handleCompanySmsNotification() {
     await Promise.all(
       this.transactions.map(async (transaction: Transaction) => {
         const organisation = await this.organisationModel.findById(
           transaction.organisationID,
         );
+
         if (organisation) {
           await this.sms_service.sendSms({
             phone: organisation.phone,
             organisationName: organisation.companyName,
-            userName: this.user.fullname,
+            userName: this.collector.fullname,
           });
         }
       }),
     );
     return this.transactions;
-  };
+  }
 
-  private nipTransfer = async (partnerName: string) => {
+  private async processDisbursementAutomatically(partnerName: string) {
+    if (
+      this.disbursementRequest.bankName.toLowerCase() == 'sterling bank' ||
+      this.disbursementRequest.bankName.toLowerCase() == 'sterling'
+    ) {
+      return this.intraBankTransfer(partnerName);
+    }
+    return this.nipTransfer(partnerName);
+  }
+
+  private async nipTransfer(partnerName: string) {
     console.log(
       'this.disbursementRequest.bankCode',
       this.disbursementRequest.destinationBankCode,
     );
-    const bank = banklists.find((bank: any) => {
-      return this.disbursementRequest.destinationBankCode == bank.value;
-    });
-    console.log('nip transfer', bank);
+    // const bank = banklists.find((bank: any) => {
+    //   return this.disbursementRequest.destinationBankCode == bank.value;
+    // });
+
     const partnerData = {
       partnerName,
       action: 'nipTransfer',
@@ -363,12 +290,10 @@ export class DisbursementService {
         requestId: this.disbursementRequest.reference,
       },
     };
-    console.log(partnerData);
+
     const partnerResponse = await this.partnerservice.initiatePartner(
       partnerData,
     );
-
-    console.log('partner response', partnerResponse);
     if (!partnerResponse.success && partnerResponse.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
@@ -379,6 +304,7 @@ export class DisbursementService {
       this.message = 'Payout Request Failed';
       return partnerResponse;
     }
+
     if (!partnerResponse.success) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
@@ -389,11 +315,12 @@ export class DisbursementService {
       this.message = 'Payout Request Failed';
       return this.message;
     }
+
     this.message = 'Payout initiated successfully';
     return this.message;
-  };
+  }
 
-  private intraBankTransfer = async (partnerName: string) => {
+  private async intraBankTransfer(partnerName: string) {
     const partnerData = {
       partnerName,
       action: 'intraBankTransfer',
@@ -414,12 +341,10 @@ export class DisbursementService {
         ValueDate: this.moment.format('DD-MM-YYYY'),
       },
     };
-
-    console.log('partner data', partnerData);
     const partnerResponse = await this.partnerservice.initiatePartner(
       partnerData,
     );
-    console.log('partner response', partnerResponse);
+
     if (!partnerResponse.success && partnerResponse.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
@@ -447,13 +372,12 @@ export class DisbursementService {
     }
     this.message = 'Payout initiated successfully';
     return partnerResponse;
-  };
-
-  private sendPartnerFailedNotification = (
+  }
+  private async sendPartnerFailedNotification(
     message: string,
     parterName: string,
     method: string,
-  ) => {
+  ) {
     const slackNotificationData = {
       category: 'disbursement',
       event: 'failed',
@@ -463,8 +387,8 @@ export class DisbursementService {
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
         amount: this.disbursementRequest.withdrawalAmount,
-        username: this.user.firstname,
-        userAvailablePoint: this.user.availablePoints,
+        username: this.collector.fullname,
+        userAvailablePoint: this.collector.pointGained,
         accountName: this.disbursementRequest.beneName,
         accountNumber: this.disbursementRequest.destinationAccount,
         bankCode: this.disbursementRequest.destinationBankCode,
@@ -475,25 +399,20 @@ export class DisbursementService {
     };
 
     return this.slackService.sendMessage(slackNotificationData);
-  };
+  }
 
-  private rollBack = async () => {
+  private async rollBack() {
     await Promise.all(
       this.transactions.map(async (transaction) => {
-        await this.payModel.deleteOne({ transaction: transaction._id });
-        await this.transactionModel.updateOne(
-          { _id: transaction._id },
-          {
-            paid: false,
-            requestedForPayment: false,
-            paymentResolution: '',
-          },
-        );
-        await this.userModel.updateOne(
-          { _id: this.user._id },
-          { availablePoints: this.disbursementRequest.amount },
-        );
+        await this.collectorPayModel.deleteOne({
+          transaction: transaction._id,
+        });
       }),
     );
-  };
+
+    await this.collectorModel.updateOne(
+      { _id: this.collector._id },
+      { pointGained: this.disbursementRequest.amount },
+    );
+  }
 }

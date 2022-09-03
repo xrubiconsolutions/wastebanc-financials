@@ -1,3 +1,4 @@
+import { Collector } from './collector.schema';
 import { Transaction } from './transactions.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
@@ -9,8 +10,14 @@ export type DisbursementRequestDocument = DisbursementRequest & Document;
 export class DisbursementRequest {
   _id: string;
 
+  @Prop({ type: String })
+  userType: string;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Collector' })
+  collector: Collector;
 
   @Prop({ type: String })
   otp: string;

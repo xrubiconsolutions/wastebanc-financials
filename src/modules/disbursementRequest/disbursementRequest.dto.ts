@@ -45,4 +45,5 @@ export class requestChargesDTO {
 
 export class wastepickerdisursmentDTO {
   collectorId: string;
+  type: string;
 }

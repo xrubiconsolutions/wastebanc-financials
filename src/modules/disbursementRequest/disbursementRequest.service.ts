@@ -177,6 +177,17 @@ export class DisbursementRequestService {
         );
       }
 
+      await this.disbursementModel.updateMany(
+        {
+          collector: params.collectorId,
+          type: params.type,
+          status: DisbursementStatus.initiated,
+        },
+        {
+          status: DisbursementStatus.cancelled,
+        },
+      );
+
       const value = await this.getwastePickerDisbursementDate(collector);
 
       const disbursment = await this.disbursementModel.create({
@@ -203,6 +214,7 @@ export class DisbursementRequestService {
         result,
       );
     } catch (error) {
+      console.log(error);
       Logger.error(error);
       return ResponseHandler('An error occurred', 500, true, null);
     }
@@ -291,6 +303,7 @@ export class DisbursementRequestService {
       paymentReference: `Pakam Transfer to ${collector.account.bankName}|${collector.account.accountName}`,
       beneName: collector.account.accountName.toUpperCase(),
       destinationBankCode,
+      destinationAccount: collector.account.accountNo,
       charge: +env('APP_CHARGE'),
       transactionType: collectorBankName == 'sterling bank' ? '0' : '1',
       nesidNumber: response.neSid,
@@ -301,10 +314,7 @@ export class DisbursementRequestService {
   }
 
   private async verifyAccount(collector: collectorDocument) {
-    const partner = await this.partnerModel.findOne({
-      name: env('PARTNER_NAME'),
-    });
-    const bank = this.getBank(collector.account.bankSortCode);
+    const bank = await this.getBank(collector.account.bankSortCode);
     if (!bank) {
       throw new UnprocessableEntityError({
         message:
@@ -313,9 +323,11 @@ export class DisbursementRequestService {
       });
     }
     const ref = randomInt(1000000);
+    console.log('collector', collector);
+
     const params = {
       accountNumber: collector.account.accountNo,
-      BankCode: bank[partner.sortCode],
+      BankCode: bank,
       referenceId: ref.toString(),
       userId: collector._id.toString(),
       userType: 'waste-picker',
@@ -338,13 +350,13 @@ export class DisbursementRequestService {
   }
 
   private async getBank(bankCode: string) {
-    console.log('sort', bankCode);
     const partner = await this.partnerModel.findOne({
       name: env('PARTNER_NAME'),
     });
     const bank = banklist.find((bank: any) => {
-      return bank[partner.sortCode] == bankCode;
+      return bank.value == bankCode;
     });
+
     return bank[partner.sortCode];
   }
 

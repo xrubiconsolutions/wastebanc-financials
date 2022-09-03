@@ -59,7 +59,7 @@ export class MiscService {
     const partner = await this.partnerModel.findOne({
       name: this.partnerName,
     });
-    const bank = this.getBank(params.BankCode, partner.sortCode);
+    const bank = this.getBank(params.BankCode);
     if (!bank) {
       await this.sendPartnerFailedNotification(
         'Wrong Bank Code passed',
@@ -162,10 +162,10 @@ export class MiscService {
     return;
   };
 
-  private getBank = (bankCode: string, sortCode: string) => {
+  private getBank = (bankCode: string) => {
     console.log('sort', bankCode);
     const bank = banklist.find((bank: any) => {
-      return bank[sortCode] == bankCode;
+      return bank.value == bankCode;
     });
     return bank;
   };

@@ -393,12 +393,13 @@
     "name": "FCMB Easy Account",
     "value": "100031",
     "nibbsCode": "100031",
-    "sterlingCode":"000003"
+    "sterlingCode": "000003"
   },
   {
     "name": "Fidelity Bank",
     "value": "070",
-    "nibbsCode": "000007"
+    "nibbsCode": "000007",
+    "sterlingCode":"000007"
   },
   {
     "name": "Guaranty Trust Bank",
@@ -429,7 +430,8 @@
   {
     "name": "United Bank For Africa",
     "value": "033",
-    "nibbsCode": "000004"
+    "nibbsCode": "000004",
+    "sterlingCode":"000004"
   },
   {
     "name": "Union Bank PLC",
@@ -459,12 +461,14 @@
   {
     "name": "Keystone Bank",
     "value": "082",
-    "nibbsCode": "000002"
+    "nibbsCode": "000002",
+    "sterlingCode": "000002"
   },
   {
     "name": "Jaiz Bank",
     "value": "301",
-    "nibbsCode": "000006"
+    "nibbsCode": "000006",
+    "sterlingCode":"000006"
   },
   {
     "name": "Heritage Bank",

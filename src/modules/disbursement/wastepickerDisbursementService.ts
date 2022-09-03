@@ -69,9 +69,10 @@ export class wastepickerdisursmentService {
     this.params = params;
     await this.getDisbursementRequest();
     await this.getCollector();
-    await this.getCollectionTransactions();
+    //await this.getCollectionTransactions();
     await this.confirmAndDebitAmount();
     await this.storeDisbursement();
+    await this.processDisbursement();
 
     return this.message;
   }
@@ -214,8 +215,8 @@ export class wastepickerdisursmentService {
       data: {
         id: this.disbursementRequest._id,
         type: DisbursementType.bank,
-        reference: this.disbursementRequest.reference,
-        amount: this.withdrawalAmount,
+        reference: this.disbursementRequest.referenceCode,
+        withdrawalAmount: this.disbursementRequest.withdrawalAmount,
         username: this.collector.fullname,
         collectorAvailablePoint: this.collector.pointGained,
         accountName: this.disbursementRequest.beneName,
@@ -264,9 +265,6 @@ export class wastepickerdisursmentService {
       'this.disbursementRequest.bankCode',
       this.disbursementRequest.destinationBankCode,
     );
-    // const bank = banklists.find((bank: any) => {
-    //   return this.disbursementRequest.destinationBankCode == bank.value;
-    // });
 
     const partnerData = {
       partnerName,
@@ -402,13 +400,13 @@ export class wastepickerdisursmentService {
   }
 
   private async rollBack() {
-    await Promise.all(
-      this.transactions.map(async (transaction) => {
-        await this.collectorPayModel.deleteOne({
-          transaction: transaction._id,
-        });
-      }),
-    );
+    // await Promise.all(
+    //   this.transactions.map(async (transaction) => {
+    //     await this.collectorPayModel.deleteOne({
+    //       transaction: transaction._id,
+    //     });
+    //   }),
+    // );
 
     await this.collectorModel.updateOne(
       { _id: this.collector._id },

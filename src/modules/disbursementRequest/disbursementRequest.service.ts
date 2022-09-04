@@ -228,13 +228,20 @@ export class DisbursementRequestService {
 
       if (
         collector.pointGained <= +process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT
-      )
+      ) {
+        const result = {
+          withdrawalAmount: 0,
+          charge: 0,
+          accountDetails: collector.account,
+        };
         return ResponseHandler(
-          'Not enough point to perfrom transaction',
-          400,
-          true,
-          null,
+          'waste picker withdrawal summary',
+          200,
+          false,
+          result,
         );
+      }
+
       const result = {
         withdrawalAmount: Number(collector.pointGained) - 100,
         charge: 100,

@@ -32,7 +32,8 @@
   {
     "name": "Access Bank",
     "value": "044",
-    "nibbsCode": "000014"
+    "nibbsCode": "000014",
+    "sterlingCode":"000014"
   },
   {
     "name": "Access Bank PLC (Diamond)",
@@ -242,7 +243,8 @@
   {
     "name": "Citi bank",
     "value": "023",
-    "nibbsCode": "000009"
+    "nibbsCode": "000009",
+    "sterlingCode":"000009"
   },
   {
     "name": "CIT Microfinance Bank",
@@ -302,7 +304,8 @@
   {
     "name": "EcoBank PLC",
     "value": "050",
-    "nibbsCode": "000010"
+    "nibbsCode": "000010",
+    "sterlingCode":"000010"
   },
   {
     "name": "Ecobank Xpress Account",
@@ -332,7 +335,8 @@
   {
     "name": "Enterprise Bank",
     "value": "000019",
-    "nibbsCode": "000019"
+    "nibbsCode": "000019",
+    "sterlingCode":"000019"
   },
   {
     "name": "Esan MFB",
@@ -377,7 +381,8 @@
   {
     "name": "First Bank PLC",
     "value": "011",
-    "nibbsCode": "000016"
+    "nibbsCode": "000016",
+    "sterlingCode":"000016"
   },
   {
     "name": "FBNQuest MERCHANT BANK",
@@ -387,13 +392,14 @@
   {
     "name": "First City Monument Bank",
     "value": "214",
-    "nibbsCode": "000003"
+    "nibbsCode": "000003",
+     "sterlingCode": "000003"
   },
   {
     "name": "FCMB Easy Account",
     "value": "100031",
     "nibbsCode": "100031",
-    "sterlingCode": "000003"
+    "sterlingCode": "100031"
   },
   {
     "name": "Fidelity Bank",
@@ -404,22 +410,26 @@
   {
     "name": "Guaranty Trust Bank",
     "value": "058",
-    "nibbsCode": "000013"
+    "nibbsCode": "000013",
+    "sterlingCode":"000013"
   },
   {
     "name": "Polaris bank",
     "value": "076",
-    "nibbsCode": "000008"
+    "nibbsCode": "000008",
+    "sterlingCode":"000008"
   },
   {
     "name": "Stanbic IBTC Bank",
     "value": "221",
-    "nibbsCode": "000012"
+    "nibbsCode": "000012",
+    "sterlingCode":"000012"
   },
   {
     "name": "Standard Chaterted bank PLC",
     "value": "068",
-    "nibbsCode": "000021"
+    "nibbsCode": "000021",
+    "sterlingCode":"000021"
   },
   {
     "name": "Sterling Bank",
@@ -436,27 +446,32 @@
   {
     "name": "Union Bank PLC",
     "value": "032",
-    "nibbsCode": "000018"
+    "nibbsCode": "000018",
+    "sterlingCode":"000018"
   },
   {
     "name": "Wema Bank PLC",
     "value": "035",
-    "nibbsCode": "000017"
+    "nibbsCode": "000017",
+    "sterlingCode":"000017"
   },
   {
     "name": "Zenith bank PLC",
     "value": "057",
-    "nibbsCode": "000015"
+    "nibbsCode": "000015",
+    "sterlingCode":"000015"
   },
   {
     "name": "Unity Bank PLC",
     "value": "215",
-    "nibbsCode": "000011"
+    "nibbsCode": "000011",
+    "sterlingCode":"000011"
   },
   {
     "name": "ProvidusBank PLC",
     "value": "101",
-    "nibbsCode": "000023"
+    "nibbsCode": "000023",
+    "sterlingCode":"000023"
   },
   {
     "name": "Keystone Bank",
@@ -473,12 +488,14 @@
   {
     "name": "Heritage Bank",
     "value": "030",
-    "nibbsCode": "000020"
+    "nibbsCode": "000020",
+    "sterlingCode":"000020"
   },
   {
     "name": "Suntrust Bank",
     "value": "100",
-    "nibbsCode": "000022"
+    "nibbsCode": "000022",
+    "sterlingCode":"000022"
   },
   {
     "name": "FINATRUST MICROFINANCE BANK",

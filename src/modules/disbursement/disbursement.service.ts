@@ -168,8 +168,9 @@ export class DisbursementService {
       },
     );
 
-    //this.withdrawalAmount = +this.user.availablePoints - 100;
-    this.withdrawalAmount = +this.user.availablePoints;
+    this.withdrawalAmount =
+      +this.user.availablePoints - Number(process.env.APP_CHARGE);
+    //this.withdrawalAmount = +this.user.availablePoints;
     return balance;
   };
 
@@ -304,12 +305,14 @@ export class DisbursementService {
         type: DisbursementType.bank,
         reference: this.disbursementRequest.reference,
         amount: this.withdrawalAmount,
-        username: this.user.firstname,
+        username: this.user.fullname,
         userAvailablePoint: this.user.availablePoints,
         accountName: this.disbursementRequest.beneName,
         accountNumber: this.disbursementRequest.destinationAccount,
         bankCode: this.disbursementRequest.destinationBankCode,
-        charge: 100,
+        bankName: this.disbursementRequest.bankName,
+        charge: process.env.APP_CHARGE,
+        user: this.disbursementRequest.userType,
       },
     };
   };

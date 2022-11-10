@@ -3,6 +3,7 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import {
   disbursementRequestDTO,
   requestChargesDTO,
+  safdisursementDTO,
   wastepickerdisursmentDTO,
 } from './disbursementRequest.dto';
 import { Response } from 'express';
@@ -45,6 +46,12 @@ export class DisbursementRequestController {
     return res.status(200).json(result);
   }
 
+  @Post('/saf/otp/request')
+  async safOtpRequest(@Body() params: safdisursementDTO, @Res() res: Response) {
+    const result = await this.requestService.requestSAFDisbursement(params);
+    if (result.error) return res.status(400).json(result);
+    return res.status(200).json(result);
+  }
   @Post('/wastepicker/withdrawal/summary')
   async wastepickerSummary(
     @Body() params: wastepickerdisursmentDTO,

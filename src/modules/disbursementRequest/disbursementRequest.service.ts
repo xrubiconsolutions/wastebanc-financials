@@ -7,6 +7,7 @@ import { User, UserDocument } from './../schemas/user.schema';
 import {
   disbursementRequestDTO,
   requestChargesDTO,
+  safdisursementDTO,
   wastepickerdisursmentDTO,
 } from './disbursementRequest.dto';
 import { ResponseHandler, generateReference, env } from './../../utils/misc';
@@ -140,6 +141,76 @@ export class DisbursementRequestService {
         result,
       );
     } catch (error) {
+      Logger.error(error);
+      return ResponseHandler('An error occurred', 500, true, null);
+    }
+  }
+
+  async requestSAFDisbursement(params: safdisursementDTO) {
+    try {
+      const min_withdrawalable_amount =
+        process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+      const user = await this.userModel.findById(params.userId);
+      if (!user) return ResponseHandler('User not found', 400, true, null);
+      if (user.availablePoints <= +min_withdrawalable_amount) {
+        return ResponseHandler(
+          'You do not have enough points to complete this transaction',
+          400,
+          true,
+          null,
+        );
+      }
+      const condition = {
+        paid: false,
+        requestedForPayment: false,
+        cardID: user._id,
+      };
+      const transactions = await this.transactionModel
+        .find(condition)
+        .select('_id');
+      if (transactions.length <= 0)
+        return ResponseHandler(
+          'User has no unpaid transactions',
+          400,
+          false,
+          null,
+        );
+      await this.disbursementModel.updateMany(
+        {
+          user: params.userId,
+          status: DisbursementStatus.initiated,
+        },
+        {
+          status: DisbursementStatus.cancelled,
+        },
+      );
+      const verifySAF = await this.verifySAFAccount(user);
+      const disbursment = await this.disbursementModel.create({
+        ...verifySAF,
+        transactions,
+      });
+      this.eventEmitter.emit('sms.otp', {
+        phone: user.phone,
+        token: disbursment.otp,
+      });
+      const result = {
+        requestId: disbursment._id,
+        currency: disbursment.currency,
+        charge: disbursment.charge,
+        beneName: disbursment.beneName,
+        destinationAccount: disbursment.destinationAccount,
+        bankName: disbursment.bankName,
+        destinationBankCode: disbursment.destinationBankCode,
+      };
+
+      return ResponseHandler(
+        'OTP has been sent to your phone number',
+        200,
+        false,
+        result,
+      );
+    } catch (error) {
+      console.log(error);
       Logger.error(error);
       return ResponseHandler('An error occurred', 500, true, null);
     }
@@ -297,7 +368,7 @@ export class DisbursementRequestService {
 
     const collectorBankName = collector.account.bankName.toLowerCase();
 
-    const response = await this.verifyAccount(collector);
+    const response: any = await this.verifyAccount(collector);
     return {
       userType: 'collector',
       collector: collector._id,
@@ -308,7 +379,7 @@ export class DisbursementRequestService {
       referenceCode: `${generateReference(6, false)}${Date.now()}`,
       principalIdentifier: `${generateReference(8, false)}${Date.now()}`,
       paymentReference: `Pakam Transfer to ${collector.account.bankName}|${collector.account.accountName}`,
-      beneName: collector.account.accountName.toUpperCase(),
+      beneName: response.account_name,
       destinationBankCode,
       destinationAccount: collector.account.accountNo,
       charge: +env('APP_CHARGE'),
@@ -354,6 +425,55 @@ export class DisbursementRequestService {
     }
 
     return result.partnerResponse;
+  }
+
+  private async verifySAFAccount(user: User) {
+    const bank = await this.getBank(user.bankCode);
+    if (!bank)
+      throw new UnprocessableEntityError({
+        message:
+          'Invalid account details reqistered, Please contact customer service',
+        verboseMessage: 'Invalid account details',
+      });
+    const ref = randomInt(1000000);
+    const params = {
+      accountNumber: user.accountNo,
+      BankCode: bank,
+      referenceId: ref.toString(),
+      userId: user._id.toString(),
+    };
+    const result = await this.callPartner(params, env('PARTNER_NAME'));
+    if (!result.success) {
+      await this.sendPartnerFailedNotification(
+        result.error,
+        params,
+        'resolveAccountNumber',
+      );
+      throw new UnprocessableEntityError({
+        message: 'Account number not verified',
+        verboseMessage: result.error,
+      });
+    }
+    return {
+      nesidNumber: result.partnerResponse.neSid,
+      nerspNumber: result.partnerResponse.neresp,
+      bvn: result.partnerResponse.beneBVN,
+      kycLevel: result.partnerResponse.kycLevel,
+      userType: 'user',
+      user: user._id,
+      otpExpiry: this.moment.add(30, 'm'),
+      otp: generateReference(4, false),
+      referenceCode: `${generateReference(6, false)}${Date.now()}`,
+      principalIdentifier: `${generateReference(8, false)}${Date.now()}`,
+      paymentReference: `Pakam Transfer to ${user.bankCode}|${user.fullname}`,
+      beneName: result.partnerResponse.account_name,
+      destinationBankCode: user.bankCode,
+      destinationAccount: user.accountNo,
+      bankName: user.bankName,
+      charge: +env('APP_CHARGE'),
+      transactionType: user.bankName.toLowerCase() == 'saf' ? '0' : '1',
+      withdrawlAmount: Number(user.availablePoints) - +env('APP_CHARGE'),
+    };
   }
 
   private async getBank(bankCode: string) {

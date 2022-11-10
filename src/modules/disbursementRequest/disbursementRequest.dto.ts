@@ -47,3 +47,7 @@ export class wastepickerdisursmentDTO {
   collectorId: string;
   type: string;
 }
+
+export class safdisursementDTO {
+  userId: string;
+}

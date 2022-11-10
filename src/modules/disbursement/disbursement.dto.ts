@@ -17,3 +17,8 @@ export class initiateWastePickerWithdrawalDTO {
   requestId: string;
   otp: string;
 }
+
+export class InitiateSAFDTO {
+  userId: string;
+  otp: string;
+}

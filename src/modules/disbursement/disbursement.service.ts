@@ -199,7 +199,10 @@ export class DisbursementService {
     }
 
     if (ProcessingType.automatic == config?.processingType) {
-      return await this.processDisbursementAutomatically(config.partnerName);
+      return await this.processDisbursementAutomatically(
+        config.partnerName,
+        config.processingType,
+      );
     }
   };
   private processCharityDisbursement = async () => {
@@ -270,10 +273,13 @@ export class DisbursementService {
     return this.handleCompanySmsNotification();
   };
 
-  private processDisbursementAutomatically = async (partnerName: string) => {
+  private processDisbursementAutomatically = async (
+    partnerName: string,
+    ProcessingType: string,
+  ) => {
     if (
-      this.disbursementRequest.bankName.toLowerCase() == 'sterling bank' ||
-      this.disbursementRequest.bankName.toLowerCase() == 'sterling'
+      this.disbursementRequest.bankName.toLowerCase() ==
+      ProcessingType.toLowerCase()
     ) {
       return this.intraBankTransfer(partnerName);
     }

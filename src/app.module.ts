@@ -1,3 +1,4 @@
+import { usersModule } from './modules/users/users.module';
 import { cronsModule } from './modules/crons/crons.module';
 import { DisbursementModule } from './modules/disbursement/disbursement.module';
 import { smsModule } from './modules/notification/sms/sms.module';
@@ -40,7 +41,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,
     MiscModule,
-    //cronsModule,
+    cronsModule,
+    usersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -148,7 +148,6 @@ export class DisbursementService {
   };
 
   private confirmAndDebitAmount = async () => {
-    console.log('user', this.user.availablePoints);
     const availablePoints = this.user.availablePoints;
     const min_withdrawalable_amount =
       process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;

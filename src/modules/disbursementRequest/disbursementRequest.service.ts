@@ -472,7 +472,8 @@ export class DisbursementRequestService {
       bankName: user.bankName,
       charge: +env('SAF_CHARGE'),
       transactionType: user.bankName.toLowerCase() == 'saf' ? '0' : '1',
-      withdrawlAmount: Number(user.availablePoints) - +env('APP_CHARGE'),
+      withdrawlAmount: user.availablePoints - +env('APP_CHARGE'),
+      amount: user.availablePoints,
     };
   }
 

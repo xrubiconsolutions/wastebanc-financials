@@ -477,12 +477,14 @@ export class DisbursementRequestService {
   }
 
   private async getBank(bankCode: string) {
+    console.log('bankcode', bankCode);
     const partner = await this.partnerModel.findOne({
       name: env('PARTNER_NAME'),
     });
     const bank = banklist.find((bank: any) => {
       return bank.value == bankCode;
     });
+    console.log('bank', bank);
 
     return bank[partner.sortCode];
   }

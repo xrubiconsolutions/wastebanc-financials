@@ -31,7 +31,7 @@ export class userService {
     let accountNo = env('TEST_ACCOUNT');
     let bankName = env('TEST_NAME');
     let cifNo = env('TEST_CIFO');
-    let bankCode = env('PARTNER_CODE');
+    let bankCode = env('TEST_CODE');
     if (partnerName != 'pakam') {
       const partnerData = {
         partnerName,

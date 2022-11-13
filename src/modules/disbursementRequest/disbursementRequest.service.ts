@@ -472,8 +472,9 @@ export class DisbursementRequestService {
       bankName: user.bankName,
       charge: +env('SAF_CHARGE'),
       transactionType: user.bankName.toLowerCase() == 'saf' ? '0' : '1',
-      withdrawlAmount: user.availablePoints - +env('APP_CHARGE'),
+      withdrawalAmount: user.availablePoints - +env('APP_CHARGE'),
       amount: user.availablePoints,
+      reference: `${generateReference(7, false)}${Date.now()}`,
     };
   }
 

@@ -152,7 +152,7 @@ export class DisbursementRequestService {
         process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
       const user = await this.userModel.findById(params.userId);
       if (!user) return ResponseHandler('User not found', 400, true, null);
-      if (user.availablePoints <= +min_withdrawalable_amount) {
+      if (user.availablePoints < +min_withdrawalable_amount) {
         return ResponseHandler(
           'You do not have enough points to complete this transaction',
           400,

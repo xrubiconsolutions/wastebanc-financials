@@ -1,3 +1,4 @@
+import { ussdModule } from './modules/ussd/ussd.module';
 import { cronsModule } from './modules/crons/crons.module';
 import { DisbursementModule } from './modules/disbursement/disbursement.module';
 import { smsModule } from './modules/notification/sms/sms.module';
@@ -41,6 +42,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     DisbursementRequestModule,
     MiscModule,
     //cronsModule,
+    ussdModule,
   ],
   controllers: [AppController],
   providers: [AppService],

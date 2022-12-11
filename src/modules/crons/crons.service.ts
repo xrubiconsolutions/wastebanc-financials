@@ -62,7 +62,7 @@ export class cronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_7AM)
+  @Cron(CronExpression.EVERY_SECOND)
   async setPickUpAsMissed() {
     const pickupSchedules = await this.scheduleModel.aggregate([
       {
@@ -87,26 +87,31 @@ export class cronService {
           preserveNullAndEmptyArrays: true,
         },
       },
-      {
-        $limit: 50,
-      },
     ]);
-    console.log(pickupSchedules);
+    //console.log(pickupSchedules);
 
-    Promise.all(
-      pickupSchedules.map(async (schedule: any) => {
-        const message = `Your ${schedule.categories} schedule was missed yesterday. Kindly reschedule`;
-        await this.scheduleModel.updateOne(
-          { _id: schedule._id },
-          { completionStatus: 'missed' },
-        );
+    if (pickupSchedules.length > 0) {
+      Promise.all(
+        pickupSchedules.map(async (schedule: any) => {
+          const items = schedule.categories.map((category) => category.name);
 
-        if (schedule.user && schedule.user.onesignal_id) {
-          await this.storeNotification(message, schedule, 'pickup');
-          await this.sendPushNotification(message, schedule.user.onesignal_id);
-        }
-      }),
-    );
+          const message = `Your ${items} schedule was missed yesterday. Kindly reschedule`;
+
+          await this.scheduleModel.updateOne(
+            { _id: schedule._id },
+            { completionStatus: 'missed' },
+          );
+
+          if (schedule.user && schedule.user.onesignal_id) {
+            await this.storeNotification(message, schedule, 'pickup');
+            await this.sendPushNotification(
+              message,
+              schedule.user.onesignal_id,
+            );
+          }
+        }),
+      );
+    }
 
     this.logger.debug('missed pickup');
   }

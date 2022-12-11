@@ -80,7 +80,7 @@ export class DisbursementRequestService {
       const min_withdrawalable_amount =
         process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
 
-      if (user.availablePoints <= +min_withdrawalable_amount) {
+      if (user.availablePoints < +min_withdrawalable_amount) {
         return ResponseHandler(
           'You do not have enough points to complete this transaction',
           400,

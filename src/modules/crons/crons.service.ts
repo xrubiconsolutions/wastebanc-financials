@@ -62,7 +62,7 @@ export class cronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_SECOND)
+  @Cron(CronExpression.EVERY_DAY_AT_7AM)
   async setPickUpAsMissed() {
     const pickupSchedules = await this.scheduleModel.aggregate([
       {

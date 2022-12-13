@@ -118,6 +118,17 @@ export class DisbursementRequestService {
           status: DisbursementStatus.cancelled,
         },
       );
+
+      Promise.all(
+        transactions.map(async (transaction) => {
+          const tran = await this.transactionModel.findById(transaction);
+          await this.transactionModel.updateOne(
+            { _id: transaction },
+            { $set: { coinStr: tran.coin, weightStr: tran.weight } },
+          );
+        }),
+      );
+
       const value = await this.disbursementData(params);
       console.log('disbursement values', value);
       const disbursment = await this.disbursementModel.create(value);
@@ -343,6 +354,10 @@ export class DisbursementRequestService {
       transactionType = '1';
     }
 
+    const transactionIds = params.transactions.map((transaction: any) => {
+      return transaction._id;
+    });
+
     params.destinationBankCode = await this.getBank(params.destinationBankCode);
     params.amount = user.availablePoints;
     params.charge = +env('APP_CHARGE');
@@ -357,6 +372,7 @@ export class DisbursementRequestService {
       principalIdentifier: `${generateReference(8, false)}${Date.now()}`,
       paymentReference: `Pakam Transfer to ${params.bankName}|${params.beneName}`,
       transactionType,
+      transactions: transactionIds,
       ...params,
     };
   }

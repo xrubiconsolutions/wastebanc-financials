@@ -23,7 +23,7 @@ export class Transaction {
   coin: number;
 
   @Prop({ type: Number, default: 0 })
-  wastePickerCoint: number;
+  wastePickerCoin: number;
 
   @Prop({ type: String })
   type: string;
@@ -72,6 +72,12 @@ export class Transaction {
 
   @Prop({ type: Number, default: 0 })
   percentage: number;
+
+  @Prop({ type: String })
+  coinStr: string;
+
+  @Prop({ type: String })
+  weightStr: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

@@ -35,6 +35,9 @@ export class DisbursementRequest {
   withdrawalAmount: number;
 
   @Prop({ type: String })
+  withdrawalAmountStr: string;
+
+  @Prop({ type: String })
   type: string;
 
   @Prop({ type: String })
@@ -94,7 +97,13 @@ export class DisbursementRequest {
   @Prop({
     types: [{ type: mongoose.Types.ObjectId, ref: 'Transaction' }],
   })
-  transactions: Transaction[];
+  transactions: [];
+
+  @Prop({ type: Number })
+  weight: number;
+
+  @Prop({ type: Number })
+  coin: number;
 }
 
 export const DisbusmentRequestSchema =

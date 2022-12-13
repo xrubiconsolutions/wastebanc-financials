@@ -16,12 +16,43 @@ import { Transaction } from '../schemas/transactions.schema';
 import moment from 'moment-timezone';
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: DisbursementRequest.name, schema: DisbusmentRequestSchema },
-      { name: Transaction.name, schema: TransactionSchema },
-      { name: User.name, schema: UserSchema },
-      { name: Partner.name, schema: PartnerSchema },
-      { name: Collector.name, schema: CollectorSchema },
+    MongooseModule.forFeatureAsync([
+      {
+        name: DisbursementRequest.name,
+        useFactory: () => {
+          const schema = DisbusmentRequestSchema;
+          schema.pre('save', () => {
+            schema.obj.withdrawalAmountStr =
+              schema.obj.withdrawalAmount.toString();
+          });
+          return schema;
+        },
+      },
+      {
+        name: Transaction.name,
+        useFactory: () => {
+          const schema = TransactionSchema;
+          return schema;
+        },
+      },
+      {
+        name: User.name,
+        useFactory: () => {
+          return UserSchema;
+        },
+      },
+      {
+        name: Partner.name,
+        useFactory: () => {
+          return PartnerSchema;
+        },
+      },
+      {
+        name: Collector.name,
+        useFactory: () => {
+          return CollectorSchema;
+        },
+      },
     ]),
     slackModule,
     PartnerModule,

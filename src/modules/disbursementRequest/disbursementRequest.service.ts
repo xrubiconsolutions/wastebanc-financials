@@ -357,6 +357,7 @@ export class DisbursementRequestService {
     const transactionIds = params.transactions.map((transaction: any) => {
       return transaction._id;
     });
+    console.log('t', transactionIds);
 
     params.destinationBankCode = await this.getBank(params.destinationBankCode);
     params.amount = user.availablePoints;

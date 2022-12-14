@@ -106,7 +106,7 @@ export class DisbursementRequestService {
           null,
         );
 
-      params.transactions = transactions;
+      //params.transactions = transactions;
 
       await this.disbursementModel.updateMany(
         {
@@ -119,17 +119,7 @@ export class DisbursementRequestService {
         },
       );
 
-      Promise.all(
-        transactions.map(async (transaction) => {
-          const tran = await this.transactionModel.findById(transaction);
-          await this.transactionModel.updateOne(
-            { _id: transaction },
-            { $set: { coinStr: tran.coin, weightStr: tran.weight } },
-          );
-        }),
-      );
-
-      const value = await this.disbursementData(params);
+      const value = await this.disbursementData(params, transactions);
       console.log('disbursement values', value);
       const disbursment = await this.disbursementModel.create(value);
       this.eventEmitter.emit('sms.otp', {
@@ -341,7 +331,10 @@ export class DisbursementRequestService {
     }
   }
 
-  private async disbursementData(params: disbursementRequestDTO) {
+  private async disbursementData(
+    params: disbursementRequestDTO,
+    transactions: Transaction[],
+  ) {
     const user = await this.userModel.findById(params.userId);
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
@@ -354,10 +347,9 @@ export class DisbursementRequestService {
       transactionType = '1';
     }
 
-    const transactionIds = params.transactions.map((transaction: any) => {
+    const transactionIds = transactions.map((transaction: any) => {
       return transaction._id;
     });
-    console.log('t', transactionIds);
 
     params.destinationBankCode = await this.getBank(params.destinationBankCode);
     params.amount = user.availablePoints;

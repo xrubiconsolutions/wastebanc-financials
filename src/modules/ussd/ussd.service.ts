@@ -1,15 +1,13 @@
 import { ResponseHandler } from './../../utils/misc';
-import { Injectable, Logger, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Injectable, Logger } from '@nestjs/common';
+
 // import { ussdResult } from './ussd.dto';
 
 @Injectable()
 export class ussdService {
   //constructor() {}
 
-  async initate(@Req() req: Request) {
-    const { body } = req;
-    console.log(body);
+  async initate() {
     try {
       const inboundResponse = {
         'Service Provider Menu': 'Welcome to Pakam USSD',

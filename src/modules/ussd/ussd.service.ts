@@ -22,7 +22,7 @@ export class ussdService {
       return {
         statusCode: '0000',
         data: {
-          inboundResponse,
+          inboundResponse: inboundResponse,
           userInputRequired: true,
         },
         statusMessage: 'Success.',

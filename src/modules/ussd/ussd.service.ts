@@ -1,15 +1,18 @@
 import { ResponseHandler } from './../../utils/misc';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
 // import { ussdResult } from './ussd.dto';
 
 @Injectable()
 export class ussdService {
   //constructor() {}
 
-  async initate() {
+  async initate(@Req() req: Request) {
+    const { body } = req;
+    console.log(body);
     try {
       const inboundResponse = {
-        'Service Provider Menuw': 'Welcome to Pakam USSD',
+        'Service Provider Menu': 'Welcome to Pakam USSD',
         '1.': 'Register',
         '2.': 'Schedule Pick-up',
         '3.': 'Schedule Drop-off',
@@ -21,7 +24,7 @@ export class ussdService {
       return {
         statusCode: '0000',
         data: {
-          inboundResponse: JSON.stringify(inboundResponse),
+          inboundResponse,
           userInputRequired: true,
         },
         statusMessage: 'Success.',

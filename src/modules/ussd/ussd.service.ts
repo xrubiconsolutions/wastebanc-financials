@@ -9,20 +9,21 @@ export class ussdService {
 
   async initate() {
     try {
-      const inboundResponse = {
-        'Service Provider Menu': 'Welcome to Pakam USSD',
-        '1.': 'Register',
-        '2.': 'Schedule Pick-up',
-        '3.': 'Schedule Drop-off',
-        '4.': 'Wallet balance',
-        '5.': 'Schedule history',
-        '6.': 'Missed Schedule',
-        '7.': 'Transfer from wallet into account',
-      };
+      // const inboundResponse = {
+      //   'Service Provider Menu': 'Welcome to Pakam USSD',
+      //   '1.': 'Register',
+      //   '2.': 'Schedule Pick-up',
+      //   '3.': 'Schedule Drop-off',
+      //   '4.': 'Wallet balance',
+      //   '5.': 'Schedule history',
+      //   '6.': 'Missed Schedule',
+      //   '7.': 'Transfer from wallet into account',
+      // };
+      const inboundResponse = 'Welcome to Pakam:' + '\n1.Register' + '\n2.Quit';
       return {
         statusCode: '0000',
         data: {
-          inboundResponse: JSON.stringify(inboundResponse),
+          inboundResponse,
           userInputRequired: true,
         },
         statusMessage: 'Success.',

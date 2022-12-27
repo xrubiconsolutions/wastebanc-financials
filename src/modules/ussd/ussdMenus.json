@@ -1,0 +1,11 @@
+[
+    {
+        "level":"0",
+        "level_0_text":"'Welcome to Pakam:' + '\n1.Register' + '\n2.Quit'",
+        "level_0_1":"Register",
+        "level_0_2":"Schedule Pick-up",
+        "level_0_3":"Schedule Drop-off",
+        "level_0_4":"Wallet Balance",
+        "level_0_5":"Withdraw From Wallet"
+    }
+]

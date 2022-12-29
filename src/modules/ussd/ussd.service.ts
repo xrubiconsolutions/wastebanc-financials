@@ -1,3 +1,4 @@
+import { UserDocument } from './../schemas/user.schema';
 import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
 import { UssdSessionLog } from './../schemas/ussdSessionLog.schema';
 import {
@@ -17,7 +18,8 @@ import { User } from '../schemas/user.schema';
 @Injectable()
 export class ussdService {
   public result: ussdResult;
-  private LEVEL_0_TEXT: string;
+  private menu_for_msisdn_NotReg: string;
+  private menu_for_msisdn_reg: string;
   private nextMenu: string;
   private params: ussdValues;
   private session: UssdSession | null;
@@ -27,6 +29,7 @@ export class ussdService {
     private ussdSessionModel: Model<UssdSessionDocument>,
     @InjectModel(UssdSessionLog.name)
     private ussdSessionLogModel: Model<UssdSessionLogDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {
     this.result = {
       statusCode: '0000',
@@ -43,14 +46,22 @@ export class ussdService {
         self: [],
       },
     };
-    this.LEVEL_0_TEXT =
+    this.menu_for_msisdn_NotReg =
       'Welcome to Pakam:' +
-      '\n1.Register' +
-      '\n2. Schedule Pick-up' +
-      '\n3. Schedule Drop-off' +
+      '\n1. Register' +
+      '\n2. Schedule Pick up' +
+      '\n3. Schedule Drop off' +
       '\n4. Wallet Balance' +
       '\n5. Withdraw From Wallet' +
-      '\n6. Quit';
+      '\n00. Quit';
+
+    this.menu_for_msisdn_reg =
+      'Welcome to Pakam:' +
+      '\n1. Schedule Pick up' +
+      '\n2. Schedule Drop off' +
+      '\n3. Wallet Balance' +
+      '\n4. Withdraw From Wallet' +
+      '\n00. Quit';
     this.params = null;
     this.session = null;
     this.user = null;
@@ -64,10 +75,16 @@ export class ussdService {
       this.result.data.messageType = params.messageType;
       this.result.data.sessionId = params.sessionId;
       this.params = params;
+      await this.getUser();
 
       if (params.messageType.toString() == '0') {
         //this starts a new session for the msisdn
-        this.result.data.inboundResponse = this.LEVEL_0_TEXT;
+        if (this.user == null) {
+          this.result.data.inboundResponse = this.menu_for_msisdn_NotReg;
+        } else {
+          this.result.data.inboundResponse = this.menu_for_msisdn_reg;
+        }
+
         await this.closeSession();
         await this.openSession();
         return this.result;
@@ -87,6 +104,16 @@ export class ussdService {
       Logger.error(error);
       return ResponseHandler('An error occurred', 500, true, null);
     }
+  }
+
+  private async getUser() {
+    const user = await this.userModel.findOne({
+      phone: this.params.msisdn,
+    });
+    if (!user) {
+      return (this.user = null);
+    }
+    return (this.user = user);
   }
 
   async openSession(): Promise<void> {
@@ -132,40 +159,32 @@ export class ussdService {
      * used the last and response to handle the next event or show another menu
      */
     const ussdString = this.params.ussdString;
+
+    if (ussdString == '00') {
+      await this.closeSession();
+    }
     if (this.session.sessionState == null && ussdString == '1') {
-      // handle register for ussd user
+      // check if phone already registered on pakam
+      // if already registered then 1 == schedule pickup
+      // else 1 == register
+      // handle register for ussd user const user = await this.userModel.findOne({ phone: this.params.msisdn });
+      if (this.user) {
+        // schedule pickup is the menu select
+        // await this.schedulePickUp();
+      } else {
+        await this.registerUser();
+      }
+    }
+
+    if (this.session.sessionState == 'user_registration') {
       await this.registerUser();
     }
 
-    if ((this.session.sessionState = 'user_registration')) {
-      await this.registerUser();
+    if (this.session.sessionState == 'continue') {
+      // return a menu without registration
+      this.result.data.inboundResponse = this.menu_for_msisdn_reg;
     }
-
     return this.session;
-    // if (
-    //   !this.session.lastMenuVisted &&
-    //   this.session.lastMenuVisted == 'Enter fullname'
-    // ) {
-    //   // store the fullname in the session store
-    // }
-
-    // if (
-    //   !this.session.lastMenuVisted &&
-    //   this.session.lastMenuVisted == 'Enter Gender'
-    // ) {
-    // }
-
-    // if (
-    //   !this.session.lastMenuVisted &&
-    //   this.session.lastMenuVisted == 'Enter Pickup address'
-    // ) {
-    // }
-
-    // if (
-    //   !this.session.lastMenuVisted &&
-    //   this.session.lastMenuVisted == 'Enter Password'
-    // ) {
-    // }
   }
 
   async closeSession(): Promise<void> {
@@ -176,6 +195,7 @@ export class ussdService {
 
   private async registerUser() {
     if (this.session.lastMenuVisted == null) {
+      // call payment service here
       const nextMenu = 'Enter Fullname';
       this.result.data.inboundResponse = nextMenu;
       await this.updateSession(nextMenu, 'user_registration', null);
@@ -233,6 +253,39 @@ export class ussdService {
         this.session.response,
       );
       return this.result;
+    }
+
+    if (
+      this.session.lastMenuVisted != null &&
+      this.session.lastMenuVisted == 'Set a PIN'
+    ) {
+      // create an account for user
+      const nextMenu =
+        'Pakam Account created successfully:' + '\n1.Continue' + '\n00. Quit';
+      this.result.data.inboundResponse = nextMenu;
+      const newUser = await this.userModel.create({
+        phone: this.session.msisdn,
+        username: this.session.response.username,
+        fullname: this.session.response.fullname,
+        address: this.session.response.address,
+        email: `${this.session.response.fullname.trim()}@gmail.com`,
+        verified: true,
+        country: 'Nigeria',
+        state: 'Lagos',
+        gender: this.session.response.gender,
+        createAt: Date.now(),
+        transactionPin: this.params.ussdString,
+      });
+      await this.userModel.updateOne(
+        { _id: newUser._id },
+        {
+          $set: {
+            cardID: newUser._id.toString(),
+          },
+        },
+      );
+
+      await this.updateSession(null, 'continue', null);
     }
     return this.result;
   }

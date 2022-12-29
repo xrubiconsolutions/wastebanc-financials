@@ -89,6 +89,10 @@ export class User {
   cifNo: string;
   @Prop({ type: Number })
   percentageAcc: number;
+  @Prop({ type: String })
+  transactionPin: string;
+  @Prop({ type: String, default: 'mobile' })
+  channel: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

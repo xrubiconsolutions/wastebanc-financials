@@ -170,7 +170,6 @@ export class ussdService {
 
   async closeSession(): Promise<void> {
     await this.ussdSessionModel.deleteMany({
-      sessionId: this.params.sessionId,
       msisdn: this.params.msisdn,
     });
   }

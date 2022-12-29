@@ -65,7 +65,7 @@ export class ussdService {
       this.result.data.sessionId = params.sessionId;
       this.params = params;
 
-      if (params.messageType == '0') {
+      if (params.messageType.toString() == '0') {
         //this starts a new session for the msisdn
         this.result.data.inboundResponse = this.LEVEL_0_TEXT;
         await this.closeSession();
@@ -73,7 +73,7 @@ export class ussdService {
         return this.result;
       }
 
-      if (params.messageType == '2') {
+      if (params.messageType.toString() == '2') {
         //close session
         await this.closeSession();
         return this.result;
@@ -195,6 +195,45 @@ export class ussdService {
       await this.updateSession('Select Gender', 'user_registration', response);
       return this.result;
     }
+
+    if (
+      this.session.lastMenuVisted != null &&
+      this.session.lastMenuVisted == 'Select Gender'
+    ) {
+      console.log('response b4', this.session.response);
+      this.session.response.country = 'Nigeria';
+      this.session.response.state = 'Lagos';
+      const nextMenu = 'Please Enter an address';
+      this.result.data.inboundResponse = nextMenu;
+      if (this.params.ussdString == '1') {
+        this.session.response.gender = 'male';
+      }
+      if (this.params.ussdString == '2') {
+        this.session.response.gender = 'female';
+      }
+      console.log('response b4 update', this.session.response);
+      await this.updateSession(
+        'Please Enter an address',
+        'user_registration',
+        this.session.response,
+      );
+      return this.result;
+    }
+
+    if (
+      this.session.lastMenuVisted != null &&
+      this.session.lastMenuVisted == 'Please Enter an address'
+    ) {
+      const nextMenu = 'Set a PIN';
+      this.session.response.address = this.params.ussdString;
+      this.result.data.inboundResponse = nextMenu;
+      await this.updateSession(
+        'Set a PIN',
+        'user_registration',
+        this.session.response,
+      );
+      return this.result;
+    }
     return this.result;
   }
 
@@ -221,5 +260,14 @@ export class ussdService {
         response,
       },
     );
+    await this.ussdSessionLogModel.create({
+      msisdn: this.params.msisdn,
+      sessionId: this.params.sessionId,
+      imsi: this.params.imsi,
+      messageType: this.params.messageType,
+      ussdString: this.params.ussdString,
+      response,
+      lastMenuVisted: menu,
+    });
   }
 }

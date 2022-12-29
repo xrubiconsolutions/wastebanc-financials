@@ -183,7 +183,7 @@ export class ussdService {
     }
 
     if (
-      !this.session.lastMenuVisted &&
+      this.session.lastMenuVisted != null &&
       this.session.lastMenuVisted == 'Enter Fullname'
     ) {
       const nextMenu = 'Select Gender:' + '\n1.Male' + '\n2.Female';
@@ -215,6 +215,8 @@ export class ussdService {
       { sessionId: this.params.sessionId, msisdn: this.params.msisdn },
       {
         lastMenuVisted: menu,
+        messageType: this.params.messageType,
+        ussdString: this.params.ussdString,
         sessionState,
         response,
       },

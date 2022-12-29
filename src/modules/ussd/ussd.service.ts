@@ -107,8 +107,10 @@ export class ussdService {
   }
 
   private async getUser() {
+    const phone = this.params.msisdn.slice(3);
+    console.log(phone);
     const user = await this.userModel.findOne({
-      phone: this.params.msisdn,
+      phone,
     });
     if (!user) {
       return (this.user = null);
@@ -264,7 +266,7 @@ export class ussdService {
         'Pakam Account created successfully:' + '\n1.Continue' + '\n00. Quit';
       this.result.data.inboundResponse = nextMenu;
       const newUser = await this.userModel.create({
-        phone: this.session.msisdn,
+        phone: this.params.msisdn.slice(3),
         username: this.session.response.username,
         fullname: this.session.response.fullname,
         address: this.session.response.address,

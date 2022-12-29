@@ -4,7 +4,7 @@ export interface ussdResult {
     inboundResponse: string;
     userInputRequired: boolean;
     serviceCode: string;
-    messageType: number;
+    messageType: string;
     msisdn: string;
     sessionId: string;
   };
@@ -17,7 +17,7 @@ export interface ussdResult {
 export interface ussdValues {
   msisdn: string;
   sessionId: string;
-  messageType: number;
+  messageType: string;
   imsi: string;
   ussdString: string;
   cellId: any;

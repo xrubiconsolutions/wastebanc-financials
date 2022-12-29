@@ -14,14 +14,20 @@ export class UssdSession {
   @Prop({ type: String, unique: true })
   imsi: string;
 
-  @Prop({ type: Number })
-  messageType: number;
+  @Prop({ type: String })
+  messageType: string;
 
   @Prop({ type: String })
   ussdString: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, default: null })
   lastMenuVisted: string;
+
+  @Prop({ type: String, default: null })
+  sessionState: string;
+
+  @Prop({ type: Object, default: null })
+  response: any;
 }
 
 export const UssdSessionSchema = SchemaFactory.createForClass(UssdSession);

@@ -1,3 +1,4 @@
+import { User, UserSchema } from './../schemas/user.schema';
 import {
   UssdSessionLog,
   UssdSessionLogSchema,
@@ -16,6 +17,7 @@ import { Module } from '@nestjs/common';
     MongooseModule.forFeature([
       { name: UssdSession.name, schema: UssdSessionSchema },
       { name: UssdSessionLog.name, schema: UssdSessionLogSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   providers: [ussdService],

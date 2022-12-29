@@ -22,6 +22,12 @@ export class UssdSessionLog {
 
   @Prop({ type: String })
   lastMenuVisted: string;
+
+  @Prop({ type: String, default: null })
+  sessionState: string;
+
+  @Prop({ type: Object, default: null })
+  response: any;
 }
 
 export const UssdSessionLogSchema =

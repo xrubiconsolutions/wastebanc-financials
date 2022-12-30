@@ -325,9 +325,9 @@ export class ussdService {
         '\n7. Shredded Paper' +
         '\n8. Paper' +
         '\n9. Rubber' +
-        '\n.10 Plastic' +
-        '\n.11 Tyres' +
-        '\n.12 Tetra pack';
+        '\n10. Plastic' +
+        '\n11. Tyres' +
+        '\n12. Tetra pack';
 
       this.result.data.inboundResponse = nextMenu;
       await this.updateSession(
@@ -348,11 +348,9 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'nylon' }, { value: 'nylon' }],
         });
-        this.session.response = {
-          cateogry: {
-            name: catDetail.name,
-            catId: catDetail._id,
-          },
+        this.session.response.cateogry = {
+          name: catDetail.name,
+          catId: catDetail._id,
         };
       }
 
@@ -360,11 +358,9 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'can' }, { value: 'can' }],
         });
-        this.session.response = {
-          cateogry: {
-            name: catDetail.name,
-            catId: catDetail._id,
-          },
+        this.session.response.cateogry = {
+          name: catDetail.name,
+          catId: catDetail._id,
         };
       }
 
@@ -372,11 +368,9 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Pet bottles' }, { value: 'pet-bottles' }],
         });
-        this.session.response = {
-          cateogry: {
-            name: catDetail.name,
-            catId: catDetail._id,
-          },
+        this.session.response.cateogry = {
+          name: catDetail.name,
+          catId: catDetail._id,
         };
       }
 
@@ -384,11 +378,9 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Paper' }, { value: 'paper' }],
         });
-        this.session.response = {
-          cateogry: {
-            name: catDetail.name,
-            catId: catDetail._id,
-          },
+        this.session.response.cateogry = {
+          name: catDetail.name,
+          catId: catDetail._id,
         };
       }
 
@@ -396,11 +388,9 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Rubber' }, { value: 'rubber' }],
         });
-        this.session.response = {
-          cateogry: {
-            name: catDetail.name,
-            catId: catDetail._id,
-          },
+        this.session.response.cateogry = {
+          name: catDetail.name,
+          catId: catDetail._id,
         };
       }
 
@@ -408,11 +398,9 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Plastic' }, { value: 'plastic' }],
         });
-        this.session.response = {
-          cateogry: {
-            name: catDetail.name,
-            catId: catDetail._id,
-          },
+        this.session.response.cateogry = {
+          name: catDetail.name,
+          catId: catDetail._id,
         };
       }
 

@@ -1,3 +1,4 @@
+import { Categories, CategoriesDocument } from './../schemas/category.schema';
 import { UserDocument } from './../schemas/user.schema';
 import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
 import { UssdSessionLog } from './../schemas/ussdSessionLog.schema';
@@ -30,6 +31,8 @@ export class ussdService {
     @InjectModel(UssdSessionLog.name)
     private ussdSessionLogModel: Model<UssdSessionLogDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Categories.name)
+    private categoryModel: Model<CategoriesDocument>,
   ) {
     this.result = {
       statusCode: '0000',
@@ -172,9 +175,17 @@ export class ussdService {
       // handle register for ussd user const user = await this.userModel.findOne({ phone: this.params.msisdn });
       if (this.user) {
         // schedule pickup is the menu select
-        // await this.schedulePickUp();
+        await this.schedulePickUp();
       } else {
         await this.registerUser();
+      }
+    }
+
+    if (this.session.sessionState == null && ussdString == '2') {
+      if (this.user) {
+        // schedule a drop off
+      } else {
+        await this.schedulePickUp();
       }
     }
 
@@ -222,7 +233,6 @@ export class ussdService {
       this.session.lastMenuVisted != null &&
       this.session.lastMenuVisted == 'Select Gender'
     ) {
-      console.log('response b4', this.session.response);
       this.session.response.country = 'Nigeria';
       this.session.response.state = 'Lagos';
       const nextMenu = 'Please Enter an address';
@@ -233,7 +243,7 @@ export class ussdService {
       if (this.params.ussdString == '2') {
         this.session.response.gender = 'female';
       }
-      console.log('response b4 update', this.session.response);
+
       await this.updateSession(
         'Please Enter an address',
         'user_registration',
@@ -293,7 +303,127 @@ export class ussdService {
     return this.result;
   }
 
-  // private async schedulePickUp() {}
+  private async schedulePickUp() {
+    if (!this.user) {
+      const nextMenu =
+        'Please Register as a pakam household user to schedule a pickup:' +
+        '\n1.Continue' +
+        '\n00. Quit';
+      this.result.data.inboundResponse = nextMenu;
+      await this.updateSession(null, 'continue', null);
+      return this.result;
+    }
+    if (this.session.lastMenuVisted == null) {
+      const nextMenu =
+        'Select waste category:' +
+        '\n1. Nylon' +
+        '\n2. Can' +
+        '\n3. Satchet water nylon' +
+        '\n4. Pure water nylon' +
+        '\n5. Carton' +
+        '\n6. Pet bottles' +
+        '\n7. Shredded Paper' +
+        '\n8. Paper' +
+        '\n9. Rubber' +
+        '\n.10 Plastic' +
+        '\n.11 Tyres' +
+        '\n.12 Tetra pack';
+
+      this.result.data.inboundResponse = nextMenu;
+      await this.updateSession(
+        'select waste category',
+        'schedule_pickup',
+        null,
+      );
+      return this.result;
+    }
+
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'select waste category'
+    ) {
+      const nextMenu = 'Enter waste quantity';
+      this.result.data.inboundResponse = nextMenu;
+      if (this.params.ussdString == '1') {
+        const catDetail = await this.categoryModel.findOne({
+          $or: [{ name: 'nylon' }, { value: 'nylon' }],
+        });
+        this.session.response = {
+          cateogry: {
+            name: catDetail.name,
+            catId: catDetail._id,
+          },
+        };
+      }
+
+      if (this.params.ussdString == '2') {
+        const catDetail = await this.categoryModel.findOne({
+          $or: [{ name: 'can' }, { value: 'can' }],
+        });
+        this.session.response = {
+          cateogry: {
+            name: catDetail.name,
+            catId: catDetail._id,
+          },
+        };
+      }
+
+      if (this.params.ussdString == '6') {
+        const catDetail = await this.categoryModel.findOne({
+          $or: [{ name: 'Pet bottles' }, { value: 'pet-bottles' }],
+        });
+        this.session.response = {
+          cateogry: {
+            name: catDetail.name,
+            catId: catDetail._id,
+          },
+        };
+      }
+
+      if (this.params.ussdString == '8') {
+        const catDetail = await this.categoryModel.findOne({
+          $or: [{ name: 'Paper' }, { value: 'paper' }],
+        });
+        this.session.response = {
+          cateogry: {
+            name: catDetail.name,
+            catId: catDetail._id,
+          },
+        };
+      }
+
+      if (this.params.ussdString == '9') {
+        const catDetail = await this.categoryModel.findOne({
+          $or: [{ name: 'Rubber' }, { value: 'rubber' }],
+        });
+        this.session.response = {
+          cateogry: {
+            name: catDetail.name,
+            catId: catDetail._id,
+          },
+        };
+      }
+
+      if (this.params.ussdString == '10') {
+        const catDetail = await this.categoryModel.findOne({
+          $or: [{ name: 'Plastic' }, { value: 'plastic' }],
+        });
+        this.session.response = {
+          cateogry: {
+            name: catDetail.name,
+            catId: catDetail._id,
+          },
+        };
+      }
+
+      await this.updateSession(
+        'select waste category',
+        'schedule_pickup',
+        this.session.response,
+      );
+      return this.result;
+    }
+  }
 
   // private async scheduleDropOff() {}
 

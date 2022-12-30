@@ -1,3 +1,4 @@
+import { Categories, CategoriesSchema } from './../schemas/category.schema';
 import { User, UserSchema } from './../schemas/user.schema';
 import {
   UssdSessionLog,
@@ -18,6 +19,7 @@ import { Module } from '@nestjs/common';
       { name: UssdSession.name, schema: UssdSessionSchema },
       { name: UssdSessionLog.name, schema: UssdSessionLogSchema },
       { name: User.name, schema: UserSchema },
+      { name: Categories.name, schema: CategoriesSchema },
     ]),
   ],
   providers: [ussdService],

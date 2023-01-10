@@ -339,14 +339,14 @@ export class DisbursementRequestService {
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
 
-    let beneName = params.bankName;
+    //let beneName = params.bankName;
     let transactionType = '0';
     if (
       params.bankName.toLowerCase() == env('SAF_NAME') ||
       params.bankName.toLowerCase() == env('SAF_NAME')
     ) {
       transactionType = '1';
-      beneName = params.bankName.slice(0, -30);
+      //beneName = params.bankName.slice(0, -30);
     }
 
     const transactionIds = transactions.map((transaction: any) => {
@@ -368,7 +368,7 @@ export class DisbursementRequestService {
       paymentReference: `Pakam Transfer to ${params.bankName}|${params.beneName}`,
       transactionType,
       transactions: transactionIds,
-      beneName,
+      // beneName,
       ...params,
     };
   }

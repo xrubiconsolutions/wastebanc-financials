@@ -319,6 +319,7 @@ export class DisbursementService {
         bankName: this.disbursementRequest.bankName,
         charge: process.env.APP_CHARGE,
         user: this.disbursementRequest.userType,
+        message: 'Payment Request to handle internally',
       },
     };
   };
@@ -381,8 +382,8 @@ export class DisbursementService {
     if (!partnerResponse.success && partnerResponse.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
+        partnerResponse.error.toString(),
         partnerName,
-        partnerResponse.error,
         'nipTransfer',
       );
       this.message = 'Payout Request Failed';
@@ -391,8 +392,8 @@ export class DisbursementService {
     if (!partnerResponse.success) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
+        partnerResponse.error.toString(),
         partnerName,
-        partnerResponse.error,
         'nipTransfer',
       );
       this.message = 'Payout Request Failed';
@@ -432,7 +433,7 @@ export class DisbursementService {
     if (!partnerResponse.success && partnerResponse.httpCode === 403) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
-        partnerResponse.error,
+        partnerResponse.error.toString(),
         partnerName,
         'intraBankTransfer',
       );
@@ -446,8 +447,8 @@ export class DisbursementService {
     if (!partnerResponse.success) {
       await this.rollBack();
       await this.sendPartnerFailedNotification(
+        partnerResponse.error.toString(),
         partnerName,
-        partnerResponse.error,
         'intraBankTransfer',
       );
       console.log('err', partnerResponse);

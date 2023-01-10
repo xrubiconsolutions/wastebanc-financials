@@ -1,2 +1,2 @@
-export * as sterling from './sterlingBank';
+export * as SAF from './sterlingBank';
 export * as pakam from './paystack';

@@ -341,8 +341,8 @@ export class DisbursementRequestService {
 
     let transactionType = '0';
     if (
-      params.bankName.toLowerCase() == 'sterling bank' ||
-      params.bankName.toLowerCase() == 'sterling'
+      params.bankName.toLowerCase() == 'saf' ||
+      params.bankName.toLowerCase() == 'saf'
     ) {
       transactionType = '1';
     }

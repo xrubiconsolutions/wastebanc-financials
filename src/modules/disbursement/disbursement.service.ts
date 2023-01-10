@@ -281,9 +281,9 @@ export class DisbursementService {
       this.disbursementRequest.bankName.toLowerCase() ==
       ProcessingType.toLowerCase()
     ) {
-      return this.intraBankTransfer(partnerName);
+      return this.intraBankTransfer(env('PARTNER_NAME'));
     }
-    return this.nipTransfer(partnerName);
+    return this.nipTransfer(env('PARTNER_NAME'));
   };
 
   private getCharityPaymentSlackNotification = (

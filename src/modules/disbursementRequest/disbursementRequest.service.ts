@@ -339,7 +339,7 @@ export class DisbursementRequestService {
     if (!user)
       throw new UnprocessableEntityError({ message: 'User details incorrect' });
 
-    let beneName = param.bankName;
+    let beneName = params.bankName;
     let transactionType = '0';
     if (
       params.bankName.toLowerCase() == env('SAF_NAME') ||

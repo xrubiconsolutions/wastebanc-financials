@@ -1,3 +1,7 @@
+import {
+  localGovernment,
+  localGovernmentDocument,
+} from './../schemas/localgovernment.schema';
 import { Categories, CategoriesDocument } from './../schemas/category.schema';
 import { UserDocument } from './../schemas/user.schema';
 import { UnprocessableEntityError } from './../../utils/errors/errorHandler';
@@ -33,6 +37,8 @@ export class ussdService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Categories.name)
     private categoryModel: Model<CategoriesDocument>,
+    @InjectModel(localGovernment.name)
+    private areasModel: Model<localGovernmentDocument>,
   ) {
     this.result = {
       statusCode: '0000',
@@ -105,7 +111,7 @@ export class ussdService {
     } catch (error) {
       console.log(error);
       Logger.error(error);
-      return ResponseHandler('An error occurred', 500, true, null);
+      return ResponseHandler(error.message, error.httpCode, true, null);
     }
   }
 
@@ -149,8 +155,8 @@ export class ussdService {
     });
     if (!session) {
       throw new UnprocessableEntityError({
-        message: 'Session has not started',
-        verboseMessage: 'Session has not started',
+        message: 'Session has not been initiatied',
+        verboseMessage: 'Session has not been initiatied',
       });
     }
 
@@ -196,6 +202,10 @@ export class ussdService {
     if (this.session.sessionState == 'continue') {
       // return a menu without registration
       this.result.data.inboundResponse = this.menu_for_msisdn_reg;
+    }
+
+    if (this.session.sessionState == 'schedule_pickup') {
+      await this.schedulePickUp();
     }
     return this.session;
   }
@@ -344,13 +354,18 @@ export class ussdService {
     ) {
       const nextMenu = 'Enter waste quantity';
       this.result.data.inboundResponse = nextMenu;
+
       if (this.params.ussdString == '1') {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'nylon' }, { value: 'nylon' }],
         });
-        this.session.response.cateogry = {
-          name: catDetail.name,
-          catId: catDetail._id,
+        this.session.response = {
+          categories: [
+            {
+              name: catDetail.name,
+              catId: catDetail._id,
+            },
+          ],
         };
       }
 
@@ -358,9 +373,13 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'can' }, { value: 'can' }],
         });
-        this.session.response.cateogry = {
-          name: catDetail.name,
-          catId: catDetail._id,
+        this.session.response = {
+          categories: [
+            {
+              name: catDetail.name,
+              catId: catDetail._id,
+            },
+          ],
         };
       }
 
@@ -368,9 +387,13 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Pet bottles' }, { value: 'pet-bottles' }],
         });
-        this.session.response.cateogry = {
-          name: catDetail.name,
-          catId: catDetail._id,
+        this.session.response = {
+          categories: [
+            {
+              name: catDetail.name,
+              catId: catDetail._id,
+            },
+          ],
         };
       }
 
@@ -378,9 +401,13 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Paper' }, { value: 'paper' }],
         });
-        this.session.response.cateogry = {
-          name: catDetail.name,
-          catId: catDetail._id,
+        this.session.response = {
+          categories: [
+            {
+              name: catDetail.name,
+              catId: catDetail._id,
+            },
+          ],
         };
       }
 
@@ -388,9 +415,13 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Rubber' }, { value: 'rubber' }],
         });
-        this.session.response.cateogry = {
-          name: catDetail.name,
-          catId: catDetail._id,
+        this.session.response = {
+          categories: [
+            {
+              name: catDetail.name,
+              catId: catDetail._id,
+            },
+          ],
         };
       }
 
@@ -398,17 +429,55 @@ export class ussdService {
         const catDetail = await this.categoryModel.findOne({
           $or: [{ name: 'Plastic' }, { value: 'plastic' }],
         });
-        this.session.response.cateogry = {
-          name: catDetail.name,
-          catId: catDetail._id,
+        this.session.response = {
+          categories: [
+            {
+              name: catDetail.name,
+              catId: catDetail._id,
+            },
+          ],
         };
       }
 
       await this.updateSession(
-        'select waste category',
+        'Enter waste quantity',
         'schedule_pickup',
         this.session.response,
       );
+      return this.result;
+    }
+
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Enter waste quantity'
+    ) {
+      if (!this.session.response.categories) {
+        this.session.response['categories'] = [];
+        this.session.response['quantity'] = this.params.ussdString;
+      }
+      this.session.response['categories'] = this.session.response.categories;
+      this.session.response['quantity'] = this.params.ussdString;
+
+      //const areas = await this.getLga();
+      const nextMenu = await this.getLga();
+      this.result.data.inboundResponse = nextMenu;
+
+      await this.updateSession(
+        'Select Local government Area',
+        'schedule_pickup',
+        this.session.response,
+      );
+      return this.result;
+    }
+
+    // select local government
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Select Local government Area'
+    ) {
+      const nextMenu = 'Select Access Area';
+      this.result.data.inboundResponse = nextMenu;
+
       return this.result;
     }
   }
@@ -443,5 +512,23 @@ export class ussdService {
       response,
       lastMenuVisted: menu,
     });
+  }
+
+  private async getLga() {
+    const areas = await this.areasModel
+      .find({ state: 'Lagos' })
+      .select({ lga: 1, _id: 0 });
+
+    const result = areas.reduce((acc, current) => {
+      const doExist = acc.find((d) => d['lga'] === current['lga']);
+      if (!doExist) return [...acc, current];
+      return acc;
+    }, []);
+    const values = result.map((result) => result.lga);
+    let v = 'Select Local government Area:';
+    for (let i = 0; i < values.length; i++) {
+      v += `\n${i + 1}. ${values[i]}`;
+    }
+    return v;
   }
 }

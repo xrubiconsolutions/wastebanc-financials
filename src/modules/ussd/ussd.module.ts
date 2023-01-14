@@ -1,3 +1,7 @@
+import {
+  localGovernment,
+  localGovernmentSchema,
+} from './../schemas/localgovernment.schema';
 import { Categories, CategoriesSchema } from './../schemas/category.schema';
 import { User, UserSchema } from './../schemas/user.schema';
 import {
@@ -20,6 +24,7 @@ import { Module } from '@nestjs/common';
       { name: UssdSessionLog.name, schema: UssdSessionLogSchema },
       { name: User.name, schema: UserSchema },
       { name: Categories.name, schema: CategoriesSchema },
+      { name: localGovernment.name, schema: localGovernmentSchema },
     ]),
   ],
   providers: [ussdService],

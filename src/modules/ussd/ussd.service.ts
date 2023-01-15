@@ -80,8 +80,6 @@ export class ussdService {
       '\n1. Register' +
       '\n2. Schedule Pick up' +
       '\n3. Schedule Drop off' +
-      '\n4. Wallet Balance' +
-      '\n5. Withdraw From Wallet' +
       '\n00. Quit';
 
     this.menu_for_msisdn_reg =
@@ -126,6 +124,7 @@ export class ussdService {
       }
       //get the session
       await this.getSession();
+      // initiate payment
       await this.processLevel();
       return this.result;
     } catch (error) {
@@ -213,6 +212,19 @@ export class ussdService {
       } else {
         await this.schedulePickUp();
       }
+    }
+
+    if (this.session.sessionState == null && ussdString == '3') {
+      if (this.user) {
+        // get wallet balance
+        await this.getWalletbalance();
+      } else {
+        // schedule a drop off
+      }
+    }
+
+    if (this.session.sessionState == null && ussdString == '4') {
+      // handle withdrawal
     }
 
     if (this.session.sessionState == 'user_registration') {
@@ -554,7 +566,22 @@ export class ussdService {
 
   // private async scheduleDropOff() {}
 
-  // private async getWalletbalance() {}
+  private async getWalletbalance() {
+    if (!this.user) {
+      const nextMenu =
+        'Please Register as a pakam household user:' +
+        '\n1.Continue' +
+        '\n00. Quit';
+      this.result.data.inboundResponse = nextMenu;
+      await this.updateSession(null, 'continue', null);
+      return this.result;
+    }
+    console.log('balance', this.user.availablePoints);
+    const message = `Your current balance is ${this.user.availablePoints}`;
+    this.result.data.inboundResponse = message;
+    await this.updateSession(null, 'continue', null);
+    return this.result;
+  }
 
   // private async withdrawBalance() {}
 

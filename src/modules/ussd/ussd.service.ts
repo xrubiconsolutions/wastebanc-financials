@@ -639,9 +639,9 @@ export class ussdService {
   private async storeLcd() {
     const lcd = await this.areasModel
       .find({ state: 'Lagos', lga: this.session.response.lga })
-      .select({ lcd: 1, _id: 0 });
+      .select({ lcd: 1, _id: 0, slug: 1 });
     const index = parseInt(this.params.ussdString) - 1;
-    const valueInString = lcd[index].lcd;
+    const valueInString = lcd[index].slug;
 
     return valueInString;
   }
@@ -653,15 +653,15 @@ export class ussdService {
     const schedule = await this.pickupScheduleModel.create({
       client: this.user.email,
       clientId: this.user._id.toString(),
-      scheduleCreator: this.user.username,
+      scheduleCreator: this.user.username.trim(),
       categories: this.session.response.categories,
-      Category: this.session.response.categories[0].name,
+      Category: this.session.response.categories[0].name.trim(),
       quantiy: this.session.response.quantity,
       expiryDuration: expireDate,
       remainderDate,
       state: 'Lagos',
       phone: this.user.phone,
-      address: this.params.ussdString,
+      address: this.params.ussdString.trim(),
       reminder: true,
       callOnArrival: true,
       lcd: this.session.response.lcd,

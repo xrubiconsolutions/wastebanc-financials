@@ -34,6 +34,7 @@ export class smsService {
       console.log(smsResponse.data);
       return smsResponse.data;
     } catch (error) {
+      console.log(error);
       Logger.error({ error, params });
       throw new Error(error.message);
     }
@@ -47,7 +48,7 @@ export class smsService {
 
   private getSMSData(params: smsDTO) {
     const phoneNo = String(params.phone).substring(1, 11);
-    const message = `Dear ${params.organisationName}, a user named ${params.userName}`;
+    const message = params.message;
     return this.smsData({ phoneNo, message });
   }
 

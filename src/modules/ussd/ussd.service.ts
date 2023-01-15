@@ -1,3 +1,14 @@
+import { smsService } from './../notification/sms/sms.service';
+import {
+  notification,
+  notificationDocument,
+} from './../schemas/notification.schema';
+import { onesignalService } from './../notification/onesignal/onesignal.service';
+import {
+  Organisation,
+  OrganisationDocument,
+} from './../schemas/organisation.schema';
+import { schedules, schedulesDocument } from './../schemas/schedule.schema';
 import {
   localGovernment,
   localGovernmentDocument,
@@ -11,7 +22,7 @@ import {
   UssdSessionDocument,
 } from './../schemas/ussdSession.schema';
 import { ResponseHandler } from './../../utils/misc';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ussdResult, ussdValues } from './ussd.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -39,6 +50,15 @@ export class ussdService {
     private categoryModel: Model<CategoriesDocument>,
     @InjectModel(localGovernment.name)
     private areasModel: Model<localGovernmentDocument>,
+    @Inject('moment') private moment: moment.Moment,
+    @InjectModel(schedules.name)
+    private pickupScheduleModel: Model<schedulesDocument>,
+    @InjectModel(Organisation.name)
+    private organisationModel: Model<OrganisationDocument>,
+    private onesignal: onesignalService,
+    private sms_service: smsService,
+    @InjectModel(notification.name)
+    private notificationModel: Model<notificationDocument>,
   ) {
     this.result = {
       statusCode: '0000',
@@ -458,7 +478,6 @@ export class ussdService {
       this.session.response['categories'] = this.session.response.categories;
       this.session.response['quantity'] = this.params.ussdString;
 
-      //const areas = await this.getLga();
       const nextMenu = await this.getLga();
       this.result.data.inboundResponse = nextMenu;
 
@@ -470,15 +489,66 @@ export class ussdService {
       return this.result;
     }
 
-    // select local government
+    // collect local government
     if (
       this.session.lastMenuVisted !== null &&
       this.session.lastMenuVisted == 'Select Local government Area'
     ) {
-      const nextMenu = 'Select Access Area';
+      const lcdResult = await this.getLcd();
+      const nextMenu = lcdResult.v;
       this.result.data.inboundResponse = nextMenu;
+      this.session.response['categories'] = this.session.response.categories
+        ? this.session.response.categories
+        : [];
+      this.session.response['quantity'] = this.session.response.quantity
+        ? this.session.response.quantity
+        : '';
+      this.session.response['lga'] = lcdResult.valueInString;
+
+      await this.updateSession(
+        'Select Access Area',
+        'schedule_pickup',
+        this.session.response,
+      );
 
       return this.result;
+    }
+
+    // collect access area
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Select Access Area'
+    ) {
+      const value = await this.storeLcd();
+      this.result.data.inboundResponse = 'Enter a pickup address';
+      this.session.response['categories'] = this.session.response.categories
+        ? this.session.response.categories
+        : [];
+      this.session.response['quantity'] = this.session.response.quantity
+        ? this.session.response.quantity
+        : '';
+      this.session.response['lga'] = this.session.response.lga
+        ? this.session.response.lga
+        : '';
+      this.session.response['lcd'] = value;
+      await this.updateSession(
+        'Enter a pickup address',
+        'schedule_pickup',
+        this.session.response,
+      );
+
+      return this.result;
+    }
+
+    // collect pickup address
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Enter a pickup address'
+    ) {
+      await this.createPickupSchedule();
+      this.result.data.inboundResponse = 'Pickup scheduled successful';
+      console.log(this.session.response);
+      await this.updateSession(null, 'continue', null);
     }
   }
 
@@ -524,11 +594,140 @@ export class ussdService {
       if (!doExist) return [...acc, current];
       return acc;
     }, []);
-    const values = result.map((result) => result.lga);
+    //const values = result.map((result) => result.lga);
     let v = 'Select Local government Area:';
-    for (let i = 0; i < values.length; i++) {
-      v += `\n${i + 1}. ${values[i]}`;
+    for (let i = 0; i < result.length; i++) {
+      v += `\n${i + 1}. ${result[i].lga}`;
     }
     return v;
+  }
+
+  private async getLcd() {
+    const areas = await this.areasModel
+      .find({ state: 'Lagos' })
+      .select({ lga: 1, _id: 0 });
+
+    const result = await this.removeObjDuplicate(areas, 'lga');
+    const index = parseInt(this.params.ussdString) - 1;
+    const valueInString = result[index].lga;
+    const accessAreas = await this.areasModel
+      .find({
+        state: 'Lagos',
+        lga: valueInString,
+      })
+      .select({ lcd: 1, _id: 0 });
+    const lca = await this.removeObjDuplicate(accessAreas, 'lcd');
+    let v = 'Select Access Area:';
+    for (let i = 0; i < lca.length; i++) {
+      v += `\n${i + 1}. ${lca[i].lcd}`;
+    }
+    return {
+      v,
+      valueInString,
+    };
+  }
+
+  private async removeObjDuplicate(arr: any, field: string) {
+    const result = arr.reduce((acc, current) => {
+      const doExist = acc.find((d) => d[field] === current[field]);
+      if (!doExist) return [...acc, current];
+      return acc;
+    }, []);
+    return result;
+  }
+
+  private async storeLcd() {
+    const lcd = await this.areasModel
+      .find({ state: 'Lagos', lga: this.session.response.lga })
+      .select({ lcd: 1, _id: 0 });
+    const index = parseInt(this.params.ussdString) - 1;
+    const valueInString = lcd[index].lcd;
+
+    return valueInString;
+  }
+
+  private async createPickupSchedule() {
+    const pickupDate = this.moment.add(1, 'days');
+    const expireDate = pickupDate.add(7, 'days');
+    const remainderDate = pickupDate.add(6, 'days');
+    const schedule = await this.pickupScheduleModel.create({
+      client: this.user.email,
+      clientId: this.user._id.toString(),
+      scheduleCreator: this.user.username,
+      categories: this.session.response.categories,
+      Category: this.session.response.categories[0].name,
+      quantiy: this.session.response.quantity,
+      expiryDuration: expireDate,
+      remainderDate,
+      state: 'Lagos',
+      phone: this.user.phone,
+      address: this.params.ussdString,
+      reminder: true,
+      callOnArrival: true,
+      lcd: this.session.response.lcd,
+      pickUpDate: pickupDate,
+      channel: 'ussd',
+    });
+    const organisations = await this.organisationModel.aggregate([
+      {
+        $match: {
+          streetOfAccess: { $in: [schedule.lcd] },
+          'categories.catId': { in: schedule.Category },
+        },
+      },
+      {
+        $addFields: {
+          _id: {
+            $toString: '$_id',
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'collectors',
+          localField: '_id',
+          foreignField: 'organisationId',
+          as: 'collectors',
+        },
+      },
+    ]);
+
+    await Promise.all(
+      organisations.map(async (organisation) => {
+        organisation.collectors.map(async (collector) => {
+          const message = `A user in ${schedule.lcd} just requested for a pickup of is waste item ${schedule.Category}`;
+          if (collector.onesignal_id) {
+            //send notification
+            await this.storeNotification(message, schedule, 'pickup');
+            await this.onesignal.sendPushNotification(
+              message,
+              collector.onesignal_id,
+            );
+          }
+        });
+      }),
+    );
+
+    //const sms = `Hello ${this.user.username} your ${schedule.Category} pickup request been placed successfully`;
+    // const content = {
+    //   sms,
+    //   phone: this.user.phone,
+    // };
+    //await this.sms_service.sendSms(content);
+  }
+
+  private async storeNotification(
+    message: string,
+    schedule: any,
+    type: string,
+  ) {
+    return await this.notificationModel.create({
+      title: 'Pick Schedule Missed',
+      lcd: schedule.user.lcd,
+      message,
+      schedulerId: schedule.user._id,
+      notification_type: type,
+      scheduleId: schedule._id,
+    });
   }
 }

@@ -5,6 +5,6 @@ export class OtpDTO {
 
 export class smsDTO extends OtpDTO {
   message?: string;
-  organisationName: string;
-  userName: string;
+  organisationName?: string;
+  userName?: string;
 }

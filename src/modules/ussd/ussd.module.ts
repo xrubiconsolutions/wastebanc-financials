@@ -1,3 +1,14 @@
+import { onesignalModule } from './../notification/onesignal/onesignal.module';
+import { smsModule } from './../notification/sms/sms.module';
+import {
+  notification,
+  notificationSchema,
+} from './../schemas/notification.schema';
+import {
+  Organisation,
+  OrganisationSchema,
+} from './../schemas/organisation.schema';
+import { schedules, schedulesSchema } from './../schemas/schedule.schema';
 import {
   localGovernment,
   localGovernmentSchema,
@@ -15,7 +26,8 @@ import {
 import { MongooseModule } from '@nestjs/mongoose';
 import { ussdController } from './ussd.controller';
 import { ussdService } from './ussd.service';
-import { Module } from '@nestjs/common';
+import { Module, Scope } from '@nestjs/common';
+import moment from 'moment-timezone';
 
 @Module({
   imports: [
@@ -25,9 +37,21 @@ import { Module } from '@nestjs/common';
       { name: User.name, schema: UserSchema },
       { name: Categories.name, schema: CategoriesSchema },
       { name: localGovernment.name, schema: localGovernmentSchema },
+      { name: schedules.name, schema: schedulesSchema },
+      { name: Organisation.name, schema: OrganisationSchema },
+      { name: notification.name, schema: notificationSchema },
     ]),
+    smsModule,
+    onesignalModule,
   ],
-  providers: [ussdService],
+  providers: [
+    ussdService,
+    {
+      provide: 'moment',
+      useFactory: async () => moment(new Date()),
+      scope: Scope.REQUEST,
+    },
+  ],
   controllers: [ussdController],
 })
 export class ussdModule {}

@@ -97,6 +97,9 @@ export class schedules {
 
   @Prop({ type: String })
   state: string;
+
+  @Prop({ type: String, default: 'mobile' })
+  channel: string;
 }
 
 export const schedulesSchema = SchemaFactory.createForClass(schedules);

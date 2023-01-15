@@ -656,7 +656,7 @@ export class ussdService {
       scheduleCreator: this.user.username.trim(),
       categories: this.session.response.categories,
       Category: this.session.response.categories[0].name.trim(),
-      quantiy: this.session.response.quantity,
+      quantity: this.session.response.quantity,
       expiryDuration: expireDate,
       remainderDate,
       state: 'Lagos',
@@ -667,6 +667,8 @@ export class ussdService {
       lcd: this.session.response.lcd,
       pickUpDate: pickupDate,
       channel: 'ussd',
+      long: 0,
+      lat: 0,
     });
     const organisations = await this.organisationModel.aggregate([
       {

@@ -1,3 +1,7 @@
+import {
+  CharityOrganisation,
+  CharityOrganisationSchema,
+} from './../schemas/charityorganisation.schema';
 import { onesignalModule } from './../notification/onesignal/onesignal.module';
 import { smsModule } from './../notification/sms/sms.module';
 import {
@@ -40,6 +44,7 @@ import moment from 'moment-timezone';
       { name: schedules.name, schema: schedulesSchema },
       { name: Organisation.name, schema: OrganisationSchema },
       { name: notification.name, schema: notificationSchema },
+      { name: CharityOrganisation.name, schema: CharityOrganisationSchema },
     ]),
     smsModule,
     onesignalModule,

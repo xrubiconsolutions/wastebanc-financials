@@ -1,3 +1,7 @@
+import {
+  CharityOrganisation,
+  CharityOrganisationDocument,
+} from './../schemas/charityorganisation.schema';
 import { smsService } from './../notification/sms/sms.service';
 import {
   notification,
@@ -28,6 +32,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UssdSessionLogDocument } from '../schemas/ussdSessionLog.schema';
 import { User } from '../schemas/user.schema';
+import banklist from '../misc/ngnbanklist.json';
 
 // import { ussdResult } from './ussd.dto';
 
@@ -59,6 +64,8 @@ export class ussdService {
     private sms_service: smsService,
     @InjectModel(notification.name)
     private notificationModel: Model<notificationDocument>,
+    @InjectModel(CharityOrganisation.name)
+    private charityOrganisationModel: Model<CharityOrganisationDocument>,
   ) {
     this.result = {
       statusCode: '0000',
@@ -87,7 +94,7 @@ export class ussdService {
       '\n1. Schedule Pick up' +
       '\n2. Schedule Drop off' +
       '\n3. Wallet Balance' +
-      '\n4. Withdraw From Wallet' +
+      '\n4. Payout' +
       '\n00. Quit';
     this.params = null;
     this.session = null;
@@ -225,6 +232,7 @@ export class ussdService {
 
     if (this.session.sessionState == null && ussdString == '4') {
       // handle withdrawal
+      await this.withdrawBalance();
     }
 
     if (this.session.sessionState == 'user_registration') {
@@ -238,6 +246,9 @@ export class ussdService {
 
     if (this.session.sessionState == 'schedule_pickup') {
       await this.schedulePickUp();
+    }
+    if (this.session.sessionState == 'withdraw') {
+      await this.withdrawBalance();
     }
     return this.session;
   }
@@ -559,7 +570,6 @@ export class ussdService {
     ) {
       await this.createPickupSchedule();
       this.result.data.inboundResponse = 'Pickup scheduled successful';
-      console.log(this.session.response);
       await this.updateSession(null, 'continue', null);
     }
   }
@@ -576,14 +586,59 @@ export class ussdService {
       await this.updateSession(null, 'continue', null);
       return this.result;
     }
-    console.log('balance', this.user.availablePoints);
+
     const message = `Your current balance is ${this.user.availablePoints}`;
     this.result.data.inboundResponse = message;
     await this.updateSession(null, 'continue', null);
     return this.result;
   }
 
-  // private async withdrawBalance() {}
+  private async withdrawBalance() {
+    if (!this.user) {
+      const nextMenu =
+        'Please Register as a pakam household user:' +
+        '\n1.Continue' +
+        '\n00. Quit';
+      this.result.data.inboundResponse = nextMenu;
+      await this.updateSession(null, 'continue', null);
+      return this.result;
+    }
+
+    if (this.session.lastMenuVisted == null) {
+      const menu =
+        'Select payout option:' +
+        '\n1. Direct to Bank' +
+        '\n2. Direct to charity';
+      this.result.data.inboundResponse = menu;
+      await this.updateSession('Select payout option', 'withdraw', null);
+      return this.result;
+    }
+
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Select payout option'
+    ) {
+      if (this.params.ussdString == '1') {
+        const banks = await this.getBanks();
+        this.result.data.inboundResponse = banks;
+        await this.updateSession(
+          'Select a bank',
+          'withdraw',
+          this.session.response,
+        );
+      } else {
+        // select charity organizations
+        this.result.data.inboundResponse = await this.getCharityOrganisations();
+        await this.updateSession(
+          'Select an Organisation',
+          'withdraw',
+          this.session.response,
+        );
+      }
+
+      return this.result;
+    }
+  }
 
   private async updateSession(
     menu: string,
@@ -758,5 +813,23 @@ export class ussdService {
       notification_type: type,
       scheduleId: schedule._id,
     });
+  }
+
+  private async getBanks() {
+    let v = 'Select a bank:';
+    for (let i = 0; i < banklist.length; i++) {
+      v += `\n${i + 1}. ${banklist[i].name}`;
+    }
+    return v;
+  }
+
+  private async getCharityOrganisations() {
+    const organisations = await this.charityOrganisationModel.find({});
+    let v = 'Select an Organisation:';
+    for (let i = 0; i < organisations.length; i++) {
+      v += `\n${i + 1}. ${organisations[i].name}`;
+    }
+
+    return v;
   }
 }

@@ -189,6 +189,8 @@ export class DisbursementService {
       return partner == item.partnerName;
     });
 
+    const configCapAmount = config?.capAmount || 0;
+    const disbursementAmount = +this.disbursementRequest.withdrawalAmount || 0;
     if (ProcessingType.manual == config?.processingType) {
       return await this.processDisbursementManually();
     }
@@ -197,8 +199,18 @@ export class DisbursementService {
       return await this.processDisbursementByCompany();
     }
 
-    if (ProcessingType.automatic == config?.processingType) {
+    if (
+      ProcessingType.automatic == config?.processingType &&
+      configCapAmount >= disbursementAmount
+    ) {
       return await this.processDisbursementAutomatically(config.partnerName);
+    }
+
+    if (
+      ProcessingType.automatic == config.processingType &&
+      configCapAmount <= disbursementAmount
+    ) {
+      return await this.processDisbursementManually();
     }
   };
   private processCharityDisbursement = async () => {
@@ -265,8 +277,10 @@ export class DisbursementService {
   };
 
   private processDisbursementManually = async () => {
-    const slackData = this.getBankDisbursementSlackNotification();
+    const slackData = this.getManualDisbursementSlackNotificationData();
     console.log(slackData);
+    this.message =
+      'Transaction processing.Payment will within 2 to 3 working days';
     return this.slackService.sendMessage(slackData);
   };
 
@@ -281,8 +295,16 @@ export class DisbursementService {
       this.disbursementRequest.bankName.toLowerCase() == 'sterling bank' ||
       this.disbursementRequest.bankName.toLowerCase() == 'sterling'
     ) {
+      await this.automaticDisbursementNotification(
+        partnerName,
+        'intraBank Transfer',
+      );
       return this.intraBankTransfer(partnerName);
     }
+    await this.automaticDisbursementNotification(
+      partnerName,
+      'nipBank Transfer',
+    );
     return this.nipTransfer(partnerName);
   };
 
@@ -303,13 +325,14 @@ export class DisbursementService {
     };
   };
 
-  private getBankDisbursementSlackNotification = () => {
+  private getManualDisbursementSlackNotificationData = () => {
     return {
       category: SlackCategories.Disbursement,
       event: DisbursementStatus.initiated,
       data: {
         id: this.disbursementRequest._id,
         type: DisbursementType.bank,
+        paymentType: 'Manual',
         reference: this.disbursementRequest.reference,
         amount: this.withdrawalAmount,
         username: this.user.fullname,
@@ -320,7 +343,7 @@ export class DisbursementService {
         bankName: this.disbursementRequest.bankName,
         charge: process.env.APP_CHARGE,
         user: this.disbursementRequest.userType,
-        message: 'Handle payment manually',
+        message: 'Manual Payment',
       },
     };
   };
@@ -474,7 +497,7 @@ export class DisbursementService {
         errorMsg,
         partnerMsg,
         partnerName,
-        'nipTransfer',
+        'intraBank',
       );
       // roll back
 
@@ -498,7 +521,7 @@ export class DisbursementService {
     return partnerResponse;
   };
 
-  private sendPartnerFailedNotification = (
+  private sendPartnerFailedNotification = async (
     message: string,
     partnerMsg: string,
     parterName: string,
@@ -506,9 +529,9 @@ export class DisbursementService {
   ) => {
     const slackNotificationData = {
       category: 'disbursement',
-      event: 'failed',
+      event: DisbursementStatus.initiated,
       data: {
-        requestFailedType: 'partner_processing_failed',
+        requestFailedType: 'partner_processing_transaction',
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
@@ -527,6 +550,33 @@ export class DisbursementService {
 
     return this.slackService.sendMessage(slackNotificationData);
   };
+
+  private async automaticDisbursementNotification(
+    parterName: string,
+    method: string,
+  ) {
+    const slackNotificationData = {
+      category: 'disbursement',
+      event: 'failed',
+      data: {
+        requestFailedType: 'partner_processing_failed',
+        parterName,
+        id: this.disbursementRequest._id,
+        reference: this.disbursementRequest.reference,
+        amount: this.disbursementRequest.withdrawalAmount,
+        username: this.user.firstname,
+        userAvailablePoint: this.user.availablePoints,
+        accountName: this.disbursementRequest.beneName,
+        accountNumber: this.disbursementRequest.destinationAccount,
+        bankCode: this.disbursementRequest.destinationBankCode,
+        charge: env('APP_CHARGE'),
+        message: 'Transaction is been processed automatically',
+        method,
+      },
+    };
+
+    return this.slackService.sendMessage(slackNotificationData);
+  }
 
   private rollBack = async () => {
     await Promise.all(

@@ -153,9 +153,8 @@ export class DisbursementService {
       process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
     if (availablePoints <= +min_withdrawalable_amount) {
       throw new UnprocessableEntityError({
-        message: 'You do not have enough points to complete this transaction',
-        verboseMessage:
-          'You do not have enough points to complete this transaction',
+        message: 'Insufficient available balance',
+        verboseMessage: 'Insufficient available balance',
       });
     }
 
@@ -216,6 +215,13 @@ export class DisbursementService {
     const charityPayment = await this.charityModel.create({
       user: this.user._id,
       charity: charity._id,
+      // fullname: this.user.username,
+      userId: this.user._id.toString(),
+      amount: Number(this.disbursementRequest.withdrawalAmount),
+      //organisation: this.transactions.
+      paid: true,
+      transactions: this.transactions,
+      cardID: this.user._id.toString(),
     });
 
     const paymentData = this.getCharityPaymentSlackNotification(charityPayment);
@@ -285,13 +291,14 @@ export class DisbursementService {
   ) => {
     return {
       category: SlackCategories.Requests,
-      event: DisbursementStatus.initiated,
+      event: DisbursementStatus.successful,
       data: {
         _id: charityOrg._id,
         type: DisbursementType.charity,
         charityName: charityOrg.name,
         bank: charityOrg.bank,
         accountNumber: charityOrg.accountNumber,
+        message: `Payment of ${this.disbursementRequest.withdrawalAmount} to ${charityOrg.name} made successfully`,
       },
     };
   };
@@ -313,6 +320,7 @@ export class DisbursementService {
         bankName: this.disbursementRequest.bankName,
         charge: process.env.APP_CHARGE,
         user: this.disbursementRequest.userType,
+        message: 'Handle payment manually',
       },
     };
   };
@@ -372,25 +380,39 @@ export class DisbursementService {
     );
 
     console.log('partner response', partnerResponse);
-    if (!partnerResponse.success && partnerResponse.httpCode === 403) {
+    if (!partnerResponse.success || partnerResponse.httpCode === 403) {
       await this.rollBack();
+      let errorMsg = '';
+      let partnerMsg = '';
+      if (
+        typeof partnerResponse.error === 'object' ||
+        Array.isArray(partnerResponse.error)
+      ) {
+        errorMsg = JSON.stringify(partnerResponse.error);
+      } else if (typeof partnerResponse.error === 'string') {
+        errorMsg = partnerResponse.error.toString();
+      } else {
+        errorMsg = '';
+      }
+
+      if (
+        typeof partnerResponse.partnerResponse === 'object' ||
+        Array.isArray(partnerResponse.partnerResponse)
+      ) {
+        partnerMsg = JSON.stringify(partnerResponse.partnerResponse);
+      } else if (typeof partnerResponse.partnerResponse === 'string') {
+        partnerMsg = partnerResponse.partnerResponse.toString();
+      } else {
+        partnerMsg = '';
+      }
       await this.sendPartnerFailedNotification(
+        errorMsg,
+        partnerMsg,
         partnerName,
-        partnerResponse.error,
         'nipTransfer',
       );
       this.message = 'Payout Request Failed';
       return partnerResponse;
-    }
-    if (!partnerResponse.success) {
-      await this.rollBack();
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error,
-        'nipTransfer',
-      );
-      this.message = 'Payout Request Failed';
-      return this.message;
     }
     this.message = 'Payout initiated successfully';
     return this.message;
@@ -423,12 +445,36 @@ export class DisbursementService {
       partnerData,
     );
     console.log('partner response', partnerResponse);
-    if (!partnerResponse.success && partnerResponse.httpCode === 403) {
+    if (!partnerResponse.success || partnerResponse.httpCode === 403) {
       await this.rollBack();
+      let errorMsg = '';
+      let partnerMsg = '';
+      if (
+        typeof partnerResponse.error === 'object' ||
+        Array.isArray(partnerResponse.error)
+      ) {
+        errorMsg = JSON.stringify(partnerResponse.error);
+      } else if (typeof partnerResponse.error === 'string') {
+        errorMsg = partnerResponse.error.toString();
+      } else {
+        errorMsg = '';
+      }
+
+      if (
+        typeof partnerResponse.partnerResponse === 'object' ||
+        Array.isArray(partnerResponse.partnerResponse)
+      ) {
+        partnerMsg = JSON.stringify(partnerResponse.partnerResponse);
+      } else if (typeof partnerResponse.partnerResponse === 'string') {
+        partnerMsg = partnerResponse.partnerResponse.toString();
+      } else {
+        partnerMsg = '';
+      }
       await this.sendPartnerFailedNotification(
-        partnerResponse.error,
+        errorMsg,
+        partnerMsg,
         partnerName,
-        'intraBankTransfer',
+        'nipTransfer',
       );
       // roll back
 
@@ -437,23 +483,24 @@ export class DisbursementService {
       return partnerResponse;
     }
 
-    if (!partnerResponse.success) {
-      await this.rollBack();
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error,
-        'intraBankTransfer',
-      );
-      console.log('err', partnerResponse);
-      this.message = 'Payout Request Failed';
-      return partnerResponse;
-    }
+    // if (!partnerResponse.success) {
+    //   await this.rollBack();
+    //   await this.sendPartnerFailedNotification(
+    //     partnerName,
+    //     partnerResponse.error,
+    //     'intraBankTransfer',
+    //   );
+    //   console.log('err', partnerResponse);
+    //   this.message = 'Payout Request Failed';
+    //   return partnerResponse;
+    // }
     this.message = 'Payout initiated successfully';
     return partnerResponse;
   };
 
   private sendPartnerFailedNotification = (
     message: string,
+    partnerMsg: string,
     parterName: string,
     method: string,
   ) => {
@@ -461,7 +508,7 @@ export class DisbursementService {
       category: 'disbursement',
       event: 'failed',
       data: {
-        requestFailedType: 'partner_account_verification_failed',
+        requestFailedType: 'partner_processing_failed',
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
@@ -473,6 +520,7 @@ export class DisbursementService {
         bankCode: this.disbursementRequest.destinationBankCode,
         charge: env('APP_CHARGE'),
         message,
+        partnerMsg,
         method,
       },
     };

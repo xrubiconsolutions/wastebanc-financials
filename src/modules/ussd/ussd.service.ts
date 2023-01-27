@@ -86,15 +86,13 @@ export class ussdService {
       'Welcome to Pakam:' +
       '\n1. Register' +
       '\n2. Schedule Pick up' +
-      '\n3. Schedule Drop off' +
       '\n00. Quit';
 
     this.menu_for_msisdn_reg =
       'Welcome to Pakam:' +
       '\n1. Schedule Pick up' +
-      '\n2. Schedule Drop off' +
-      '\n3. Wallet Balance' +
-      '\n4. Payout' +
+      '\n2. Wallet Balance' +
+      '\n3. Payout' +
       '\n00. Quit';
     this.params = null;
     this.session = null;
@@ -215,7 +213,8 @@ export class ussdService {
 
     if (this.session.sessionState == null && ussdString == '2') {
       if (this.user) {
-        // schedule a drop off
+        // get wallet balance
+        await this.getWalletbalance();
       } else {
         await this.schedulePickUp();
       }
@@ -223,17 +222,15 @@ export class ussdService {
 
     if (this.session.sessionState == null && ussdString == '3') {
       if (this.user) {
-        // get wallet balance
-        await this.getWalletbalance();
-      } else {
-        // schedule a drop off
+        // handle withdrawal
+        await this.withdrawBalance();
       }
     }
 
-    if (this.session.sessionState == null && ussdString == '4') {
-      // handle withdrawal
-      await this.withdrawBalance();
-    }
+    // if (this.session.sessionState == null && ussdString == '4') {
+    //   // handle withdrawal
+    //   await this.withdrawBalance();
+    // }
 
     if (this.session.sessionState == 'user_registration') {
       await this.registerUser();

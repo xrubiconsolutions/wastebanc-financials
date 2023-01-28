@@ -171,7 +171,6 @@ export class MiscService {
   };
 
   private getWithdrawalAmountandCharges = async (params: requestChargesDTO) => {
-    console.log('params', params);
     const user = await this.userModel.findById(params.userId);
     const partner = await this.partnerModel.findOne({
       bankCode: params.bankCode,

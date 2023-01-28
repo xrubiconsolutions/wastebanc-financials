@@ -142,9 +142,8 @@ export class wastepickerdisursmentService {
 
     if (availablePoints <= +min_withdrawalable_amount) {
       throw new UnprocessableEntityError({
-        message: 'You do not have enough points to complete this transaction',
-        verboseMessage:
-          'You do not have enough points to complete this transaction',
+        message: 'Insufficient available balance',
+        verboseMessage: 'Insufficient available balance',
       });
     }
 

@@ -81,7 +81,7 @@ export class DisbursementRequestService {
 
       if (user.availablePoints <= +min_withdrawalable_amount) {
         return ResponseHandler(
-          'You do not have enough points to complete this transaction',
+          'Insufficient available balance',
           400,
           true,
           null,

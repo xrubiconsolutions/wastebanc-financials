@@ -41,7 +41,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,
     MiscModule,
-    //cronsModule,
+    cronsModule,
     ussdModule,
   ],
   controllers: [AppController],

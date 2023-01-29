@@ -19,6 +19,10 @@ import {
   DisbursementRequest,
   DisbusmentRequestSchema,
 } from '../schemas/disbursementRequest.schema';
+import {
+  userActivities,
+  userActivitiesSchema,
+} from '../schemas/activitesModel';
 
 @Module({
   imports: [
@@ -29,6 +33,7 @@ import {
       { name: Pay.name, schema: PaySchema },
       { name: Transaction.name, schema: TransactionSchema },
       { name: User.name, schema: UserSchema },
+      { name: userActivities.name, schema: userActivitiesSchema },
     ]),
     onesignalModule,
     PartnerModule,

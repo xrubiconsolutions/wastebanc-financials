@@ -44,7 +44,7 @@ export class cronService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_HOURS)
+  //@Cron(CronExpression.EVERY_5_HOURS)
   async verifyTransaction() {
     try {
       const requests = await this.disbursementRequestModel

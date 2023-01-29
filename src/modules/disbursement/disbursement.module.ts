@@ -1,3 +1,7 @@
+import {
+  userActivities,
+  userActivitiesSchema,
+} from './../schemas/activitesModel';
 import { wastepickerdisursmentService } from './wastepickerDisbursementService';
 import { CollectorPay } from './../schemas/wastepickerPayment.schema';
 import { Collector, CollectorSchema } from './../schemas/collector.schema';
@@ -40,6 +44,7 @@ import { Partner, PartnerSchema } from '../schemas/partner.schema';
       { name: Partner.name, schema: PartnerSchema },
       { name: Collector.name, schema: CollectorSchema },
       { name: CollectorPay.name, schema: CollectorSchema },
+      { name: userActivities.name, schema: userActivitiesSchema },
     ]),
     slackModule,
     smsModule,

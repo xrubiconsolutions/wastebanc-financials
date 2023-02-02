@@ -196,6 +196,7 @@ export class ussdService {
     const ussdString = this.params.ussdString;
 
     if (ussdString == '00') {
+      this.result.data.messageType = '2';
       await this.closeSession();
     }
     if (this.session.sessionState == null && ussdString == '1') {
@@ -238,6 +239,7 @@ export class ussdService {
 
     if (this.session.sessionState == 'continue') {
       // return a menu without registration
+      this.result.data.messageType = '1';
       this.result.data.inboundResponse = this.menu_for_msisdn_reg;
     }
 
@@ -361,6 +363,7 @@ export class ussdService {
         '\n00. Quit';
       this.result.data.inboundResponse = nextMenu;
       await this.updateSession(null, 'continue', null);
+      this.result.data.messageType = '2';
       return this.result;
     }
     if (this.session.lastMenuVisted == null) {
@@ -380,6 +383,7 @@ export class ussdService {
         '\n12. Tetra pack';
 
       this.result.data.inboundResponse = nextMenu;
+      this.result.data.messageType = '1';
       await this.updateSession(
         'select waste category',
         'schedule_pickup',
@@ -484,6 +488,7 @@ export class ussdService {
         'schedule_pickup',
         this.session.response,
       );
+      this.result.data.messageType = '1';
       return this.result;
     }
 
@@ -506,6 +511,7 @@ export class ussdService {
         'schedule_pickup',
         this.session.response,
       );
+      this.result.data.messageType = '1';
       return this.result;
     }
 
@@ -530,7 +536,7 @@ export class ussdService {
         'schedule_pickup',
         this.session.response,
       );
-
+      this.result.data.messageType = '1';
       return this.result;
     }
 
@@ -556,7 +562,7 @@ export class ussdService {
         'schedule_pickup',
         this.session.response,
       );
-
+      this.result.data.messageType = '1';
       return this.result;
     }
 
@@ -566,7 +572,8 @@ export class ussdService {
       this.session.lastMenuVisted == 'Enter a pickup address'
     ) {
       await this.createPickupSchedule();
-      this.result.data.inboundResponse = 'Pickup scheduled successful';
+      this.result.data.messageType = '2';
+      this.result.data.inboundResponse = 'Pickup scheduled successfully';
       await this.updateSession(null, 'continue', null);
     }
   }
@@ -587,6 +594,7 @@ export class ussdService {
     const message = `Your current balance is ${this.user.availablePoints}`;
     this.result.data.inboundResponse = message;
     await this.updateSession(null, 'continue', null);
+    this.result.data.messageType = '2';
     return this.result;
   }
 
@@ -607,6 +615,7 @@ export class ussdService {
         '\n1. Direct to Bank' +
         '\n2. Direct to charity';
       this.result.data.inboundResponse = menu;
+      this.result.data.messageType = '1';
       await this.updateSession('Select payout option', 'withdraw', null);
       return this.result;
     }
@@ -632,7 +641,37 @@ export class ussdService {
           this.session.response,
         );
       }
+      this.result.data.messageType = '1';
+      return this.result;
+    }
 
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Select a bank'
+    ) {
+      // handle bank withdrawal
+      this.session.response['bank'] = await this.pickedBank();
+      this.result.data.inboundResponse = 'Enter account number';
+      this.result.data.messageType = '1';
+      await this.updateSession(
+        'Enter account number',
+        'withdraw',
+        this.session.response,
+      );
+      return this.result;
+    }
+
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Select an Organisation'
+    ) {
+      // handle organization
+      // TODO
+      // get the amount to send to organisation
+      // send otp
+      // disburse to organisation
+      this.result.data.inboundResponse = 'coming soon';
+      this.result.data.messageType = '2';
       return this.result;
     }
   }
@@ -723,6 +762,12 @@ export class ussdService {
     const valueInString = lcd[index].slug;
 
     return valueInString;
+  }
+
+  private async pickedBank() {
+    const value = parseInt(this.params.ussdString);
+    const bank = banklist[value];
+    return bank;
   }
 
   private async createPickupSchedule() {
@@ -828,5 +873,12 @@ export class ussdService {
     }
 
     return v;
+  }
+
+  private async organisationValue() {
+    const organisations = await this.charityOrganisationModel.find({});
+    const index = parseInt(this.params.ussdString) - 1;
+    const organisation = organisations[index];
+    return organisation;
   }
 }

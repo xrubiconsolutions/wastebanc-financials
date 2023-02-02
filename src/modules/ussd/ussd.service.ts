@@ -651,9 +651,10 @@ export class ussdService {
     ) {
       // handle bank withdrawal
       const banks = await this.pickedBank();
-      console.log('banks', banks);
-      console.log('s', this.session.response);
-      if (!this.session.response.bank) {
+
+      if (this.session.response == null) {
+        this.session.response.bank = banks;
+      } else {
         this.session.response.bank = banks;
       }
 

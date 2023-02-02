@@ -654,9 +654,9 @@ export class ussdService {
       const banks = await this.pickedBank();
 
       if (this.session.response == null) {
-        this.session.response.bank = banks;
+        this.session.response = { bank: banks };
       } else {
-        this.session.response.bank = banks;
+        this.session.response['bank'] = banks;
       }
 
       this.result.data.inboundResponse = 'Enter account number';

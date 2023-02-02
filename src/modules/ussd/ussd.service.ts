@@ -650,6 +650,7 @@ export class ussdService {
       this.session.lastMenuVisted == 'Select a bank'
     ) {
       // handle bank withdrawal
+      console.log('s', this.session.response);
       const banks = await this.pickedBank();
 
       if (this.session.response == null) {

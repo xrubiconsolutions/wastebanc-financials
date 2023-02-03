@@ -707,6 +707,7 @@ export class ussdService {
       }
 
       if (!this.user.transactionPin) {
+        this.session.response['accountResolve'] = resolveAc;
         this.result.data.inboundResponse = 'Set a transaction pin to continue';
         this.result.data.messageType = '2';
         return this.result;

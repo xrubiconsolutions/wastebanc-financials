@@ -60,5 +60,6 @@ import { Partner, PartnerSchema } from '../schemas/partner.schema';
     },
   ],
   controllers: [DisbursementController],
+  exports: [DisbursementService],
 })
 export class DisbursementModule {}

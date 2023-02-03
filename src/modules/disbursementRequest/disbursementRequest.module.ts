@@ -35,5 +35,6 @@ import moment from 'moment-timezone';
     DisbursementRequestService,
   ],
   controllers: [DisbursementRequestController],
+  exports: [DisbursementRequestService],
 })
 export class DisbursementRequestModule {}

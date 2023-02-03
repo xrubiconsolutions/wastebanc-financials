@@ -81,7 +81,7 @@ export class ussdService {
     private onesignal: onesignalService,
     private sms_service: smsService,
     private miscService: MiscService,
-    private disbursmentService: DisbursementService,
+    //private disbursmentService: DisbursementService,
     private partnerservice: partnerService,
     private slackService: SlackService,
     @InjectModel(notification.name)

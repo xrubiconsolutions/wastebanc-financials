@@ -1,4 +1,16 @@
 import {
+  DisbursementStatus,
+  DisbursementType,
+  ProcessingType,
+} from './../disbursement/disbursement.enum';
+import { PayDocument } from './../schemas/payment.schema';
+import {
+  Transaction,
+  TransactionDocument,
+} from './../schemas/transactions.schema';
+import { DisbursementService } from './../disbursement/disbursement.service';
+import { MiscService } from './../misc/misc.service';
+import {
   CharityOrganisation,
   CharityOrganisationDocument,
 } from './../schemas/charityorganisation.schema';
@@ -25,7 +37,7 @@ import {
   UssdSession,
   UssdSessionDocument,
 } from './../schemas/ussdSession.schema';
-import { ResponseHandler } from './../../utils/misc';
+import { generateReference, ResponseHandler } from './../../utils/misc';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ussdResult, ussdValues } from './ussd.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -33,6 +45,11 @@ import { Model } from 'mongoose';
 import { UssdSessionLogDocument } from '../schemas/ussdSessionLog.schema';
 import { User } from '../schemas/user.schema';
 import banklist from '../misc/ngnbanklist.json';
+import { Pay } from '../schemas/payment.schema';
+import disbursementConfig from '../disbursement/disbursement.config.json';
+import { partnerService } from '../partners/partnersService';
+import { SlackService } from '../notification/slack/slack.service';
+import { SlackCategories } from '../notification/slack/slack.enum';
 
 // import { ussdResult } from './ussd.dto';
 
@@ -45,6 +62,7 @@ export class ussdService {
   private params: ussdValues;
   private session: UssdSession | null;
   private user: User | null;
+  private paymentReference: string;
   constructor(
     @InjectModel(UssdSession.name)
     private ussdSessionModel: Model<UssdSessionDocument>,
@@ -62,10 +80,17 @@ export class ussdService {
     private organisationModel: Model<OrganisationDocument>,
     private onesignal: onesignalService,
     private sms_service: smsService,
+    private miscService: MiscService,
+    private disbursmentService: DisbursementService,
+    private partnerservice: partnerService,
+    private slackService: SlackService,
     @InjectModel(notification.name)
     private notificationModel: Model<notificationDocument>,
     @InjectModel(CharityOrganisation.name)
     private charityOrganisationModel: Model<CharityOrganisationDocument>,
+    @InjectModel(Transaction.name)
+    private transactionModel: Model<TransactionDocument>,
+    @InjectModel(Pay.name) private payModel: Model<PayDocument>,
   ) {
     this.result = {
       statusCode: '0000',
@@ -98,6 +123,7 @@ export class ussdService {
     this.session = null;
     this.user = null;
     this.nextMenu = '';
+    this.paymentReference = '';
   }
 
   async initate(params: ussdValues) {
@@ -324,9 +350,9 @@ export class ussdService {
       this.session.lastMenuVisted == 'Set a PIN'
     ) {
       // create an account for user
-      const nextMenu =
-        'Pakam Account created successfully:' + '\n1.Continue' + '\n00. Quit';
+      const nextMenu = 'Pakam Account created successfully';
       this.result.data.inboundResponse = nextMenu;
+      this.result.data.messageType = '1';
       const phone = this.params.msisdn.slice(3);
       const newUser = await this.userModel.create({
         phone: `0${phone}`,
@@ -671,6 +697,44 @@ export class ussdService {
 
     if (
       this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Enter account number'
+    ) {
+      const resolveAc = await this.verifyAccountNumber();
+      if (!resolveAc) {
+        this.result.data.inboundResponse = 'Invalid account number';
+        this.result.data.messageType = '2';
+        return this.result;
+      }
+
+      if (!this.user.transactionPin) {
+        this.result.data.inboundResponse = 'Set a transaction pin to continue';
+        this.result.data.messageType = '2';
+        return this.result;
+      }
+
+      this.session.response['accountResolve'] = resolveAc;
+      this.result.data.inboundResponse = 'Enter transaction pin';
+      this.result.data.messageType = '1';
+      await this.updateSession(
+        'Enter transaction pin',
+        'withdraw',
+        this.session.response,
+      );
+    }
+
+    if (
+      this.session.lastMenuVisted !== null &&
+      this.session.lastMenuVisted == 'Enter transaction pin'
+    ) {
+      if (this.params.ussdString !== this.user.transactionPin) {
+        this.result.data.inboundResponse = 'Invalid Transaction point';
+        this.result.data.messageType = '2';
+        return this.result;
+      }
+    }
+
+    if (
+      this.session.lastMenuVisted !== null &&
       this.session.lastMenuVisted == 'Select an Organisation'
     ) {
       // handle organization
@@ -850,6 +914,15 @@ export class ussdService {
     //await this.sms_service.sendSms(content);
   }
 
+  private async createDisbursmentRequest() {
+    const min_withdrawalable_amount =
+      process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+    if (this.user.availablePoints < +min_withdrawalable_amount) {
+      this.result.data.inboundResponse = 'Insufficient available balance';
+      this.result.data.messageType = '2';
+      return this.result;
+    }
+  }
   private async storeNotification(
     message: string,
     schedule: any,
@@ -889,4 +962,150 @@ export class ussdService {
     const organisation = organisations[index];
     return organisation;
   }
+
+  private async verifyAccountNumber() {
+    const value = {
+      accountNumber: this.params.ussdString,
+      BankCode: this.session.response.bank.value,
+      userId: this.user._id.toString(),
+      referenceId: '',
+    };
+    const resolve = await this.miscService.resolveAccountNumber(value);
+    return resolve;
+  }
+
+  private async BankPayOut() {
+    this.paymentReference = `${generateReference(6, false)}${Date.now()}`;
+    const withdrawalAmount = await this.confirmAndDebitAmount();
+    const transactions = await this.getUserTransactions();
+    await this.storePayoutRequest(transactions);
+    //
+  }
+
+  private async confirmAndDebitAmount() {
+    const availablePoints = Number(this.user.availablePoints);
+    const min_withdrawalable_amount =
+      process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
+    if (availablePoints < +min_withdrawalable_amount) {
+      this.result.data.inboundResponse = 'Insufficient available balance';
+      this.result.data.messageType = '2';
+      return this.result;
+    }
+
+    const withdrawalAmount =
+      +this.user.availablePoints - Number(process.env.APP_CHARGE);
+    await this.userModel.updateOne(
+      { _id: this.user._id },
+      {
+        availablePoints: 0,
+      },
+    );
+    return withdrawalAmount;
+  }
+
+  private async getUserTransactions() {
+    const condition = {
+      paid: false,
+      //requestedForPayment: false,
+      cardID: this.user._id,
+    };
+
+    const transactions = await this.transactionModel.find(condition);
+    if (transactions.length <= 0) {
+      this.result.data.inboundResponse = 'You have no unpaid schedule';
+      this.result.data.messageType = '2';
+      return this.result;
+    }
+
+    return transactions;
+  }
+
+  private async storePayoutRequest(transactions: any) {
+    console.log('tran', transactions);
+    if (!Array.isArray(transactions)) {
+      this.result.data.inboundResponse = 'You have no unpaid schedule';
+      this.result.data.messageType = '2';
+      return this.result;
+    }
+    Promise.all(
+      transactions.map(async (transaction: Transaction) => {
+        await this.payModel.create({
+          user: this.user._id,
+          transaction: transaction._id,
+          aggregatorId: transaction.aggregatorId,
+          aggregatorName: transaction.recycler,
+          aggregatorOrganisation: transaction.organisation,
+          organisation: transaction.organisation,
+          organisationID: transaction.organisationID,
+          scheduleId: transaction.scheduleId,
+          quantityOfWaste: transaction.weight,
+          amount: transaction.coin,
+          state: transaction.state,
+          userPhone: this.user.phone,
+          reference: this.paymentReference,
+        });
+
+        await this.transactionModel.updateOne(
+          { _id: transaction._id },
+          {
+            paid: true,
+            requestedForPayment: true,
+            paymentResolution: 'gain',
+          },
+        );
+      }),
+    );
+
+    return;
+  }
+
+  private async processPayment(withdrawalAmount: number) {
+    const partner = process.env.PARTNER_NAME;
+    const config = disbursementConfig.find((item: any) => {
+      return partner == item.partnerName;
+    });
+
+    const configCapAmount = config?.capAmount || 0;
+    const disbursementAmount = withdrawalAmount;
+    if (ProcessingType.manual == config?.processingType) {
+      return await this.processDisbursementManually(withdrawalAmount);
+    }
+  }
+
+  private processDisbursementManually = async (withdrawalAmount: number) => {
+    const slackData =
+      this.getManualDisbursementSlackNotificationData(withdrawalAmount);
+    console.log(slackData);
+    this.result.data.inboundResponse =
+      'Transaction processing.Payment will be made within 2 to 3 working days';
+    this.result.data.messageType = '2';
+    this.slackService.sendMessage(slackData);
+    return this.result;
+  };
+
+  private getManualDisbursementSlackNotificationData = (
+    withdrawalAmount: number,
+  ) => {
+    return {
+      category: SlackCategories.Disbursement,
+      event: DisbursementStatus.initiated,
+      data: {
+        //id: this.disbursementRequest._id,
+        type: DisbursementType.bank,
+        channel: 'ussd',
+        paymentType: 'Manual',
+        reference: this.paymentReference,
+        amount: withdrawalAmount,
+        username: this.user.fullname,
+        userAvailablePoint: this.user.availablePoints,
+        // accountName: this.session.response.accountResolve.beneName,
+        // accountNumber: this.disbursementRequest.accountResolve.destinationAccount,
+        // bankCode: this.disbursementRequest.destinationBankCode,
+        // bankName: this.disbursementRequest.bankName,
+        // charge: process.env.APP_CHARGE,
+        // user: this.disbursementRequest.userType,
+        message: 'Manual Payment',
+      },
+    };
+  };
 }

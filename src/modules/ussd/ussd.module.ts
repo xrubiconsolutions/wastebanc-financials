@@ -1,4 +1,11 @@
 import {
+  Transaction,
+  TransactionSchema,
+} from './../schemas/transactions.schema';
+import { slackModule } from './../notification/slack/slack.module';
+import { DisbursementModule } from './../disbursement/disbursement.module';
+import { MiscModule } from './../misc/misc.module';
+import {
   CharityOrganisation,
   CharityOrganisationSchema,
 } from './../schemas/charityorganisation.schema';
@@ -32,6 +39,8 @@ import { ussdController } from './ussd.controller';
 import { ussdService } from './ussd.service';
 import { Module, Scope } from '@nestjs/common';
 import moment from 'moment-timezone';
+import { Pay, PaySchema } from '../schemas/payment.schema';
+import { PartnerModule } from '../partners/partner.module';
 
 @Module({
   imports: [
@@ -45,9 +54,15 @@ import moment from 'moment-timezone';
       { name: Organisation.name, schema: OrganisationSchema },
       { name: notification.name, schema: notificationSchema },
       { name: CharityOrganisation.name, schema: CharityOrganisationSchema },
+      { name: Transaction.name, schema: TransactionSchema },
+      { name: Pay.name, schema: PaySchema },
     ]),
     smsModule,
     onesignalModule,
+    MiscModule,
+    DisbursementModule,
+    slackModule,
+    PartnerModule,
   ],
   providers: [
     ussdService,

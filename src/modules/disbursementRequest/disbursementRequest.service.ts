@@ -79,7 +79,7 @@ export class DisbursementRequestService {
       const min_withdrawalable_amount =
         process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
 
-      if (user.availablePoints <= +min_withdrawalable_amount) {
+      if (user.availablePoints < +min_withdrawalable_amount) {
         return ResponseHandler(
           'Insufficient available balance',
           400,
@@ -90,7 +90,7 @@ export class DisbursementRequestService {
 
       const condition = {
         paid: false,
-        requestedForPayment: false,
+        //requestedForPayment: false,
         cardID: user._id,
       };
 

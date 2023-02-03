@@ -77,7 +77,7 @@ export class DisbursementService {
     await this.getUser();
     await this.getUserTransactions();
     await this.confirmAndDebitAmount();
-    await this.storeDisbursement();
+    await this.storePayoutRequest();
     await this.processDisbursement();
 
     return this.message;
@@ -94,7 +94,7 @@ export class DisbursementService {
     this.user = user;
     return this.user;
   };
-  private storeDisbursement = async () => {
+  private storePayoutRequest = async () => {
     if (this.disbursementRequest.type == DisbursementType.charity) {
       const charityPayment = await this.charityModel.create({
         user: this.user._id,
@@ -124,6 +124,7 @@ export class DisbursementService {
       user: this.params.userId,
       status: DisbursementStatus.initiated,
     };
+
     const disbursementRequest = await this.disbursementModel.findOne(condition);
 
     console.log('dis', disbursementRequest);
@@ -151,7 +152,7 @@ export class DisbursementService {
     const availablePoints = Number(this.user.availablePoints);
     const min_withdrawalable_amount =
       process.env.SYSTEM_MIN_WITHDRAWALABLE_AMOUNT;
-    if (availablePoints <= +min_withdrawalable_amount) {
+    if (availablePoints < +min_withdrawalable_amount) {
       throw new UnprocessableEntityError({
         message: 'Insufficient available balance',
         verboseMessage: 'Insufficient available balance',
@@ -245,7 +246,7 @@ export class DisbursementService {
   private getUserTransactions = async () => {
     const condition = {
       paid: false,
-      requestedForPayment: false,
+      //requestedForPayment: false,
       cardID: this.user._id,
     };
     const transactions = await this.transactionModel.find(condition);
@@ -280,7 +281,7 @@ export class DisbursementService {
     const slackData = this.getManualDisbursementSlackNotificationData();
     console.log(slackData);
     this.message =
-      'Transaction processing.Payment will within 2 to 3 working days';
+      'Transaction processing. Payment will be made within 2 to 3 working days';
     return this.slackService.sendMessage(slackData);
   };
 

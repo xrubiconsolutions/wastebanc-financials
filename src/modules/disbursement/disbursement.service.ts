@@ -530,7 +530,7 @@ export class DisbursementService {
   ) => {
     const slackNotificationData = {
       category: 'disbursement',
-      event: DisbursementStatus.initiated,
+      event: DisbursementStatus.failed,
       data: {
         requestFailedType: 'partner_processing_transaction',
         parterName,
@@ -558,9 +558,9 @@ export class DisbursementService {
   ) {
     const slackNotificationData = {
       category: 'disbursement',
-      event: 'failed',
+      event: DisbursementStatus.initiated,
       data: {
-        requestFailedType: 'partner_processing_failed',
+        requestFailedType: 'partner_processing_initiated',
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
@@ -573,6 +573,7 @@ export class DisbursementService {
         charge: env('APP_CHARGE'),
         message: 'Transaction is been processed automatically',
         method,
+        channel: 'mobile',
       },
     };
 
@@ -581,7 +582,7 @@ export class DisbursementService {
 
   private rollBack = async () => {
     await Promise.all(
-      this.transactions.map(async (transaction) => {
+      this.transactions.map(async (transaction: Transaction) => {
         await this.payModel.deleteOne({ transaction: transaction._id });
         await this.transactionModel.updateOne(
           { _id: transaction._id },
@@ -591,11 +592,11 @@ export class DisbursementService {
             paymentResolution: '',
           },
         );
-        await this.userModel.updateOne(
-          { _id: this.user._id },
-          { availablePoints: this.disbursementRequest.amount },
-        );
       }),
+    );
+    await this.userModel.updateOne(
+      { _id: this.user._id },
+      { availablePoints: this.disbursementRequest.amount },
     );
   };
 }

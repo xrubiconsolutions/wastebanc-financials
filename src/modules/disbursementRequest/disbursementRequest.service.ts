@@ -294,7 +294,7 @@ export class DisbursementRequestService {
 
     const response = await this.verifyAccount(collector);
     return {
-      userType: 'collector',
+      userType: 'waste-picker',
       collector: collector._id,
       amount: collector.pointGained,
       withdrawalAmount: Number(collector.pointGained) - 100,

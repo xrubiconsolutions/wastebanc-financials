@@ -1,4 +1,12 @@
 import {
+  Charity,
+  CharityPaymentSchema,
+} from './../schemas/charitypayment.schema';
+import {
+  DisbursementRequest,
+  DisbusmentRequestSchema,
+} from './../schemas/disbursementRequest.schema';
+import {
   Transaction,
   TransactionSchema,
 } from './../schemas/transactions.schema';
@@ -56,6 +64,8 @@ import { PartnerModule } from '../partners/partner.module';
       { name: CharityOrganisation.name, schema: CharityOrganisationSchema },
       { name: Transaction.name, schema: TransactionSchema },
       { name: Pay.name, schema: PaySchema },
+      { name: DisbursementRequest.name, schema: DisbusmentRequestSchema },
+      { name: Charity.name, schema: CharityPaymentSchema },
     ]),
     smsModule,
     onesignalModule,

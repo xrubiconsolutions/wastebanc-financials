@@ -95,6 +95,9 @@ export class DisbursementRequest {
     types: [{ type: mongoose.Types.ObjectId, ref: 'Transaction' }],
   })
   transactions: Transaction[];
+
+  @Prop({ type: String, default: 'mobile' })
+  channel: string;
 }
 
 export const DisbusmentRequestSchema =

@@ -801,6 +801,12 @@ export class ussdService {
       const organisation = await this.organisationValue();
       console.log('or', organisation);
       this.session.response.organisation = organisation;
+
+      if (this.session.response == null) {
+        this.session.response = { organisation };
+      } else {
+        this.session.response.organisation = organisation;
+      }
       // handle organization
       // TODO
       // get the amount to send to organisation
@@ -1512,6 +1518,7 @@ export class ussdService {
         userId: charity.userId,
         fullname: charity.fullname,
         message: 'Payment made to charity',
+        type: 'charity',
       },
     };
     return this.slackService.sendMessage(slackNotificationData);

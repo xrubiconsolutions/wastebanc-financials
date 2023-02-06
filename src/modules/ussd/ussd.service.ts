@@ -800,8 +800,6 @@ export class ussdService {
     ) {
       const organisation = await this.organisationValue();
       console.log('or', organisation);
-      this.session.response.organisation = organisation;
-
       if (this.session.response == null) {
         this.session.response = { organisation };
       } else {
@@ -1513,12 +1511,14 @@ export class ussdService {
       event: DisbursementStatus.successful,
       data: {
         id: charity._id,
-        charity: charity.charity,
+        charityOrganisationId: charity.charity,
+        charityOrganisationName: this.session.response.organisation.name,
         amount: charity.amount,
         userId: charity.userId,
         fullname: charity.fullname,
         message: 'Payment made to charity',
         type: 'charity',
+        channel: 'ussd',
       },
     };
     return this.slackService.sendMessage(slackNotificationData);

@@ -1542,7 +1542,7 @@ export class ussdService {
       registrationChannel: process.env.REG_CHANNEL,
       senderAddress: '20092',
     };
-    const url = `${process.env.USSD_PAYMENT}customers/${this.session.msisdn}/subscriptions`;
+    const url = `${process.env.USSD_PAYMENT_URL}customers/${this.params.msisdn}/subscriptions`;
     const result = this.httpService.post(url, body, {
       headers: {
         'Content-Type': 'application/json',

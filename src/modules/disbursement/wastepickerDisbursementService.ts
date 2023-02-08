@@ -204,6 +204,8 @@ export class wastepickerdisursmentService {
 
   private async processDisbursementManually() {
     const slackData = this.getBankDisbursementSlackNotification();
+    this.message =
+      'Transaction processing. Payment will be made within 5 working days';
     return this.slackService.sendMessage(slackData);
   }
 
@@ -221,7 +223,8 @@ export class wastepickerdisursmentService {
         accountName: this.disbursementRequest.beneName,
         accountNumber: this.disbursementRequest.destinationAccount,
         bankCode: this.disbursementRequest.destinationAccount,
-        charge: 100,
+        charge: process.env.APP_CHARGE,
+        message: 'Manual Payment',
       },
     };
   }
@@ -291,27 +294,64 @@ export class wastepickerdisursmentService {
     const partnerResponse = await this.partnerservice.initiatePartner(
       partnerData,
     );
-    if (!partnerResponse.success && partnerResponse.httpCode === 403) {
+    if (!partnerResponse.success || partnerResponse.httpCode === 403) {
       await this.rollBack();
+      let errorMsg = '';
+      let partnerMsg = '';
+      if (
+        typeof partnerResponse.error === 'object' ||
+        Array.isArray(partnerResponse.error)
+      ) {
+        errorMsg = JSON.stringify(partnerResponse.error);
+      } else if (typeof partnerResponse.error === 'string') {
+        errorMsg = partnerResponse.error.toString();
+      } else {
+        errorMsg = '';
+      }
+
+      if (
+        typeof partnerResponse.partnerResponse === 'object' ||
+        Array.isArray(partnerResponse.partnerResponse)
+      ) {
+        partnerMsg = JSON.stringify(partnerResponse.partnerResponse);
+      } else if (typeof partnerResponse.partnerResponse === 'string') {
+        partnerMsg = partnerResponse.partnerResponse.toString();
+      } else {
+        partnerMsg = '';
+      }
       await this.sendPartnerFailedNotification(
+        errorMsg,
+        partnerMsg,
         partnerName,
-        partnerResponse.error,
-        'nipTransfer',
+        'intraBank',
       );
+      // roll back
+
+      // const msg = 'Payout Request Failed';
       this.message = 'Payout Request Failed';
       return partnerResponse;
     }
+    // if (!partnerResponse.success && partnerResponse.httpCode === 403) {
+    //   await this.rollBack();
+    //   await this.sendPartnerFailedNotification(
+    //     partnerName,
+    //     partnerResponse.error,
+    //     'nipTransfer',
+    //   );
+    //   this.message = 'Payout Request Failed';
+    //   return partnerResponse;
+    // }
 
-    if (!partnerResponse.success) {
-      await this.rollBack();
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error,
-        'nipTransfer',
-      );
-      this.message = 'Payout Request Failed';
-      return this.message;
-    }
+    // if (!partnerResponse.success) {
+    //   await this.rollBack();
+    //   await this.sendPartnerFailedNotification(
+    //     partnerName,
+    //     partnerResponse.error,
+    //     'nipTransfer',
+    //   );
+    //   this.message = 'Payout Request Failed';
+    //   return this.message;
+    // }
 
     this.message = 'Payout initiated successfully';
     return this.message;
@@ -342,12 +382,36 @@ export class wastepickerdisursmentService {
       partnerData,
     );
 
-    if (!partnerResponse.success && partnerResponse.httpCode === 403) {
+    if (!partnerResponse.success || partnerResponse.httpCode === 403) {
       await this.rollBack();
+      let errorMsg = '';
+      let partnerMsg = '';
+      if (
+        typeof partnerResponse.error === 'object' ||
+        Array.isArray(partnerResponse.error)
+      ) {
+        errorMsg = JSON.stringify(partnerResponse.error);
+      } else if (typeof partnerResponse.error === 'string') {
+        errorMsg = partnerResponse.error.toString();
+      } else {
+        errorMsg = '';
+      }
+
+      if (
+        typeof partnerResponse.partnerResponse === 'object' ||
+        Array.isArray(partnerResponse.partnerResponse)
+      ) {
+        partnerMsg = JSON.stringify(partnerResponse.partnerResponse);
+      } else if (typeof partnerResponse.partnerResponse === 'string') {
+        partnerMsg = partnerResponse.partnerResponse.toString();
+      } else {
+        partnerMsg = '';
+      }
       await this.sendPartnerFailedNotification(
-        partnerResponse.error,
+        errorMsg,
+        partnerMsg,
         partnerName,
-        'intraBankTransfer',
+        'intraBank',
       );
       // roll back
 
@@ -355,23 +419,37 @@ export class wastepickerdisursmentService {
       this.message = 'Payout Request Failed';
       return partnerResponse;
     }
+    // if (!partnerResponse.success && partnerResponse.httpCode === 403) {
+    //   await this.rollBack();
+    //   await this.sendPartnerFailedNotification(
+    //     partnerResponse.error,
+    //     partnerName,
+    //     'intraBankTransfer',
+    //   );
+    //   // roll back
 
-    if (!partnerResponse.success) {
-      await this.rollBack();
-      await this.sendPartnerFailedNotification(
-        partnerName,
-        partnerResponse.error,
-        'intraBankTransfer',
-      );
-      console.log('err', partnerResponse);
-      this.message = 'Payout Request Failed';
-      return partnerResponse;
-    }
+    //   // const msg = 'Payout Request Failed';
+    //   this.message = 'Payout Request Failed';
+    //   return partnerResponse;
+    // }
+
+    // if (!partnerResponse.success) {
+    //   await this.rollBack();
+    //   await this.sendPartnerFailedNotification(
+    //     partnerName,
+    //     partnerResponse.error,
+    //     'intraBankTransfer',
+    //   );
+    //   console.log('err', partnerResponse);
+    //   this.message = 'Payout Request Failed';
+    //   return partnerResponse;
+    // }
     this.message = 'Payout initiated successfully';
     return partnerResponse;
   }
   private async sendPartnerFailedNotification(
     message: string,
+    partnerMsg: string,
     parterName: string,
     method: string,
   ) {
@@ -379,7 +457,7 @@ export class wastepickerdisursmentService {
       category: 'disbursement',
       event: 'failed',
       data: {
-        requestFailedType: 'partner_account_verification_failed',
+        requestFailedType: 'partner_processing_transaction',
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
@@ -391,6 +469,7 @@ export class wastepickerdisursmentService {
         bankCode: this.disbursementRequest.destinationBankCode,
         charge: env('APP_CHARGE'),
         message,
+        partnerMsg,
         method,
       },
     };

@@ -78,7 +78,7 @@ export class MiscService {
     const result: any = await this.callPartner(params);
     if (!result.success) {
       await this.sendPartnerFailedNotification(
-        result.error,
+        'Error in account verification',
         params,
         'resolveAccountNumber',
       );

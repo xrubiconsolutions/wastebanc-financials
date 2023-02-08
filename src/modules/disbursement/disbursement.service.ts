@@ -108,7 +108,7 @@ export class DisbursementService {
         await this.transactionModel.updateOne(
           { _id: transaction._id },
           {
-            paid: true,
+            //paid: false,
             requestedForPayment: true,
             paymentResolution: this.disbursementRequest.type,
           },
@@ -281,7 +281,7 @@ export class DisbursementService {
     const slackData = this.getManualDisbursementSlackNotificationData();
     console.log(slackData);
     this.message =
-      'Transaction processing. Payment will be made within 2 to 3 working days';
+      'Transaction processing. Payment will be made within 5 working days';
     return this.slackService.sendMessage(slackData);
   };
 

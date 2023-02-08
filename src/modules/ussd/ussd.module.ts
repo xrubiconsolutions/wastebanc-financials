@@ -49,6 +49,7 @@ import { Module, Scope } from '@nestjs/common';
 import moment from 'moment-timezone';
 import { Pay, PaySchema } from '../schemas/payment.schema';
 import { PartnerModule } from '../partners/partner.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { PartnerModule } from '../partners/partner.module';
     DisbursementModule,
     slackModule,
     PartnerModule,
+    HttpModule,
   ],
   providers: [
     ussdService,

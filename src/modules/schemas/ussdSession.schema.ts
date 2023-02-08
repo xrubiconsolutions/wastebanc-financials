@@ -28,6 +28,9 @@ export class UssdSession {
 
   @Prop({ type: Object, default: null })
   response: any;
+
+  @Prop({ type: Boolean, default: false })
+  paid: boolean;
 }
 
 export const UssdSessionSchema = SchemaFactory.createForClass(UssdSession);

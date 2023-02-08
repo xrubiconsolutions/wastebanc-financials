@@ -1,3 +1,5 @@
+import { lastValueFrom, Observable } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 import {
   Charity,
   CharityPaymentDocument,
@@ -57,6 +59,7 @@ import {
   DisbursementRequest,
   DisbursementRequestDocument,
 } from '../schemas/disbursementRequest.schema';
+import { AxiosResponse } from 'axios';
 
 // import { ussdResult } from './ussd.dto';
 
@@ -106,6 +109,7 @@ export class ussdService {
     private disbursementRequestModel: Model<DisbursementRequestDocument>,
     @InjectModel(Charity.name)
     private charityModel: Model<CharityPaymentDocument>,
+    private readonly httpService: HttpService,
   ) {
     this.withdrawalAmount = 0;
     this.transactions = [];
@@ -168,14 +172,15 @@ export class ussdService {
           this.result.data.inboundResponse = this.menu_for_msisdn_reg;
         }
 
-        await this.closeSession();
+        await this.clearSession();
         await this.openSession();
         return this.result;
       }
 
       if (params.messageType.toString() == '2') {
         //close session
-        await this.closeSession();
+        await this.clearSession();
+        this.result.data.messageType = '2';
         return this.result;
       }
       //get the session
@@ -203,6 +208,8 @@ export class ussdService {
   }
 
   async openSession(): Promise<void> {
+    const charge = await lastValueFrom(this.chargeUser());
+    console.log(charge);
     await this.ussdSessionModel.create({
       msisdn: this.params.msisdn,
       sessionId: this.params.sessionId,
@@ -248,7 +255,7 @@ export class ussdService {
 
     if (ussdString == '00') {
       this.result.data.messageType = '2';
-      await this.closeSession();
+      await this.clearSession();
     }
     if (this.session.sessionState == null && ussdString == '1') {
       // check if phone already registered on pakam
@@ -303,7 +310,7 @@ export class ussdService {
     return this.session;
   }
 
-  async closeSession(): Promise<void> {
+  async clearSession(): Promise<void> {
     await this.ussdSessionModel.deleteMany({
       msisdn: this.params.msisdn,
     });
@@ -1227,7 +1234,7 @@ export class ussdService {
       this.getManualDisbursementSlackNotificationData(withdrawalAmount);
     console.log(slackData);
     this.result.data.inboundResponse =
-      'Transaction processing. Payment will be made within 2 to 3 working days';
+      'Transaction processing. Payment will be made within 5 working days';
     this.result.data.messageType = '2';
     this.slackService.sendMessage(slackData);
     return this.result;
@@ -1523,4 +1530,26 @@ export class ussdService {
     };
     return this.slackService.sendMessage(slackNotificationData);
   };
+
+  private chargeUser(): Observable<AxiosResponse<any>> {
+    const body = {
+      subscriptionProviderId: process.env.subProviderID,
+      subscriptionId: process.env.subID,
+      nodeId: process.env.nodeID,
+      subscriptionDescription: process.env.subDescription,
+      bundleType: process.env.BUNDLE_TYPE,
+      amountCharged: process.env.USSD_CHARGE,
+      registrationChannel: process.env.REG_CHANNEL,
+      senderAddress: '20092',
+    };
+    const url = `${process.env.USSD_PAYMENT}customers/${this.session.msisdn}/subscriptions`;
+    const result = this.httpService.post(url, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        transactionId: process.env.SPID,
+        'API-TOKEN': process.env.API_TOKEN,
+      },
+    });
+    return result;
+  }
 }

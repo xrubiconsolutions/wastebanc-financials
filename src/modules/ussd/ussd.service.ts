@@ -210,6 +210,11 @@ export class ussdService {
   async openSession(): Promise<void> {
     const charge = await lastValueFrom(this.chargeUser());
     console.log(charge);
+
+    let paid = false;
+    if (charge.data.statusCode == '0000') {
+      paid = true;
+    }
     await this.ussdSessionModel.create({
       msisdn: this.params.msisdn,
       sessionId: this.params.sessionId,
@@ -218,6 +223,7 @@ export class ussdService {
       ussdString: this.params.ussdString,
       response: null,
       lastMenuVisted: null,
+      paid,
     });
 
     await this.ussdSessionLogModel.create({
@@ -1542,6 +1548,7 @@ export class ussdService {
       registrationChannel: process.env.REG_CHANNEL,
       senderAddress: '20092',
     };
+    console.log('b', body);
     const url = `${process.env.USSD_PAYMENT_URL}customers/${this.params.msisdn}/subscriptions`;
     const result = this.httpService.post(url, body, {
       headers: {

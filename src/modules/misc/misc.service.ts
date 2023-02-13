@@ -95,6 +95,10 @@ export class MiscService {
     });
     const res = {
       accountResult: result.partnerResponse,
+      neSid: result.partnerResponse.neSid,
+      neresp: result.partnerResponse.neresp,
+      beneBVN: result.partnerResponse.beneBVN,
+      kycLevel: result.partnerResponse.kycLevel,
       summary,
     };
     return ResponseHandler('success', 200, false, res);

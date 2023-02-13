@@ -13,4 +13,10 @@ export class ussdController {
     const result = await this.UssdService.initate(params);
     return res.status(200).json(result);
   }
+
+  @Post('/payment/datasync')
+  async initatePaymentAsync(@Res() res: Response, @Body() params: any) {
+    console.log('body', params);
+    return res.status(200).json({ ...params });
+  }
 }

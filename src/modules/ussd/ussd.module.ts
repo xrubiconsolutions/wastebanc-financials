@@ -1,3 +1,6 @@
+import { ussdGloService } from './ussdGlo.service';
+import { ussdAirtelService } from './ussdAirtel.service';
+import { ussd9mobileService } from './ussd9mobile.service';
 import {
   Charity,
   CharityPaymentSchema,
@@ -83,6 +86,9 @@ import { HttpModule } from '@nestjs/axios';
       useFactory: async () => moment(new Date()),
       scope: Scope.REQUEST,
     },
+    ussd9mobileService,
+    ussdAirtelService,
+    ussdGloService,
   ],
   controllers: [ussdController],
 })

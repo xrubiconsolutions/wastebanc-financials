@@ -107,11 +107,16 @@ export class DisbursementRequestService {
 
       params.transactions = transactions;
 
-      await this.disbursementModel.deleteMany({
-        user: params.userId,
-        type: params.type,
-        status: DisbursementStatus.initiated,
-      });
+      await this.disbursementModel.updateMany(
+        {
+          user: params.userId,
+          type: params.type,
+          status: DisbursementStatus.initiated,
+        },
+        {
+          status: DisbursementStatus.cancelled,
+        },
+      );
       const value = await this.disbursementData(params);
       console.log('disbursement values', value);
       const disbursment = await this.disbursementModel.create(value);

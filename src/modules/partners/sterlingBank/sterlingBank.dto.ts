@@ -125,6 +125,6 @@ export class intraBankDTO {
 }
 
 export class verifyTransactionDTO {
-  requestId: string;
-  transactionType: string;
+  RequestId: string;
+  TransactionType: string;
 }

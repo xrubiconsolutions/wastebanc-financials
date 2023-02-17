@@ -118,7 +118,14 @@ export const intraBankTransfer = async (params: intraBankDTO) => {
 
 export const verifyTransaction = async (params: verifyTransactionDTO) => {
   try {
-    const encryptParams = encryptData(JSON.stringify(params));
+    console.log('params', params);
+    const value = {
+      RequestId: params.RequestId,
+      TransactionType: params.TransactionType,
+    };
+    console.log('value', value);
+    const encryptParams = encryptData(JSON.stringify(value));
+    console.log('enc', encryptParams);
     const encryptedResult = await sterlingRepository.verifyTransfer(
       encryptParams,
     );

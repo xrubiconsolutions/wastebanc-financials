@@ -21,7 +21,11 @@ export const getCustomerInformation = async (params: accountNumberDTO) => {
   return await sterlingbankService.verifyAccountNumber(params);
 };
 export const virtualAccount = async (params: GenerateVirtualAccountDTO) => {
-  return await sterlingbankService.generateVirtualAccount(params);
+  console.log('params', params);
+  const value: any = { ...params };
+  delete value.partnerName;
+  console.log(value);
+  return await sterlingbankService.generateVirtualAccount(value);
 };
 
 export const nipTransfer = async (params: nipTransferDTO) => {

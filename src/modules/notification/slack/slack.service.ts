@@ -96,6 +96,8 @@ export class SlackService {
       },
     };
 
+    console.log('event', event);
+    console.log('category', category);
     return events[category][event];
   }
 

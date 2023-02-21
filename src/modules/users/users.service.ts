@@ -35,12 +35,17 @@ export class userService {
     const { success, error, partnerResponse } =
       await this.partnerservice.initiatePartner(partnerData);
     if (!success) {
+      console.log('par', error);
       await this.sendPartnerFailedNotification(
         env('PARTNER_NAME'),
         error,
         'virtualAccount',
         user,
       );
+      return {
+        error: true,
+        message: error,
+      };
     }
 
     const accountNo =
@@ -68,10 +73,10 @@ export class userService {
     user: User,
   ) {
     const slackNotificationData = {
-      category: 'request',
+      category: 'requests',
       event: 'failed',
       data: {
-        requestFailedType: 'saf_account_opening',
+        requestFailedType: 'saf_account_opening_error',
         partnerName,
         fullname: user.fullname,
         phone: user.phone,

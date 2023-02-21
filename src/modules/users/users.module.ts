@@ -1,3 +1,4 @@
+import { userController } from './users.controller';
 import { PartnerModule } from './../partners/partner.module';
 import { slackModule } from './../notification/slack/slack.module';
 import { userService } from './users.service';
@@ -12,6 +13,6 @@ import { Module } from '@nestjs/common';
     PartnerModule,
   ],
   providers: [userService],
-  controllers: [],
+  controllers: [userController],
 })
 export class usersModule {}

@@ -30,6 +30,18 @@ export class GenerateVirtualAccountDTO {
   @IsNotEmpty({ message: 'PhoneNumber is required' })
   @IsString()
   PhoneNumber: string;
+
+  @IsNotEmpty({ message: 'DateOfBirth is required' })
+  @IsString()
+  DateOfBirth: string;
+
+  @IsNotEmpty({ message: 'FirstName is required' })
+  @IsString()
+  FirstName: string;
+
+  @IsNotEmpty({ message: 'LastName is required' })
+  @IsString()
+  LastName: string;
 }
 
 export class nipTransferDTO {

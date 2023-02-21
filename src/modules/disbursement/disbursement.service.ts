@@ -331,6 +331,7 @@ export class DisbursementService {
       category: SlackCategories.Disbursement,
       event: DisbursementStatus.initiated,
       data: {
+        requestType: 'process_transaction_maually',
         id: this.disbursementRequest._id,
         type: DisbursementType.bank,
         paymentType: 'Manual',
@@ -532,7 +533,7 @@ export class DisbursementService {
       category: 'disbursement',
       event: DisbursementStatus.failed,
       data: {
-        requestFailedType: 'partner_processing_transaction',
+        requestType: 'partner_processing_transaction_failed',
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,
@@ -560,7 +561,7 @@ export class DisbursementService {
       category: 'disbursement',
       event: DisbursementStatus.initiated,
       data: {
-        requestFailedType: 'partner_processing_initiated',
+        requestType: 'partner_processing_initiated',
         parterName,
         id: this.disbursementRequest._id,
         reference: this.disbursementRequest.reference,

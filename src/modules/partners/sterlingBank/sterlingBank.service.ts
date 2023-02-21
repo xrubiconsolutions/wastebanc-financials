@@ -80,7 +80,7 @@ export const generateVirtualAccount = async (
   } catch (error) {
     console.log('error', error);
     Logger.error(error);
-    throw new UnprocessableEntityError({ message: error.response.data });
+    return handleError(error.response);
   }
 };
 
@@ -212,7 +212,11 @@ const handleError = (response: any) => {
   console.log('errorResult', errorResult);
   if (status >= 400) {
     throw new UnprocessableEntityError({
-      message: errorResult.data || errorResult.Data || errorResult.message,
+      message:
+        errorResult.Description ||
+        errorResult.data ||
+        errorResult.Data ||
+        errorResult.message,
       httpCode: status,
       verboseMessage: statusText,
     });

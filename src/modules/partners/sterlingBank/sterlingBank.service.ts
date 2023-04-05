@@ -63,8 +63,8 @@ export const verifyAccountNumber = async (params: accountNumberDTO) => {
     const encryptResult = await sterlingRepository.getCustomerInformation(
       params.accountNumber,
     );
-    return encryptResult;
-    //return handleDecrypting(encryptResult);
+    //return encryptResult;
+    return handleDecrypting(encryptResult);
   } catch (error) {
     console.log(error);
     Logger.error(error);

@@ -56,9 +56,12 @@ export const nipNameInquiry = async (params: nipInquiryDTO) => {
 export const verifyAccountNumber = async (params: accountNumberDTO) => {
   try {
     console.log('s', params.accountNumber);
-    const encrypAccountNo = encryptData(params.accountNumber);
+    //const encrypAccountNo = encryptData(params.accountNumber);
+    // const encryptResult = await sterlingRepository.getCustomerInformation(
+    //   encrypAccountNo,
+    // );
     const encryptResult = await sterlingRepository.getCustomerInformation(
-      encrypAccountNo,
+      params.accountNumber,
     );
     return handleDecrypting(encryptResult);
   } catch (error) {

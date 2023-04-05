@@ -101,6 +101,9 @@ export class Collector {
 
   @Prop({ type: Object })
   account: accountDetails;
+
+  @Prop({ type: Number, default: 0 })
+  requestedAmount: 0;
 }
 
 export const CollectorSchema = SchemaFactory.createForClass(Collector);

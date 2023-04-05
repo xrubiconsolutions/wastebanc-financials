@@ -93,6 +93,8 @@ export class User {
   transactionPin: string;
   @Prop({ type: String, default: 'mobile' })
   channel: string;
+  @Prop({ type: Number, default: 0 })
+  requestedAmount: 0;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

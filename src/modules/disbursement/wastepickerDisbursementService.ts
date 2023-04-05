@@ -151,7 +151,10 @@ export class wastepickerdisursmentService {
 
     await this.collectorModel.updateOne(
       { _id: this.collector._id },
-      { pointGained: balance },
+      {
+        pointGained: balance,
+        requestedAmount: this.disbursementRequest.withdrawalAmount,
+      },
     );
 
     this.withdrawalAmount = +this.collector.pointGained;
@@ -225,6 +228,7 @@ export class wastepickerdisursmentService {
         bankCode: this.disbursementRequest.destinationAccount,
         charge: process.env.APP_CHARGE,
         message: 'Manual Payment',
+        userType: 'wastepicker',
       },
     };
   }
@@ -471,6 +475,7 @@ export class wastepickerdisursmentService {
         message,
         partnerMsg,
         method,
+        userType: 'wastepicker',
       },
     };
 

@@ -153,7 +153,9 @@ export class wastepickerdisursmentService {
       { _id: this.collector._id },
       {
         pointGained: balance,
-        requestedAmount: this.disbursementRequest.withdrawalAmount,
+        requestedAmount:
+          +this.collector.requestedAmount +
+          this.disbursementRequest.withdrawalAmount,
       },
     );
 

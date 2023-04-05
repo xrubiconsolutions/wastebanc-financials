@@ -165,7 +165,9 @@ export class DisbursementService {
       { _id: this.user._id },
       {
         availablePoints: balance,
-        requestedAmount: this.disbursementRequest.withdrawalAmount,
+        requestedAmount:
+          +this.user.requestedAmount +
+          this.disbursementRequest.withdrawalAmount,
       },
     );
 

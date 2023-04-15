@@ -1,4 +1,7 @@
-import { centralAccount } from './../../schemas/centralAccount.schema';
+import {
+  centralAccount,
+  centralAccountDocument,
+} from './../../schemas/centralAccount.schema';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -16,7 +19,7 @@ export class emailService {
     private partnerservice: partnerService,
     private slackService: SlackService,
     @InjectModel(centralAccount.name)
-    private centralaccount: Model<centralAccount>,
+    private centralaccount: Model<centralAccountDocument>,
   ) {}
 
   async checkAccountBalance() {

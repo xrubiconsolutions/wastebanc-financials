@@ -151,6 +151,8 @@ export class cronService {
     this.logger.debug('current Date reminders');
   }
 
+  // check balance every morning
+
   private async storeNotification(
     message: string,
     schedule: any,

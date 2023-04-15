@@ -154,7 +154,7 @@ export class cronService {
   }
 
   // check balance every morning
-  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_MINUTE)
   async handleBalanceCheck() {
     await this.balanceEmailNotification.checkAccountBalance();
   }

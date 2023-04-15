@@ -57,18 +57,11 @@ export class emailService {
       bank: process.env.PARTNER_NAME,
     });
 
+    acc.acnumber = process.env.PAKAM_ACCOUNT;
+    acc.balance = res.availableBalance;
+    acc.name = res.name;
+    acc.save();
     console.log('acc', acc);
-    const t = await this.centralaccount.updateOne(
-      {
-        bank: process.env.PARTNER_NAME,
-      },
-      {
-        acnumber: process.env.PAKAM_ACCOUNT,
-        balance: res.availableBalance,
-        name: res.name,
-      },
-    );
-    console.log('t', t);
   }
 
   private async partnerFailedNotification(

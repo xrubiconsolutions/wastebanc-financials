@@ -38,6 +38,10 @@ import banklists from '../misc/ngnbanklist.json';
 import { env } from '../../utils';
 import { centralAccount } from '../schemas/centralAccount.schema';
 import { emailService } from '../notification/email/email.service';
+import {
+  failedPaymentRequest,
+  failedPaymentRequestDocument,
+} from '../schemas/failedPayment.schema';
 @Injectable()
 export class DisbursementService {
   private params: InitiateDTO;
@@ -67,6 +71,8 @@ export class DisbursementService {
     @InjectModel(centralAccount.name)
     private centralaccount: Model<centralAccount>,
     private balanceUpdateService: emailService,
+    @InjectModel(failedPaymentRequest.name)
+    private failedPayment: Model<failedPaymentRequestDocument>,
   ) {
     this.params = null;
     this.disbursementRequest = null;
@@ -512,6 +518,11 @@ export class DisbursementService {
       } else {
         partnerMsg = '';
       }
+
+      await this.failedPayment.create({
+        partnerName,
+        partnerResponse,
+      });
       await this.sendPartnerFailedNotification(
         errorMsg,
         partnerMsg,

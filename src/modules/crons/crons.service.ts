@@ -24,6 +24,10 @@ import { DisbursementStatus } from '../disbursement/disbursement.enum';
 import { env } from '../../utils';
 import { SlackCategories } from '../notification/slack/slack.enum';
 import { emailService } from '../notification/email/email.service';
+import {
+  failedPaymentRequest,
+  failedPaymentRequestDocument,
+} from '../schemas/failedPayment.schema';
 
 @Injectable()
 export class cronService {
@@ -44,6 +48,8 @@ export class cronService {
     private transactionModel: Model<TransactionDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private balanceEmailNotification: emailService,
+    @InjectModel(failedPaymentRequest.name)
+    private failedPaymentModel: Model<failedPaymentRequestDocument>,
   ) {}
 
   //@Cron(CronExpression.EVERY_5_HOURS)
@@ -223,6 +229,10 @@ export class cronService {
         'verifyTransfer',
         request,
       );
+      await this.failedPaymentModel.create({
+        partnerName: process.env.PARTNER_NAME,
+        partnerResponse: result.partnerResponse,
+      });
       this.logger.log({
         partnerResponse: result.partnerResponse,
         params: request,

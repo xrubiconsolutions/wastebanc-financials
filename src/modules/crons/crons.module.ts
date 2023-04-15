@@ -24,6 +24,10 @@ import {
   userActivitiesSchema,
 } from '../schemas/activitesModel';
 import { emailModule } from '../notification/email/email.module';
+import {
+  failedPaymentRequest,
+  failedPaymentRequestSchema,
+} from '../schemas/failedPayment.schema';
 
 @Module({
   imports: [
@@ -35,6 +39,7 @@ import { emailModule } from '../notification/email/email.module';
       { name: Transaction.name, schema: TransactionSchema },
       { name: User.name, schema: UserSchema },
       { name: userActivities.name, schema: userActivitiesSchema },
+      { name: failedPaymentRequest.name, schema: failedPaymentRequestSchema },
     ]),
     onesignalModule,
     PartnerModule,

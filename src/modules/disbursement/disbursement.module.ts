@@ -36,6 +36,10 @@ import {
   centralAccountSchema,
 } from '../schemas/centralAccount.schema';
 import { emailModule } from '../notification/email/email.module';
+import {
+  failedPaymentRequest,
+  failedPaymentRequestSchema,
+} from '../schemas/failedPayment.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -51,6 +55,7 @@ import { emailModule } from '../notification/email/email.module';
       { name: CollectorPay.name, schema: CollectorSchema },
       { name: userActivities.name, schema: userActivitiesSchema },
       { name: centralAccount.name, schema: centralAccountSchema },
+      { name: failedPaymentRequest.name, schema: failedPaymentRequestSchema },
     ]),
     slackModule,
     smsModule,

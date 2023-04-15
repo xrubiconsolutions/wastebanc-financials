@@ -93,6 +93,7 @@ export class SlackService {
       },
       requests: {
         failed: env('SLACK_FAILED_REQUEST_WEBHOOK_URL'),
+        lowBalance: env('SLACK_RANDOM_WEBHOOK_URL'),
       },
     };
 

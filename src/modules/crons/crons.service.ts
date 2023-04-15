@@ -23,6 +23,7 @@ import { Model } from 'mongoose';
 import { DisbursementStatus } from '../disbursement/disbursement.enum';
 import { env } from '../../utils';
 import { SlackCategories } from '../notification/slack/slack.enum';
+import { emailService } from '../notification/email/email.service';
 
 @Injectable()
 export class cronService {
@@ -42,6 +43,7 @@ export class cronService {
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private balanceEmailNotification: emailService,
   ) {}
 
   //@Cron(CronExpression.EVERY_5_HOURS)
@@ -152,6 +154,10 @@ export class cronService {
   }
 
   // check balance every morning
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleBalanceCheck() {
+    await this.balanceEmailNotification.checkAccountBalance();
+  }
 
   private async storeNotification(
     message: string,

@@ -16,6 +16,7 @@ import { PartnerModule } from './modules/partners/partner.module';
 import { sterlingBankModule } from './modules/partners/sterlingBank/sterlingBank.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { usersModule } from './modules/users/users.module';
+import { emailModule } from './modules/notification/email/email.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { usersModule } from './modules/users/users.module';
     cronsModule,
     ussdModule,
     usersModule,
+    emailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

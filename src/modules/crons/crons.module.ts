@@ -23,6 +23,7 @@ import {
   userActivities,
   userActivitiesSchema,
 } from '../schemas/activitesModel';
+import { emailModule } from '../notification/email/email.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import {
     onesignalModule,
     PartnerModule,
     slackModule,
+    emailModule,
   ],
   providers: [cronService],
 })

@@ -1,7 +1,8 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export type centralAccountDocument = centralAccount & Document;
 
+@Schema()
 export class centralAccount {
   _id: string;
 

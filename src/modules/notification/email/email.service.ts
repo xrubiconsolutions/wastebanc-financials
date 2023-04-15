@@ -53,6 +53,11 @@ export class emailService {
       // send email too
       await this.notifyTeamOfBalance(res.availableBalance);
     }
+    const acc = await this.centralaccount.findOne({
+      bank: process.env.PARTNER_NAME,
+    });
+
+    console.log('acc', acc);
     await this.centralaccount.updateOne(
       {
         bank: process.env.PARTNER_NAME,

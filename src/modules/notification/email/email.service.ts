@@ -58,7 +58,7 @@ export class emailService {
     });
 
     console.log('acc', acc);
-    await this.centralaccount.updateOne(
+    const t = await this.centralaccount.updateOne(
       {
         bank: process.env.PARTNER_NAME,
       },
@@ -68,6 +68,7 @@ export class emailService {
         name: res.name,
       },
     );
+    console.log('t', t);
   }
 
   private async partnerFailedNotification(

@@ -205,10 +205,14 @@ export class cronService {
   }
 
   private async callPartner(request: DisbursementRequest) {
+    let transactionType = 0;
+    if (request.destinationBankCode == '044') {
+      transactionType = 1;
+    }
     const result = await this.partnerservice.initiatePartner({
       partnerName: process.env.PARTNER_NAME,
       action: 'verifyTransfer',
-      data: { requestId: request.reference, transactionType: request.type },
+      data: { RequestId: request.reference, TransactionType: transactionType },
     });
 
     if (!result.success) {
@@ -321,7 +325,7 @@ export class cronService {
       {
         paid: true,
         requestedForPayment: true,
-        paymentResolution: '',
+        paymentResolution: 'transfer',
       },
     );
 

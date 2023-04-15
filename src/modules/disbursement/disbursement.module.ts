@@ -31,6 +31,11 @@ import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import { DisbursementController } from './disbursement.controller';
 import moment from 'moment-timezone';
 import { Partner, PartnerSchema } from '../schemas/partner.schema';
+import {
+  centralAccount,
+  centralAccountSchema,
+} from '../schemas/centralAccount.schema';
+import { emailModule } from '../notification/email/email.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -45,10 +50,12 @@ import { Partner, PartnerSchema } from '../schemas/partner.schema';
       { name: Collector.name, schema: CollectorSchema },
       { name: CollectorPay.name, schema: CollectorSchema },
       { name: userActivities.name, schema: userActivitiesSchema },
+      { name: centralAccount.name, schema: centralAccountSchema },
     ]),
     slackModule,
     smsModule,
     PartnerModule,
+    emailModule,
   ],
   providers: [
     DisbursementService,

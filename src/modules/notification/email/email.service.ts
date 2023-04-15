@@ -1,9 +1,12 @@
+import { centralAccount } from './../../schemas/centralAccount.schema';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { partnerService } from '../../partners/partnersService';
 import { SlackCategories } from '../slack/slack.enum';
 import { SlackService } from '../slack/slack.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class emailService {
@@ -12,6 +15,8 @@ export class emailService {
     private readonly httpService: HttpService,
     private partnerservice: partnerService,
     private slackService: SlackService,
+    @InjectModel(centralAccount.name)
+    private centralaccount: Model<centralAccount>,
   ) {}
 
   async checkAccountBalance() {
@@ -40,7 +45,7 @@ export class emailService {
         partnerResponse: result.partnerResponse,
       });
     }
-    console.log('check resp', result.partnerResponse.Data);
+    // console.log('check resp', result.partnerResponse.Data);
     const res = result.partnerResponse.Data;
     const baseAmount = Number(process.env.BASE_AMOUNT);
     const amountBalance = Number(res.availableBalance);
@@ -48,6 +53,16 @@ export class emailService {
       // send email too
       await this.notifyTeamOfBalance(res.availableBalance);
     }
+    await this.centralaccount.updateOne(
+      {
+        bank: process.env.PARTNER_NAME,
+      },
+      {
+        acnumber: process.env.PAKAM_ACCOUNT,
+        balance: res.availableBalance,
+        name: res.name,
+      },
+    );
   }
 
   private async partnerFailedNotification(

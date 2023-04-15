@@ -36,6 +36,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import banklists from '../misc/ngnbanklist.json';
 import { env } from '../../utils';
+import { centralAccount } from '../schemas/centralAccount.schema';
+import { emailService } from '../notification/email/email.service';
 @Injectable()
 export class DisbursementService {
   private params: InitiateDTO;
@@ -62,6 +64,9 @@ export class DisbursementService {
     private organisationModel: Model<OrganisationDocument>,
     private partnerservice: partnerService,
     @Inject('moment') private moment: moment.Moment,
+    @InjectModel(centralAccount.name)
+    private centralaccount: Model<centralAccount>,
+    private balanceUpdateService: emailService,
   ) {
     this.params = null;
     this.disbursementRequest = null;
@@ -79,6 +84,7 @@ export class DisbursementService {
     await this.confirmAndDebitAmount();
     await this.storePayoutRequest();
     await this.processDisbursement();
+    await this.balanceUpdateService.checkAccountBalance(); // update balance
 
     return this.message;
   };
@@ -192,6 +198,14 @@ export class DisbursementService {
     const config = disbursementConfig.find((item: any) => {
       return partner == item.partnerName;
     });
+
+    const centralAccount = await this.centralaccount.findOne({
+      bank: process.env.PARTNER_NAME,
+    });
+
+    if (+centralAccount.balance < +this.disbursementRequest.withdrawalAmount) {
+      return await this.processDisbursementManually();
+    }
 
     const configCapAmount = config?.capAmount || 0;
     const disbursementAmount = +this.disbursementRequest.withdrawalAmount || 0;

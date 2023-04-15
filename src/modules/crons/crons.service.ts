@@ -334,6 +334,20 @@ export class cronService {
       { status: DisbursementStatus.successful },
     );
 
+    await this.userModel.updateOne(
+      { _id: request.user },
+      {
+        requestedAmount: 0,
+      },
+    );
+
+    // send success push notification
+    await this.handleSuccessNotification(
+      'Transaction successful',
+      process.env.PARTNER_NAME,
+      request,
+    );
+
     return request;
   }
 
@@ -352,6 +366,31 @@ export class cronService {
         reference: request.reference,
         amount: request.withdrawalAmount,
         userAvailablePoint: request.amount,
+        accountName: request.beneName,
+        accountNumber: request.destinationAccount,
+        bankCode: request.destinationBankCode,
+        charge: env('APP_CHARGE'),
+        message,
+      },
+    };
+
+    return this.slackService.sendMessage(slackNotificationData);
+  }
+
+  private async handleSuccessNotification(
+    message: string,
+    partnerName: string,
+    request: DisbursementRequest,
+  ) {
+    const slackNotificationData = {
+      category: SlackCategories.Disbursement,
+      event: 'successful',
+      data: {
+        requestType: 'mark_transaction_as_successful',
+        partnerName,
+        id: request._id,
+        reference: request.reference,
+        amount: request.withdrawalAmount,
         accountName: request.beneName,
         accountNumber: request.destinationAccount,
         bankCode: request.destinationBankCode,

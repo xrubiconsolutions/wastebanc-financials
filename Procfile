@@ -1,0 +1,1 @@
+web: npx npm run start:prod

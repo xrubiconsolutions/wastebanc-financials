@@ -52,7 +52,7 @@ export class cronService {
     private failedPaymentModel: Model<failedPaymentRequestDocument>,
   ) {}
 
-  //@Cron(CronExpression.EVERY_5_HOURS)
+  @Cron(CronExpression.EVERY_5_HOURS)
   async verifyTransaction() {
     try {
       const requests = await this.disbursementRequestModel

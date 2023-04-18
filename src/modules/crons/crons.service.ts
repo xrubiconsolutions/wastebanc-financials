@@ -221,7 +221,7 @@ export class cronService {
       data: { RequestId: request.reference, TransactionType: transactionType },
     });
 
-    console.log('result', result);
+    //console.log('result', result);
 
     if (result.partnerResponse.Code == '99') {
       await this.rollBack(request);
@@ -255,6 +255,12 @@ export class cronService {
         'verifyTransfer',
         request,
       );
+
+      await this.disbursementRequestModel.findOneAndUpdate(
+        { _id: request._id },
+        { status: DisbursementStatus.failed },
+      );
+
       this.logger.log({
         partnerResponse: result.partnerResponse,
         params: request,

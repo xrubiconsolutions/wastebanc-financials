@@ -52,7 +52,7 @@ export class cronService {
     private failedPaymentModel: Model<failedPaymentRequestDocument>,
   ) {}
 
-  // @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async verifyTransaction() {
     try {
       const requests = await this.disbursementRequestModel
@@ -220,6 +220,8 @@ export class cronService {
       action: 'verifyTransfer',
       data: { RequestId: request.reference, TransactionType: transactionType },
     });
+
+    console.log('result', result);
 
     if (!result.success) {
       await this.rollBack(request);

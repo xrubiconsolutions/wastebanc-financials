@@ -226,7 +226,7 @@ export class cronService {
     if (result.partnerResponse.Code == '99') {
       await this.rollBack(request);
       await this.partnerFaildedNotification(
-        result.error,
+        result.partnerResponse.Data,
         process.env.PARTNER_NAME,
         'verifyTransfer',
         request,

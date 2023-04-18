@@ -321,7 +321,7 @@ export class cronService {
 
     await this.userModel.updateOne(
       { _id: request.user },
-      { availablePoints: request.amount },
+      { availablePoints: request.amount, requestedAmount: 0 },
     );
 
     await this.disbursementRequestModel.findOneAndUpdate(

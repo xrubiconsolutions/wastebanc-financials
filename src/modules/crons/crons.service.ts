@@ -215,7 +215,7 @@ export class cronService {
     if (request.destinationBankCode == '044') {
       transactionType = 1;
     }
-    const result = await this.partnerservice.initiatePartner({
+    const result: any = await this.partnerservice.initiatePartner({
       partnerName: process.env.PARTNER_NAME,
       action: 'verifyTransfer',
       data: { RequestId: request.reference, TransactionType: transactionType },
@@ -223,7 +223,7 @@ export class cronService {
 
     console.log('result', result);
 
-    if (!result.success) {
+    if (result.success.partnerResponse.Code == '99') {
       await this.rollBack(request);
       await this.partnerFaildedNotification(
         result.error,
@@ -235,6 +235,10 @@ export class cronService {
         partnerName: process.env.PARTNER_NAME,
         partnerResponse: result.partnerResponse,
       });
+      await this.disbursementRequestModel.findOneAndUpdate(
+        { _id: request._id },
+        { status: DisbursementStatus.failed },
+      );
       this.logger.log({
         partnerResponse: result.partnerResponse,
         params: request,

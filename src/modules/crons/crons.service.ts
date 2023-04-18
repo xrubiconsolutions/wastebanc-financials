@@ -223,7 +223,7 @@ export class cronService {
 
     console.log('result', result);
 
-    if (result.success.partnerResponse.Code == '99') {
+    if (result.partnerResponse.Code == '99') {
       await this.rollBack(request);
       await this.partnerFaildedNotification(
         result.error,

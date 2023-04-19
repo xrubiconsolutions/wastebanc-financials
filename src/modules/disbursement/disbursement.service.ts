@@ -90,7 +90,7 @@ export class DisbursementService {
     await this.confirmAndDebitAmount();
     await this.storePayoutRequest();
     await this.processDisbursement();
-    await this.balanceUpdateService.checkAccountBalance(); // update balance
+    //await this.balanceUpdateService.checkAccountBalance(); // update balance
 
     return this.message;
   };

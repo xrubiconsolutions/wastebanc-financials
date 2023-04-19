@@ -212,7 +212,7 @@ export class cronService {
 
   private async callPartner(request: DisbursementRequest) {
     let transactionType = 0;
-    if (request.destinationBankCode == '044') {
+    if (request.destinationBankCode == '000001') {
       transactionType = 1;
     }
     const result: any = await this.partnerservice.initiatePartner({

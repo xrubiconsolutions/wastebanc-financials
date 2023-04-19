@@ -268,7 +268,9 @@ export class cronService {
       return request;
     }
 
-    await this.markTransactionAsPaid(request);
+    if (result.partnerResponse.Code == '00') {
+      await this.markTransactionAsPaid(request);
+    }
 
     return request;
   }

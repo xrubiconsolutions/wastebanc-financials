@@ -12,6 +12,20 @@ export const makeRequest = async (requestObj: any, contentType: any) => {
   return result.data;
 };
 
+export const generateMerchantKey = async (data: any) => {
+  const account = await makeRequest(
+    {
+      method: 'post',
+      url: 'Transaction/GeneralMarchantKey',
+      data,
+    },
+    'application/json',
+  );
+
+  console.log('account', account);
+  return account;
+};
+
 export const getBankList = async () => {
   const bankList = await makeRequest(
     {

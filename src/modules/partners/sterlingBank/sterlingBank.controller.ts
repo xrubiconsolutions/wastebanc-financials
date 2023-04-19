@@ -5,9 +5,13 @@ import {
   intraBankDTO,
   accountNumberDTO,
   verifyTransactionDTO,
+  generateMerchantKeyDTO,
 } from './sterlingBank.dto';
 import * as sterlingbankService from './sterlingBank.service';
 
+export const createMerchantKey = async (params: generateMerchantKeyDTO) => {
+  return await sterlingbankService.generateMerchantKey(params);
+};
 export const bankLists = async () => {
   return await sterlingbankService.BankList();
 };

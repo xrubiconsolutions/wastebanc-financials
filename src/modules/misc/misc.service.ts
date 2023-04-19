@@ -8,7 +8,10 @@ import banklist from './ngnbanklist.json';
 import { SlackCategories } from '../notification/slack/slack.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { verifyTransactionDTO } from '../partners/sterlingBank/sterlingBank.dto';
+import {
+  generateMerchantKeyDTO,
+  verifyTransactionDTO,
+} from '../partners/sterlingBank/sterlingBank.dto';
 import { User, UserDocument } from '../schemas/user.schema';
 import { requestChargesDTO } from '../disbursementRequest/disbursementRequest.dto';
 
@@ -114,6 +117,20 @@ export class MiscService {
 
     if (!result.success) {
       return ResponseHandler('Customer Account not found', 400, true, null);
+    }
+    console.log(result);
+    return ResponseHandler('success', 200, false, result.partnerResponse);
+  }
+
+  async generateKey(params: generateMerchantKeyDTO) {
+    const result = await this.partnerservice.initiatePartner({
+      partnerName: process.env.PARTNER_NAME,
+      action: 'createMerchantKey',
+      data: params,
+    });
+
+    if (!result.success) {
+      return ResponseHandler('Error', 400, true, null);
     }
     console.log(result);
     return ResponseHandler('success', 200, false, result.partnerResponse);

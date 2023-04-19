@@ -140,3 +140,9 @@ export class verifyTransactionDTO {
   RequestId: string;
   TransactionType: string;
 }
+
+export class generateMerchantKeyDTO {
+  marchantName: string;
+  channel: string;
+  password: string;
+}

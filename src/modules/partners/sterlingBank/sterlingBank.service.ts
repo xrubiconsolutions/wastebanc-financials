@@ -5,6 +5,7 @@ import {
   intraBankDTO,
   accountNumberDTO,
   verifyTransactionDTO,
+  generateMerchantKeyDTO,
 } from './sterlingBank.dto';
 import { UnprocessableEntityError } from '../../../utils/errors/errorHandler';
 import { Logger } from '@nestjs/common';
@@ -12,6 +13,16 @@ import * as crypto from 'crypto';
 import * as sterlingRepository from './sterlingBankRepository';
 import 'dotenv/config';
 
+export const generateMerchantKey = async (params: generateMerchantKeyDTO) => {
+  try {
+    const result = await sterlingRepository.generateMerchantKey(params);
+    console.log('rr', result);
+    return result;
+  } catch (error) {
+    console.log(error);
+    return handleError(error.response);
+  }
+};
 export const BankList = async () => {
   // const encryptResult = await sterlingRepository.getBankList();
   // console.log('enc', encryptResult);

@@ -201,7 +201,7 @@ export class MiscService {
     const withdrawalAmount = +user.availablePoints - +partner.charges;
     return {
       charge: +partner.charges,
-      withdrawalAmount,
+      withdrawalAmount: Math.floor(withdrawalAmount),
     };
   };
 }

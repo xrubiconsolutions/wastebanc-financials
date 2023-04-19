@@ -276,10 +276,13 @@ export class DisbursementRequestService {
     params.amount = user.availablePoints;
     params.charge = +env('APP_CHARGE');
     params.reference = `${generateReference(7, false)}${Date.now()}`;
+
+    const withdrawalAmount = Number(user.availablePoints) - params.charge;
+
     return {
       userType: 'household',
       user,
-      withdrawalAmount: Number(user.availablePoints) - params.charge,
+      withdrawalAmount: Math.floor(+withdrawalAmount),
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
       referenceCode: `${generateReference(6, false)}${Date.now()}`,
@@ -297,12 +300,14 @@ export class DisbursementRequestService {
 
     const collectorBankName = collector.account.bankName.toLowerCase();
 
+    const withdrawalAmount = Number(collector.pointGained) - +env('APP_CHARGE');
+
     const response = await this.verifyAccount(collector);
     return {
       userType: 'waste-picker',
       collector: collector._id,
       amount: collector.pointGained,
-      withdrawalAmount: Number(collector.pointGained) - 100,
+      withdrawalAmount: Math.floor(+withdrawalAmount),
       otpExpiry: this.moment.add(30, 'm'),
       otp: generateReference(4, false),
       referenceCode: `${generateReference(6, false)}${Date.now()}`,

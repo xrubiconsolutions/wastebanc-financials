@@ -7,7 +7,7 @@ export const makeRequest = async (requestObj: any, contentType: any) => {
     'Content-Type': contentType,
   };
   requestObj.url = `${process.env.STERLING_URL + requestObj.url}`;
-  console.log('header', requestObj.headers);
+  //console.log('header', requestObj.headers);
   const result = await axios(requestObj);
   return result.data;
 };

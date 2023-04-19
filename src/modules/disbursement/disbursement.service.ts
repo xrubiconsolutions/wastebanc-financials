@@ -453,6 +453,10 @@ export class DisbursementService {
       } else {
         partnerMsg = '';
       }
+      await this.failedPayment.create({
+        partnerName,
+        partnerResponse,
+      });
       await this.sendPartnerFailedNotification(
         errorMsg,
         partnerMsg,

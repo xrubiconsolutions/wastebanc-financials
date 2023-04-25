@@ -16,7 +16,7 @@ export const generateMerchantKey = async (data: any) => {
   const account = await makeRequest(
     {
       method: 'post',
-      url: 'Transaction/GeneralMarchantKey',
+      url: 'Transaction/GenerateMerchantKey',
       data,
     },
     'application/json',

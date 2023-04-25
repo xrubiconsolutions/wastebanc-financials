@@ -6,6 +6,7 @@ import {
   accountNumberDTO,
   verifyTransactionDTO,
   generateMerchantKeyDTO,
+  paymentToPayoutAccountDTO,
 } from './sterlingBank.dto';
 import { UnprocessableEntityError } from '../../../utils/errors/errorHandler';
 import { Logger } from '@nestjs/common';
@@ -142,6 +143,23 @@ export const verifyTransaction = async (params: verifyTransactionDTO) => {
     const encryptParams = encryptData(JSON.stringify(value));
     console.log('enc', encryptParams);
     const encryptedResult = await sterlingRepository.verifyTransfer(
+      encryptParams,
+    );
+    const result = handleDecrypting(encryptedResult);
+    return result;
+  } catch (error) {
+    console.log('error', error);
+    Logger.error(error);
+    // throw new UnprocessableEntityError({ message: error.response.data });
+    return handleError(error.response);
+  }
+};
+
+export const fundPayoutAccount = async (params: paymentToPayoutAccountDTO) => {
+  try {
+    const encryptParams = encryptData(JSON.stringify(params));
+    console.log('enc', encryptParams);
+    const encryptedResult = await sterlingRepository.fundPayoutAccount(
       encryptParams,
     );
     const result = handleDecrypting(encryptedResult);

@@ -146,3 +146,7 @@ export class generateMerchantKeyDTO {
   channel: string;
   password: string;
 }
+
+export class paymentToPayoutAccountDTO {
+  Amount: string;
+}

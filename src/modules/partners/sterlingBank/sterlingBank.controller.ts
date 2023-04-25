@@ -6,6 +6,7 @@ import {
   accountNumberDTO,
   verifyTransactionDTO,
   generateMerchantKeyDTO,
+  paymentToPayoutAccountDTO,
 } from './sterlingBank.dto';
 import * as sterlingbankService from './sterlingBank.service';
 
@@ -42,4 +43,10 @@ export const intraBankTransfer = async (params: intraBankDTO) => {
 
 export const verifyTransfer = async (params: verifyTransactionDTO) => {
   return await sterlingbankService.verifyTransaction(params);
+};
+
+export const payoutAccountFunding = async (
+  params: paymentToPayoutAccountDTO,
+) => {
+  return await sterlingbankService.fundPayoutAccount(params);
 };

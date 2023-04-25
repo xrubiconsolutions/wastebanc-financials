@@ -7,14 +7,20 @@ import {
 import { DisbursementService } from './disbursement.service';
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { paymentToPayoutAccountDTO } from '../partners/sterlingBank/sterlingBank.dto';
+import { partnerService } from '../partners/partnersService';
 
 @Controller('/api/disbursement')
 export class DisbursementController {
+  private partnerName: string;
   constructor(
     private readonly disbursementService: DisbursementService,
     private slackService: SlackService,
     private readonly collectordisbursementService: wastepickerdisursmentService,
-  ) {}
+    private partnerservice: partnerService,
+  ) {
+    this.partnerName = process.env.PARTNER_NAME;
+  }
 
   @Post('/initiate')
   async initiateDisbursement(
@@ -70,5 +76,14 @@ export class DisbursementController {
         error: true,
       });
     }
+  }
+
+  @Post('/account/funding')
+  async requestAccountFunding(
+    @Body() params: paymentToPayoutAccountDTO,
+    @Res() res: Response,
+  ) {
+    const result = await this.disbursementService.fundAccount(params);
+    return res.status(result.statusCode).json(result);
   }
 }

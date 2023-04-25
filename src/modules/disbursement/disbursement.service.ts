@@ -35,13 +35,14 @@ import disbursementConfig from './disbursement.config.json';
 import { Inject, Injectable } from '@nestjs/common';
 import { CharityOrganisation } from '../schemas/charityorganisation.schema';
 import banklists from '../misc/ngnbanklist.json';
-import { env } from '../../utils';
+import { ResponseHandler, env } from '../../utils';
 import { centralAccount } from '../schemas/centralAccount.schema';
 import { emailService } from '../notification/email/email.service';
 import {
   failedPaymentRequest,
   failedPaymentRequestDocument,
 } from '../schemas/failedPayment.schema';
+import { paymentToPayoutAccountDTO } from '../partners/sterlingBank/sterlingBank.dto';
 @Injectable()
 export class DisbursementService {
   private params: InitiateDTO;
@@ -80,6 +81,28 @@ export class DisbursementService {
     this.transactions = [];
     this.message = '';
     this.withdrawalAmount = 0;
+  }
+
+  public async fundAccount(params: paymentToPayoutAccountDTO) {
+    const result = await this.partnerservice.initiatePartner({
+      partnerName: process.env.PARTNER_NAME,
+      action: 'payoutAccountFunding',
+      data: params,
+    });
+    console.log(result);
+    if (!result.success) {
+      console.log('error', result.error);
+      return ResponseHandler(
+        result.partnerResponse.Data ||
+          result.partnerResponse.data ||
+          'Error making request to partner',
+        400,
+        true,
+        null,
+      );
+    }
+
+    return ResponseHandler('success', 200, false, result.partnerResponse);
   }
 
   public initiate = async (params: InitiateDTO) => {

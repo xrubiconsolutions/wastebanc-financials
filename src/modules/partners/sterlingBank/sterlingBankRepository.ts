@@ -114,3 +114,15 @@ export const verifyTransfer = async (transferData: any) => {
 
   return response;
 };
+
+export const fundPayoutAccount = async (data: any) => {
+  const response = await makeRequest(
+    {
+      method: 'post',
+      url: 'CreateAccount/WastBancCollection',
+      data: { value: data },
+    },
+    'application/json',
+  );
+  return response;
+};

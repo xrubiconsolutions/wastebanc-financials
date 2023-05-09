@@ -28,6 +28,10 @@ import {
   failedPaymentRequest,
   failedPaymentRequestDocument,
 } from '../schemas/failedPayment.schema';
+import {
+  transactionActivitesDocument,
+  transactionActivities,
+} from '../schemas/transactionActivites.schema';
 
 @Injectable()
 export class cronService {
@@ -50,6 +54,8 @@ export class cronService {
     private balanceEmailNotification: emailService,
     @InjectModel(failedPaymentRequest.name)
     private failedPaymentModel: Model<failedPaymentRequestDocument>,
+    @InjectModel(transactionActivities.name)
+    private activityLog: Model<transactionActivitesDocument>,
   ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
@@ -239,6 +245,10 @@ export class cronService {
         { _id: request._id },
         { status: DisbursementStatus.failed },
       );
+      await this.activityLog.updateOne(
+        { transaction: request._id },
+        { status: 'Failed' },
+      );
       this.logger.log({
         partnerResponse: result.partnerResponse,
         params: request,
@@ -261,6 +271,11 @@ export class cronService {
         { status: DisbursementStatus.failed },
       );
 
+      await this.activityLog.updateOne(
+        { transaction: request._id },
+        { status: 'Failed' },
+      );
+
       this.logger.log({
         partnerResponse: result.partnerResponse,
         params: request,
@@ -269,6 +284,10 @@ export class cronService {
     }
 
     if (result.partnerResponse.Code == '00') {
+      await this.activityLog.updateOne(
+        { transaction: request._id },
+        { status: 'Successful' },
+      );
       await this.markTransactionAsPaid(request);
     }
 

@@ -26,3 +26,8 @@ export enum DisbursementType {
   bank = 'gain',
   charity = 'charity',
 }
+
+export enum activityMsg {
+  bank = 'Payment To Bank',
+  charity = 'Payment To Charity',
+}

@@ -28,6 +28,10 @@ import {
   failedPaymentRequest,
   failedPaymentRequestSchema,
 } from '../schemas/failedPayment.schema';
+import {
+  transactionActivities,
+  transactionActivitiesSchema,
+} from '../schemas/transactionActivites.schema';
 
 @Module({
   imports: [
@@ -40,6 +44,7 @@ import {
       { name: User.name, schema: UserSchema },
       { name: userActivities.name, schema: userActivitiesSchema },
       { name: failedPaymentRequest.name, schema: failedPaymentRequestSchema },
+      { name: transactionActivities.name, schema: transactionActivitiesSchema },
     ]),
     onesignalModule,
     PartnerModule,

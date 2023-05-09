@@ -16,6 +16,7 @@ import {
   DisbursementStatus,
   DisbursementType,
   ProcessingType,
+  activityMsg,
 } from './disbursement.enum';
 import { Pay, PayDocument } from '../schemas/payment.schema';
 import { User, UserDocument } from '../schemas/user.schema';
@@ -43,6 +44,10 @@ import {
   failedPaymentRequestDocument,
 } from '../schemas/failedPayment.schema';
 import { paymentToPayoutAccountDTO } from '../partners/sterlingBank/sterlingBank.dto';
+import {
+  transactionActivitesDocument,
+  transactionActivities,
+} from '../schemas/transactionActivites.schema';
 @Injectable()
 export class DisbursementService {
   private params: InitiateDTO;
@@ -74,6 +79,8 @@ export class DisbursementService {
     private balanceUpdateService: emailService,
     @InjectModel(failedPaymentRequest.name)
     private failedPayment: Model<failedPaymentRequestDocument>,
+    @InjectModel(transactionActivities.name)
+    private activityLog: Model<transactionActivitesDocument>,
   ) {
     this.params = null;
     this.disbursementRequest = null;
@@ -326,6 +333,7 @@ export class DisbursementService {
   private processDisbursementManually = async () => {
     const slackData = this.getManualDisbursementSlackNotificationData();
     console.log(slackData);
+    await this.logActivity('Processing');
     this.message =
       'Transaction processing. Payment will be made within 5 working days';
     return this.slackService.sendMessage(slackData);
@@ -334,6 +342,7 @@ export class DisbursementService {
   private processDisbursementByCompany = async () => {
     // send out sms to companies
     console.log('hanlded by company');
+    await this.logActivity('Processing');
     return this.handleCompanySmsNotification();
   };
 
@@ -486,9 +495,12 @@ export class DisbursementService {
         partnerName,
         'nipTransfer',
       );
+
+      await this.logActivity('Failed');
       this.message = 'Payout Request Failed';
       return partnerResponse;
     }
+    await this.logActivity('Processing');
     this.message = 'Payout initiated successfully';
     return this.message;
   };
@@ -557,23 +569,12 @@ export class DisbursementService {
         'intraBank',
       );
       // roll back
-
+      await this.logActivity('Failed');
       // const msg = 'Payout Request Failed';
       this.message = 'Payout Request Failed';
       return partnerResponse;
     }
-
-    // if (!partnerResponse.success) {
-    //   await this.rollBack();
-    //   await this.sendPartnerFailedNotification(
-    //     partnerName,
-    //     partnerResponse.error,
-    //     'intraBankTransfer',
-    //   );
-    //   console.log('err', partnerResponse);
-    //   this.message = 'Payout Request Failed';
-    //   return partnerResponse;
-    // }
+    await this.logActivity('Processing');
     this.message = 'Payout initiated successfully';
     return partnerResponse;
   };
@@ -654,5 +655,17 @@ export class DisbursementService {
       { _id: this.user._id },
       { availablePoints: this.disbursementRequest.amount },
     );
+  };
+
+  private logActivity = async (status: string) => {
+    await this.activityLog.create({
+      status,
+      userId: this.user._id,
+      transactionType: 'debit',
+      message: activityMsg.bank,
+      type: 'payment_bank',
+      transaction: this.disbursementRequest._id,
+      amount: this.withdrawalAmount,
+    });
   };
 }

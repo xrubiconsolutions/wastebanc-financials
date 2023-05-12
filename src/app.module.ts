@@ -43,7 +43,7 @@ import { emailModule } from './modules/notification/email/email.module';
     EventEmitterModule.forRoot(),
     DisbursementRequestModule,
     MiscModule,
-    cronsModule,
+    //cronsModule,
     ussdModule,
     usersModule,
     emailModule,

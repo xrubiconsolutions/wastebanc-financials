@@ -64,7 +64,7 @@ export class SlackService {
       pretext,
       fallback,
       color: notificationColors[type || 'success'],
-      footer: `Pakam ${sourceEnvironment} environment`,
+      footer: `wastebanc ${sourceEnvironment} environment`,
       footer_icon: footerIcon,
       ts: Math.floor(new Date().getTime() / 1000),
     };

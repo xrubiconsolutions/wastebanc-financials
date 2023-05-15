@@ -87,6 +87,10 @@ export class User {
   accountNo: string;
   @Prop({ type: String })
   cifNo: string;
+  @Prop({ type: String })
+  accountName: string;
+  @Prop({ type: String })
+  bankCode: string;
   @Prop({ type: Number })
   percentageAcc: number;
   @Prop({ type: String })

@@ -157,7 +157,12 @@ export const verifyTransaction = async (params: verifyTransactionDTO) => {
 
 export const fundPayoutAccount = async (params: paymentToPayoutAccountDTO) => {
   try {
-    const encryptParams = encryptData(JSON.stringify(params));
+    console.log('value', params);
+    const value = {
+      Amount: params.Amount,
+    };
+    console.log('vv', value);
+    const encryptParams = encryptData(JSON.stringify(value));
     console.log('enc', encryptParams);
     const encryptedResult = await sterlingRepository.fundPayoutAccount(
       encryptParams,

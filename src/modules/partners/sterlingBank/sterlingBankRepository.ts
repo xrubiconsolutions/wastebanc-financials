@@ -60,6 +60,7 @@ export const getCustomerInformation = async (accountData: any) => {
     },
     'text/plain; charset=utf-8',
   );
+  console.log('res', account);
   return account;
 };
 

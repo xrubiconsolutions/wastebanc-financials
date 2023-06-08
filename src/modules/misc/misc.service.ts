@@ -62,6 +62,7 @@ export class MiscService {
     const partner = await this.partnerModel.findOne({
       name: this.partnerName,
     });
+    console.log('partner', partner);
     const bank = this.getBank(params.BankCode);
     if (!bank) {
       await this.sendPartnerFailedNotification(

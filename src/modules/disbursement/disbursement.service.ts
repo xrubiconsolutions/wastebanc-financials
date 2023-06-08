@@ -46,7 +46,7 @@ import {
 import { paymentToPayoutAccountDTO } from '../partners/sterlingBank/sterlingBank.dto';
 import {
   transactionActivitesDocument,
-  transactionActivities,
+  transactionActivites,
 } from '../schemas/transactionActivites.schema';
 @Injectable()
 export class DisbursementService {
@@ -79,7 +79,7 @@ export class DisbursementService {
     private balanceUpdateService: emailService,
     @InjectModel(failedPaymentRequest.name)
     private failedPayment: Model<failedPaymentRequestDocument>,
-    @InjectModel(transactionActivities.name)
+    @InjectModel(transactionActivites.name)
     private activityLog: Model<transactionActivitesDocument>,
   ) {
     this.params = null;

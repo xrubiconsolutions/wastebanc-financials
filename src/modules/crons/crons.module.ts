@@ -29,7 +29,7 @@ import {
   failedPaymentRequestSchema,
 } from '../schemas/failedPayment.schema';
 import {
-  transactionActivities,
+  transactionActivites,
   transactionActivitiesSchema,
 } from '../schemas/transactionActivites.schema';
 
@@ -44,7 +44,7 @@ import {
       { name: User.name, schema: UserSchema },
       { name: userActivities.name, schema: userActivitiesSchema },
       { name: failedPaymentRequest.name, schema: failedPaymentRequestSchema },
-      { name: transactionActivities.name, schema: transactionActivitiesSchema },
+      { name: transactionActivites.name, schema: transactionActivitiesSchema },
     ]),
     onesignalModule,
     PartnerModule,

@@ -30,7 +30,7 @@ import {
 } from '../schemas/failedPayment.schema';
 import {
   transactionActivitesDocument,
-  transactionActivities,
+  transactionActivites,
 } from '../schemas/transactionActivites.schema';
 
 @Injectable()
@@ -54,7 +54,7 @@ export class cronService {
     private balanceEmailNotification: emailService,
     @InjectModel(failedPaymentRequest.name)
     private failedPaymentModel: Model<failedPaymentRequestDocument>,
-    @InjectModel(transactionActivities.name)
+    @InjectModel(transactionActivites.name)
     private activityLog: Model<transactionActivitesDocument>,
   ) {}
 

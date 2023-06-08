@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-export type transactionActivitesDocument = transactionActivities & Document;
+export type transactionActivitesDocument = transactionActivites & Document;
 
 @Schema({ timestamps: true })
-export class transactionActivities {
+export class transactionActivites {
   _id: string;
 
   @Prop({ type: String })
@@ -28,6 +28,5 @@ export class transactionActivities {
   transaction: string;
 }
 
-export const transactionActivitiesSchema = SchemaFactory.createForClass(
-  transactionActivities,
-);
+export const transactionActivitiesSchema =
+  SchemaFactory.createForClass(transactionActivites);

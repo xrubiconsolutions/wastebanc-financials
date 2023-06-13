@@ -194,8 +194,8 @@ const getnipNameInquiryRequestData = (params: nipInquiryDTO) => {
 };
 const generateKey = () => {
   return crypto.pbkdf2Sync(
-    'Et2347fdrloln95@#qi',
-    Buffer.from('Sklqg625*&dltr01r'),
+    'Et2347fghduwln95@#qi',
+    Buffer.from('Sklqg6erty#&wtr01r'),
     2,
     32,
     'sha1',

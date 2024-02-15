@@ -102,7 +102,7 @@ export class cronService {
         },
       },
       {
-        $limit: 50,
+        $limit: 100,
       },
     ]);
     console.log(pickupSchedules);
